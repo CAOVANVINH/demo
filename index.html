@@ -3,19 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Công Ty Thiết Kế In Ấn Hội An - Quản Lý Công Việc (Firebase)</title>
+    <title>Công Ty Thiết Kế In Ấn Hội An</title>
     <!-- Tích hợp Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* Font tùy chỉnh */
-        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap');
+
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
         }
-        /* Hiệu ứng chữ chạy màu gradient */
+        
+        .font-headline {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* --- START: GIAO DIỆN LIQUID GLASS VỚI HÌNH NỀN --- */
+        
+        body {
+            background-color: #2c3e50; /* Màu nền dự phòng */
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Lớp chứa hình nền */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://cdn.3axis.co/user-images/qommmgko.png');
+            background-repeat: repeat; /* Lặp lại hoa văn */
+            opacity: 0.08; /* Làm cho hoa văn rất mờ */
+            z-index: -2;
+        }
+
+        /* Lớp phủ màu gradient để giữ hiệu ứng chiều sâu */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.4));
+            z-index: -1;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border-radius: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        .task-item-glass {
+            background: rgba(255, 255, 255, 0.05);
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+        .task-item-glass:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .input-glass {
+            background: rgba(0, 0, 0, 0.2) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: #fff !important;
+        }
+        .input-glass::placeholder {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        /* --- END: GIAO DIỆN LIQUID GLASS --- */
+
         .animated-gradient-text {
-            background: linear-gradient(to right, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #3b82f6);
+            background: linear-gradient(to right, #fde047, #f97316, #ec4899, #8b5cf6);
             background-size: 250% auto;
             color: #000;
             background-clip: text;
@@ -25,66 +98,31 @@
         }
 
         @keyframes gradient-animation {
-            to {
-                background-position: 250% center;
-            }
+            to { background-position: 250% center; }
         }
-        /* Hiệu ứng khi gạch ngang công việc */
+        
         .completed .task-content,
         .completed .customer-info {
             text-decoration: line-through;
-            color: #9ca3af; /* gray-400 */
+            opacity: 0.6;
         }
-        /* Style cho date time picker để dễ nhìn hơn trong dark mode */
-        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-            filter: invert(0.5);
-        }
-        .dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-        }
-        /* Ẩn các mục không cần thiết */
-        .hidden {
-            display: none !important;
-        }
-        /* Hiệu ứng cho modal */
-        .modal-enter-active, .modal-leave-active {
-            transition: opacity 200ms, transform 200ms;
-        }
-        .modal-enter-from {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-        .modal-enter-to {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .modal-leave-from {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .modal-leave-to {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-        /* Spinner/Loading Indicator */
+        
+        .hidden { display: none !important; }
+        
+        .modal-enter-active, .modal-leave-active { transition: opacity 200ms, transform 200ms; }
+        .modal-enter-from { opacity: 0; transform: scale(0.95); }
+        .modal-enter-to { opacity: 1; transform: scale(1); }
+        .modal-leave-from { opacity: 1; transform: scale(1); }
+        .modal-leave-to { opacity: 0; transform: scale(0.95); }
+        
         #loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7); display: flex;
+            justify-content: center; align-items: center; z-index: 100;
         }
         .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid #fff;
-            width: 40px;
-            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%;
+            border-top: 4px solid #fff; width: 40px; height: 40px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
@@ -93,42 +131,41 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+<body class="text-gray-100">
     
-    <!-- Loading Overlay -->
     <div id="loading-overlay">
         <div class="spinner"></div>
     </div>
 
     <!-- Modal Thêm Công Việc -->
-    <div id="taskModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
-        <div id="modalContent" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl relative">
-            <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 text-2xl" aria-label="Đóng">&times;</button>
+    <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div id="modalContent" class="glass-effect w-full max-w-2xl relative">
+            <button id="closeModalBtn" class="absolute top-4 right-5 text-white hover:text-gray-300 text-3xl" aria-label="Đóng">&times;</button>
             <div class="p-6 sm:p-8">
-                <h3 class="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">Thêm Công Việc Mới</h3>
+                <h3 class="text-2xl font-bold mb-6 text-center text-white">Thêm Công Việc Mới</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                      <div>
-                        <label for="customerNameInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tên khách hàng <span class="text-red-500">*</span></label>
-                        <input type="text" id="customerNameInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="Nguyễn Văn A">
+                        <label for="customerNameInput" class="block text-sm font-medium text-gray-200 mb-1">Tên khách hàng <span class="text-red-400">*</span></label>
+                        <input type="text" id="customerNameInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Nguyễn Văn A">
                     </div>
                     <div>
-                        <label for="phoneInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Số điện thoại</label>
-                        <input type="tel" id="phoneInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="(Không bắt buộc)">
+                        <label for="phoneInput" class="block text-sm font-medium text-gray-200 mb-1">Số điện thoại</label>
+                        <input type="tel" id="phoneInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="(Không bắt buộc)">
                     </div>
                      <div>
-                        <label for="addressInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Địa chỉ</label>
-                        <input type="text" id="addressInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="(Không bắt buộc)">
+                        <label for="addressInput" class="block text-sm font-medium text-gray-200 mb-1">Địa chỉ</label>
+                        <input type="text" id="addressInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="(Không bắt buộc)">
                     </div>
                     <div>
-                        <label for="timeInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Thời gian <span class="text-red-500">*</span></label>
-                        <input type="datetime-local" id="timeInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700">
+                        <label for="timeInput" class="block text-sm font-medium text-gray-200 mb-1">Thời gian <span class="text-red-400">*</span></label>
+                        <input type="datetime-local" id="timeInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" style="color-scheme: dark;">
                     </div>
                 </div>
                 <div class="mb-6">
-                    <label for="taskInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nội dung công việc <span class="text-red-500">*</span></label>
-                    <textarea id="taskInput" rows="3" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="Sửa chữa máy lạnh, thay gas..."></textarea>
+                    <label for="taskInput" class="block text-sm font-medium text-gray-200 mb-1">Nội dung công việc <span class="text-red-400">*</span></label>
+                    <textarea id="taskInput" rows="3" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Sửa chữa máy lạnh, thay gas..."></textarea>
                 </div>
-                <button id="addTaskBtn" class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-md flex items-center justify-center gap-2">
+                <button id="addTaskBtn" class="w-full bg-pink-500/50 backdrop-blur-md border border-pink-400/60 text-white font-semibold py-3 px-6 rounded-full hover:bg-pink-500/70 transition-all duration-300 shadow-lg hover:shadow-pink-500/50 flex items-center justify-center gap-2">
                     <i class="fas fa-plus"></i>
                     <span>Thêm Công Việc</span>
                 </button>
@@ -137,23 +174,23 @@
     </div>
     
     <!-- Modal Đăng nhập Admin -->
-    <div id="adminModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
-        <div id="adminModalContent" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm relative">
-            <button id="closeAdminModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 text-2xl" aria-label="Đóng">&times;</button>
+    <div id="adminModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div id="adminModalContent" class="glass-effect w-full max-w-sm relative">
+            <button id="closeAdminModalBtn" class="absolute top-4 right-5 text-white hover:text-gray-300 text-3xl" aria-label="Đóng">&times;</button>
             <div class="p-8">
-                <h3 class="text-2xl font-bold mb-6 text-center text-purple-600 dark:text-purple-400">Đăng Nhập Admin</h3>
+                <h3 class="text-2xl font-bold mb-6 text-center text-white">Đăng Nhập Admin</h3>
                 <div class="space-y-4">
                     <div>
-                        <label for="usernameInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tên người dùng</label>
-                        <input type="text" id="usernameInput" class="mt-1 w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700">
+                        <label for="usernameInput" class="block text-sm font-medium text-gray-200">Tên người dùng</label>
+                        <input type="text" id="usernameInput" class="mt-1 w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 input-glass">
                     </div>
                     <div>
-                        <label for="passwordInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu</label>
-                        <input type="password" id="passwordInput" class="mt-1 w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700">
+                        <label for="passwordInput" class="block text-sm font-medium text-gray-200">Mật khẩu</label>
+                        <input type="password" id="passwordInput" class="mt-1 w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 input-glass">
                     </div>
                 </div>
-                 <p id="loginError" class="text-red-500 text-sm mt-2 text-center hidden">Sai thông tin đăng nhập!</p>
-                <button id="loginBtn" class="mt-6 w-full bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-purple-700 transition-colors duration-300 shadow-md">Đăng Nhập</button>
+                 <p id="loginError" class="text-red-400 text-sm mt-2 text-center hidden">Sai thông tin đăng nhập!</p>
+                <button id="loginBtn" class="mt-6 w-full bg-purple-600/50 backdrop-blur-md border border-purple-500/60 text-white font-semibold py-3 px-6 rounded-full hover:bg-purple-600/70 transition-all duration-300 shadow-lg hover:shadow-purple-500/50">Đăng Nhập</button>
             </div>
         </div>
     </div>
@@ -163,52 +200,53 @@
     <div class="container mx-auto max-w-4xl mt-8 sm:mt-16 px-4 pb-20">
         
         <div class="text-center mb-6">
-            <h1 class="animated-gradient-text text-3xl sm:text-4xl md:text-5xl font-extrabold pb-2">Công Ty Thiết Kế In Ấn Hội An</h1>
+            <h1 class="font-headline animated-gradient-text text-3xl sm:text-4xl md:text-5xl font-extrabold pb-2">Công Ty Thiết Kế In Ấn Hội An</h1>
+            <p class="font-headline animated-gradient-text text-2xl mt-2 font-bold">Địa chỉ : 69 Đào Duy Từ - Hội An</p>
         </div>
 
         <header class="text-center mb-8">
-            <h2 class="text-2xl sm:text-4xl font-bold text-blue-600 dark:text-blue-400">Quản Lý Công Việc</h2>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">Nơi quản lý tất cả công việc của bạn.</p>
+            <h2 class="text-2xl sm:text-4xl font-bold text-white">Quản Lý Công Việc</h2>
+            <p class="text-gray-200 mt-2">Nơi quản lý tất cả công việc của bạn.</p>
         </header>
 
         <div class="mb-8 text-center">
-             <button id="openModalBtn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center gap-2 mx-auto">
+             <button id="openModalBtn" class="bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold py-3 px-8 rounded-full hover:bg-white/30 transition-all duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center gap-2 mx-auto">
                 <i class="fas fa-plus-circle"></i>
                 <span>Tạo Công Việc Mới</span>
             </button>
         </div>
         
         <!-- Khu vực Admin Controls -->
-        <div id="adminControls" class="hidden my-6 p-4 bg-purple-100 dark:bg-purple-900/30 border border-purple-300 dark:border-purple-700 rounded-lg">
-            <h3 class="text-lg font-bold text-purple-800 dark:text-purple-300 mb-3 text-center">Bảng điều khiển Admin</h3>
+        <div id="adminControls" class="hidden my-6 p-4 glass-effect">
+            <h3 class="text-lg font-bold text-white mb-3 text-center">Bảng điều khiển Admin</h3>
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <button id="backupBtn" class="flex-1 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"><i class="fas fa-download"></i> Sao lưu</button>
-                <button id="restoreBtn" class="flex-1 bg-yellow-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-yellow-600 transition-colors flex items-center justify-center gap-2"><i class="fas fa-upload"></i> Phục hồi</button>
-                <button id="logoutBtn" class="flex-1 bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+                <button id="backupBtn" class="flex-1 bg-green-500/50 backdrop-blur-md border border-green-400/60 text-white font-semibold py-2 px-4 rounded-full hover:bg-green-500/70 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-download"></i> Sao lưu</button>
+                <button id="restoreBtn" class="flex-1 bg-yellow-500/50 backdrop-blur-md border border-yellow-400/60 text-white font-semibold py-2 px-4 rounded-full hover:bg-yellow-500/70 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-upload"></i> Phục hồi</button>
+                <button id="logoutBtn" class="flex-1 bg-red-500/50 backdrop-blur-md border border-red-400/60 text-white font-semibold py-2 px-4 rounded-full hover:bg-red-500/70 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
                 <input type="file" id="restoreFileInput" class="hidden" accept=".json">
             </div>
         </div>
 
         <!-- Danh sách công việc -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-2 border-b-2 border-gray-200 dark:border-gray-700">
-                <h3 class="text-2xl font-bold mb-2 sm:mb-0">Danh Sách Công Việc</h3>
+        <div class="glass-effect p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-4 border-b border-white/20">
+                <h3 class="text-2xl font-bold text-white mb-2 sm:mb-0">Danh Sách Công Việc</h3>
                 <div class="flex items-center space-x-3">
-                    <label for="hideCompletedToggle" class="text-sm font-medium text-gray-600 dark:text-gray-300 select-none">Ẩn việc đã xong</label>
+                    <label for="hideCompletedToggle" class="text-sm font-medium text-gray-200 select-none">Ẩn việc đã xong</label>
                     <label class="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" id="hideCompletedToggle" class="sr-only peer">
-                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600"></div>
+                      <div class="w-11 h-6 bg-gray-500/50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pink-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
                     </label>
                 </div>
             </div>
-            <ul id="taskList" class="space-y-4"></ul>
-            <div id="no-tasks-message" class="text-center text-gray-500 dark:text-gray-400 py-6 hidden">
+            <ul id="taskList" class="space-y-3"></ul>
+            <div id="no-tasks-message" class="text-center text-gray-200 py-6 hidden">
                 <i class="fas fa-check-circle fa-2x mb-2"></i>
                 <p>Tuyệt vời! Không có công việc nào cần làm.</p>
             </div>
         </div>
         
-        <footer class="text-center mt-10 text-gray-500 dark:text-gray-400 text-sm">
+        <footer class="text-center mt-10 text-gray-200/80 text-sm">
             <p>Nâng cấp bởi Gemini với ❤️ và Firebase</p>
         </footer>
     </div>
@@ -238,26 +276,22 @@
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- START: FIREBASE CONFIGURATION ---
-        // QUAN TRỌNG: BẠN PHẢI THAY THẾ ĐỐI TƯỢNG NÀY BẰNG CẤU HÌNH FIREBASE CỦA CHÍNH BẠN
-        // 1. Truy cập https://console.firebase.google.com/
-        // 2. Tạo một dự án mới.
-        // 3. Trong dự án của bạn, nhấp vào biểu tượng </> để thêm ứng dụng web.
-        // 4. Sao chép đối tượng firebaseConfig và dán vào đây.
         const firebaseConfig = {
-           apiKey: "AIzaSyDJBY6U0LUtmnk4PrfNeA7UE7qq1FZ84X8",
-          authDomain: "data-chung-a62ee.firebaseapp.com",
-          projectId: "data-chung-a62ee",
-          storageBucket: "data-chung-a62ee.firebasestorage.app",
-          messagingSenderId: "453115303161",
-          appId: "1:453115303161:web:c885f876f4914829863e28",
-          measurementId: "G-QB6WP4SP09"
+            apiKey: "AIzaSyDJBY6U0LUtmnk4PrfNeA7UE7qq1FZ84X8",
+            authDomain: "data-chung-a62ee.firebaseapp.com",
+            projectId: "data-chung-a62ee",
+            storageBucket: "data-chung-a62ee.appspot.com",
+            messagingSenderId: "453115303161",
+            appId: "1:453115303161:web:c885f876f4914829863e28",
+            measurementId: "G-QB6WP4SP09"
         };
         // --- END: FIREBASE CONFIGURATION ---
 
         // --- INITIALIZE FIREBASE ---
         let app, auth, db;
-        let allTasks = []; // Local cache of tasks from Firestore
-        let unsubscribeFromTasks = null; // To stop listening for changes when needed
+        let allTasks = [];
+        let unsubscribeFromTasks = null;
+        let isAdminLoggedIn = false;
 
         try {
             app = initializeApp(firebaseConfig);
@@ -326,46 +360,38 @@
         // --- ADMIN & AUTH LOGIC ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in.
                 console.log("User signed in anonymously:", user.uid);
-                if (unsubscribeFromTasks) unsubscribeFromTasks(); // Stop previous listener if any
+                if (unsubscribeFromTasks) unsubscribeFromTasks();
                 listenForTasks();
             } else {
-                // User is signed out.
                 console.log("User is signed out. Attempting to sign in anonymously.");
                 signInAnonymously(auth).catch((error) => {
                     console.error("Anonymous sign-in failed:", error);
-                    // FIX: Provide a more specific and helpful error message.
-                    if (error.code === 'auth/configuration-not-found') {
-                         alert("Lỗi Cấu hình Firebase (auth/configuration-not-found).\n\n" +
-                              "Vui lòng kiểm tra lại các bước sau:\n" +
-                              "1. Đảm bảo bạn đã sao chép chính xác 'firebaseConfig' từ dự án Firebase của mình vào tệp HTML.\n" +
-                              "2. Trong Firebase Console, hãy vào mục 'Authentication' -> tab 'Sign-in method' và đảm bảo 'Anonymous' (Ẩn danh) đã được BẬT.\n\n" +
-                              "Lỗi này thường xảy ra do một trong hai lý do trên.");
-                    } else {
-                        alert("Không thể đăng nhập ẩn danh. Lỗi: " + error.message);
-                    }
+                    alert("Không thể kết nối đến máy chủ. Lỗi: " + error.message);
                     loadingOverlay.classList.add('hidden');
                 });
             }
         });
 
         function handleAdminLogin() {
-            // This remains a local UI toggle, not real Firebase auth
             if (usernameInput.value === 'admin' && passwordInput.value === 'admin') {
+                isAdminLoggedIn = true;
                 adminControls.classList.remove('hidden');
                 openAdminModalBtn.classList.add('hidden');
                 adminModalControls.hide();
                 loginError.classList.add('hidden');
                 usernameInput.value = '';
                 passwordInput.value = '';
+                renderAllTasks();
             } else {
                 loginError.classList.remove('hidden');
             }
         }
         function handleAdminLogout() {
+            isAdminLoggedIn = false;
             adminControls.classList.add('hidden');
             openAdminModalBtn.classList.remove('hidden');
+            renderAllTasks();
         }
         
         // --- BACKUP & RESTORE LOGIC ---
@@ -374,9 +400,7 @@
                 alert('Không có công việc nào để sao lưu.');
                 return;
             }
-            // Create a clean version for backup, removing Firestore-specific fields
             const backupData = allTasks.map(({ id, createdAt, ...task }) => {
-                // Convert Firestore Timestamps to ISO strings for JSON compatibility
                 if (task.time?.toDate) {
                     task.time = task.time.toDate().toISOString();
                 }
@@ -396,7 +420,7 @@
         async function handleFileRestore(event) {
             const file = event.target.files[0];
             if (!file) return;
-            if (!confirm('CẢNH BÁO: Hành động này sẽ XÓA TẤT CẢ công việc hiện có trên cơ sở dữ liệu và thay thế bằng dữ liệu từ tệp này. Bạn có chắc chắn muốn tiếp tục?')) {
+            if (!confirm('CẢNH BÁO: Hành động này sẽ XÓA TẤT CẢ công việc hiện có và thay thế bằng dữ liệu từ tệp này. Bạn có chắc chắn?')) {
                 event.target.value = '';
                 return;
             }
@@ -408,19 +432,15 @@
                     const restoredTasks = JSON.parse(e.target.result);
                     if (!Array.isArray(restoredTasks)) throw new Error('Tệp không hợp lệ.');
 
-                    // Step 1: Delete all existing documents
                     const batchDelete = writeBatch(db);
                     allTasks.forEach(task => {
                         batchDelete.delete(doc(db, "tasks", task.id));
                     });
                     await batchDelete.commit();
-                    console.log("All existing tasks deleted.");
 
-                    // Step 2: Add new documents from the file
                     const batchAdd = writeBatch(db);
                     restoredTasks.forEach(task => {
                         const newDocRef = doc(collection(db, "tasks"));
-                        // Convert ISO string back to Date object if needed
                         if (typeof task.time === 'string') {
                             task.time = new Date(task.time);
                         }
@@ -431,7 +451,7 @@
                     alert('Phục hồi thành công!');
                 } catch (err) {
                     console.error("Restore error:", err);
-                    alert('Lỗi: Không thể đọc tệp sao lưu. Tệp có thể bị hỏng hoặc không đúng định dạng.');
+                    alert('Lỗi: Không thể đọc tệp sao lưu.');
                 } finally {
                     loadingOverlay.classList.add('hidden');
                     event.target.value = '';
@@ -441,10 +461,6 @@
         }
 
         // --- CORE DATA & RENDER LOGIC ---
-
-        /**
-         * Listens for real-time updates from Firestore and re-renders the list.
-         */
         function listenForTasks() {
             const tasksCollection = collection(db, 'tasks');
             const q = query(tasksCollection, orderBy('createdAt', 'desc'));
@@ -458,45 +474,46 @@
                 loadingOverlay.classList.add('hidden');
             }, (error) => {
                 console.error("Error listening to tasks:", error);
-                alert("Mất kết nối với cơ sở dữ liệu. Vui lòng kiểm tra lại Rules trong Firebase và kết nối mạng.");
+                alert("Mất kết nối với cơ sở dữ liệu.");
                 loadingOverlay.classList.add('hidden');
             });
         }
 
-        /**
-         * Renders the entire list of tasks to the DOM from the `allTasks` array.
-         */
         function renderAllTasks() {
             taskList.innerHTML = '';
             allTasks.forEach((taskData) => {
                 const { id, customerName, phone, address, time, text, completed } = taskData;
                 
                 const li = document.createElement('li');
-                li.className = `flex flex-col sm:flex-row items-start justify-between bg-gray-50 dark:bg-gray-700 p-3 sm:p-4 rounded-lg shadow-sm transition-all duration-300 ${completed ? 'completed' : ''}`;
-                li.dataset.id = id; // Store Firestore document ID
-                li.dataset.completed = completed; // Store completion status
+                li.className = `task-item-glass flex flex-col sm:flex-row items-start justify-between p-3 sm:p-4 ${completed ? 'completed' : ''}`;
+                li.dataset.id = id;
+                li.dataset.completed = completed;
 
                 const completeBtnText = completed ? 'Làm lại' : 'Hoàn thành';
-                const completeBtnClass = completed ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600';
-                const taskDate = time?.toDate ? time.toDate() : new Date(time); // Handle both Firestore Timestamp and string
+                const completeBtnClass = completed ? 'bg-yellow-500/50 border-yellow-400/60 hover:bg-yellow-500/70' : 'bg-green-500/50 border-green-400/60 hover:bg-green-500/70';
+                const taskDate = time?.toDate ? time.toDate() : new Date(time);
+
+                const deleteButtonHTML = isAdminLoggedIn ? `
+                    <button data-action="delete" class="flex items-center justify-center bg-red-500/50 backdrop-blur-md border border-red-400/60 text-white hover:bg-red-500/70 font-semibold py-2 px-3 rounded-full text-sm transition-all duration-200 w-full">
+                        <i class="fas fa-trash mr-2"></i> Xóa
+                    </button>
+                ` : '';
 
                 li.innerHTML = `
                     <div class="flex-grow mr-0 sm:mr-4 mb-4 sm:mb-0 w-full">
-                        <p class="font-bold text-lg task-content">${text}</p>
-                        <div class="customer-info grid grid-cols-1 md:grid-cols-2 text-sm text-gray-600 dark:text-gray-400 mt-2 gap-x-4 gap-y-1">
-                            <span class="customer-name truncate"><i class="fas fa-user fa-fw mr-1.5 text-blue-500"></i>${customerName}</span>
-                            <span class="task-time truncate"><i class="fas fa-clock fa-fw mr-1.5 text-orange-500"></i>${taskDate.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                            ${phone ? `<span class="customer-phone truncate"><i class="fas fa-phone fa-fw mr-1.5 text-green-500"></i>${phone}</span>` : ''}
-                            ${address ? `<span class="customer-address truncate"><i class="fas fa-map-marker-alt fa-fw mr-1.5 text-purple-500"></i>${address}</span>` : ''}
+                        <p class="font-bold text-lg text-white task-content">${text}</p>
+                        <div class="customer-info grid grid-cols-1 md:grid-cols-2 text-sm text-gray-200 mt-2 gap-x-4 gap-y-1">
+                            <span class="truncate"><i class="fas fa-user fa-fw mr-1.5 text-blue-300"></i>${customerName}</span>
+                            <span class="truncate"><i class="fas fa-clock fa-fw mr-1.5 text-orange-300"></i>${taskDate.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            ${phone ? `<span class="truncate"><i class="fas fa-phone fa-fw mr-1.5 text-green-300"></i>${phone}</span>` : ''}
+                            ${address ? `<span class="truncate"><i class="fas fa-map-marker-alt fa-fw mr-1.5 text-purple-300"></i>${address}</span>` : ''}
                         </div>
                     </div>
                     <div class="flex flex-col items-stretch space-y-2 flex-shrink-0 w-full sm:w-32">
-                        <button data-action="toggle" class="font-semibold py-2 px-3 rounded-lg text-sm text-white transition-colors duration-200 w-full ${completeBtnClass}">
+                        <button data-action="toggle" class="font-semibold py-2 px-3 rounded-full text-sm text-white transition-all duration-200 w-full backdrop-blur-md border ${completeBtnClass}">
                             ${completeBtnText}
                         </button>
-                        <button data-action="delete" class="flex items-center justify-center bg-red-500 text-white hover:bg-red-600 font-semibold py-2 px-3 rounded-lg text-sm transition-colors duration-200 w-full">
-                            <i class="fas fa-trash mr-2"></i> Xóa
-                        </button>
+                        ${deleteButtonHTML}
                     </div>
                 `;
                 taskList.appendChild(li);
@@ -507,7 +524,7 @@
         // --- UI UTILITY FUNCTIONS ---
         function checkEmptyState() {
             const hasVisibleTasks = Array.from(taskList.children).some(task => !task.classList.contains('hidden'));
-            noTasksMessage.classList.toggle('hidden', !(taskList.children.length > 0 && hasVisibleTasks));
+            noTasksMessage.classList.toggle('hidden', !(taskList.children.length > 0 && !hasVisibleTasks));
         }
 
         function updateCompletedTasksVisibility() {
@@ -516,12 +533,11 @@
                 const isCompleted = li.dataset.completed === 'true';
                 li.classList.toggle('hidden', shouldHide && isCompleted);
             });
-            localStorage.setItem('hideCompletedState', shouldHide); // This UI state can still be local
+            localStorage.setItem('hideCompletedState', shouldHide);
             checkEmptyState();
         }
 
         // --- EVENT HANDLERS ---
-        
         async function handleTaskListClick(event) {
             const button = event.target.closest('button[data-action]');
             if (!button) return;
@@ -538,7 +554,6 @@
                 const isCompleted = li.dataset.completed === 'true';
                 try {
                     await updateDoc(taskDocRef, { completed: !isCompleted });
-                    // The onSnapshot listener will handle the re-render automatically
                 } catch (e) {
                     console.error("Error updating task: ", e);
                     alert("Lỗi cập nhật công việc.");
@@ -546,11 +561,14 @@
             }
 
             if (action === 'delete') {
+                if (!isAdminLoggedIn) {
+                    alert("Bạn không có quyền thực hiện hành động này.");
+                    return;
+                }
                 const taskText = li.querySelector('.task-content')?.textContent || 'công việc này';
                 if (confirm(`Bạn có chắc muốn xóa "${taskText}"?`)) {
                     try {
                         await deleteDoc(taskDocRef);
-                        // The onSnapshot listener will handle the re-render automatically
                     } catch (e) {
                         console.error("Error deleting task: ", e);
                         alert("Lỗi xóa công việc.");
@@ -564,49 +582,40 @@
                 customerName: customerNameInput.value.trim(),
                 phone: phoneInput.value.trim(),
                 address: addressInput.value.trim(),
-                time: new Date(timeInput.value), // Store as a Date object for Firestore
+                time: new Date(timeInput.value),
                 text: taskInput.value.trim(),
                 completed: false,
-                createdAt: serverTimestamp() // Add a server-side timestamp for sorting
+                createdAt: serverTimestamp()
             };
 
             if (!taskData.customerName || !timeInput.value || !taskData.text) {
-                alert('Vui lòng nhập các trường bắt buộc: Tên khách hàng, Thời gian và Nội dung công việc!');
+                alert('Vui lòng nhập các trường bắt buộc!');
                 return;
             }
 
             try {
                 await addDoc(collection(db, "tasks"), taskData);
-                // The onSnapshot listener will handle adding the new task to the UI
                 [customerNameInput, phoneInput, addressInput, timeInput, taskInput].forEach(input => input.value = '');
                 taskModalControls.hide();
             } catch (e) {
                 console.error("Error adding document: ", e);
-                alert("Lỗi khi thêm công việc mới. Vui lòng thử lại.");
+                alert("Lỗi khi thêm công việc mới.");
             }
         }
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-             if (!db) {
-                // If Firebase init failed, don't add listeners that depend on it
-                return;
-            }
-            // Setup Admin Listeners
+             if (!db) return;
             loginBtn.addEventListener('click', handleAdminLogin);
             passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAdminLogin(); });
             logoutBtn.addEventListener('click', handleAdminLogout);
             backupBtn.addEventListener('click', backupTasks);
             restoreBtn.addEventListener('click', () => restoreFileInput.click());
             restoreFileInput.addEventListener('change', handleFileRestore);
-
-            // Setup Task Listeners
             taskList.addEventListener('click', handleTaskListClick);
             hideCompletedToggle.addEventListener('change', updateCompletedTasksVisibility);
             addTaskBtn.addEventListener('click', handleAddTask);
             taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddTask(); }});
-
-            // Load initial UI state
             const savedHideState = JSON.parse(localStorage.getItem('hideCompletedState'));
             hideCompletedToggle.checked = savedHideState !== false; 
         });
