@@ -29,13 +29,28 @@
             overflow-x: hidden;
         }
         body::before {
-            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('https://cdn.3axis.co/user-images/qommmgko.png');
-            background-repeat: repeat; opacity: 0.08; z-index: -2;
+            content: ""; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background-image: var(--background-image, url('https://cdn.3axis.co/user-images/qommmgko.png'));
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center center;
+            opacity: 0.15; 
+            z-index: -2;
+            transition: background-image 0.5s ease-in-out;
         }
         body::after {
-            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.4));
+            content: ""; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.35));
             z-index: -1;
         }
 
@@ -222,6 +237,30 @@
         </div>
     </div>
 
+    <!-- Modal Đổi Hình Nền -->
+    <div id="backgroundModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div id="backgroundModalContent" class="glass-effect w-full max-w-lg relative">
+            <button id="closeBackgroundModalBtn" class="absolute top-4 right-5 text-white hover:text-gray-300 text-3xl" aria-label="Đóng">&times;</button>
+            <div class="p-8">
+                <h3 class="text-2xl font-bold mb-6 text-center text-white">Thay Đổi Hình Nền</h3>
+                <div>
+                    <label for="bgUrlInput" class="block text-sm font-medium text-gray-200 mb-2">URL Hình ảnh</label>
+                    <input type="url" id="bgUrlInput" class="w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 input-glass" placeholder="https://example.com/image.png">
+                </div>
+                <div class="mt-4">
+                    <p class="text-sm font-medium text-gray-200 mb-2">Xem trước:</p>
+                    <div class="w-full h-48 rounded-lg bg-gray-700/50 flex items-center justify-center overflow-hidden border border-white/20">
+                        <img id="bgPreview" src="" alt="Xem trước hình nền" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                    </div>
+                </div>
+                <div class="mt-6 flex gap-4">
+                    <button id="resetBgBtn" class="glass-button w-full bg-gray-500/70 border-gray-400/60 text-white font-semibold py-3 px-6 hover:bg-gray-500/80">Khôi phục mặc định</button>
+                    <button id="saveBgBtn" class="glass-button w-full bg-blue-600/70 border-blue-500/60 text-white font-semibold py-3 px-6 hover:bg-blue-600/80">Lưu Thay Đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Nội dung chính của trang -->
     <div class="container mx-auto max-w-5xl mt-8 sm:mt-16 px-4 pb-20">
@@ -249,11 +288,12 @@
         <!-- Khu vực Admin Controls -->
         <div id="adminControls" class="hidden my-6 p-4 glass-effect">
             <h3 class="text-lg font-bold text-white mb-3 text-center">Bảng điều khiển Admin</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 justify-center">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 justify-center">
                 <button id="backupBtn" class="glass-button bg-green-500/70 border-green-400/60 text-white font-semibold py-2 px-4 hover:bg-green-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-download"></i> Sao lưu</button>
                 <button id="restoreBtn" class="glass-button bg-yellow-500/70 border-yellow-400/60 text-white font-semibold py-2 px-4 hover:bg-yellow-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-upload"></i> Phục hồi</button>
+                <button id="changeBgBtn" class="glass-button bg-blue-500/70 border-blue-400/60 text-white font-semibold py-2 px-4 hover:bg-blue-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-image"></i> Đổi Nền</button>
                 <button id="deleteAllBtn" class="glass-button bg-red-600/80 border-red-500/70 text-white font-semibold py-2 px-4 hover:bg-red-600/90 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-exclamation-triangle"></i> Xoá Tất Cả</button>
-                <button id="logoutBtn" class="glass-button bg-gray-500/70 border-gray-400/60 text-white font-semibold py-2 px-4 hover:bg-gray-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+                <button id="logoutBtn" class="glass-button bg-gray-500/70 border-gray-400/60 text-white font-semibold py-2 px-4 hover:bg-gray-500/80 transition-all duration-200 flex items-center justify-center gap-2 lg:col-span-1 col-span-2"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
                 <input type="file" id="restoreFileInput" class="hidden" accept=".json">
             </div>
         </div>
@@ -326,8 +366,6 @@
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- START: FIREBASE CONFIGURATION ---
-        // QUAN TRỌNG: Thay thế các giá trị dưới đây bằng cấu hình Firebase của bạn.
-        // Bạn có thể lấy thông tin này từ Console của Firebase project của bạn.
         const firebaseConfig = {
             apiKey: "AIzaSyDJBY6U0LUtmnk4PrfNeA7UE7qq1FZ84X8",
             authDomain: "data-chung-a62ee.firebaseapp.com",
@@ -390,6 +428,15 @@
         const logoutBtn = document.getElementById('logoutBtn');
         const loadingOverlay = document.getElementById('loading-overlay');
 
+        const backgroundModal = document.getElementById('backgroundModal');
+        const backgroundModalContent = document.getElementById('backgroundModalContent');
+        const closeBackgroundModalBtn = document.getElementById('closeBackgroundModalBtn');
+        const changeBgBtn = document.getElementById('changeBgBtn');
+        const bgUrlInput = document.getElementById('bgUrlInput');
+        const bgPreview = document.getElementById('bgPreview');
+        const saveBgBtn = document.getElementById('saveBgBtn');
+        const resetBgBtn = document.getElementById('resetBgBtn');
+
         // --- MODAL HELPER ---
         function setupModal(modal, openBtn, closeBtn, content) {
             function show() {
@@ -411,6 +458,7 @@
 
         const taskModalControls = setupModal(taskModal, openModalBtn, closeModalBtn, modalContent);
         const adminModalControls = setupModal(adminModal, openAdminModalBtn, closeAdminModalBtn, adminModalContent);
+        const backgroundModalControls = setupModal(backgroundModal, changeBgBtn, closeBackgroundModalBtn, backgroundModalContent);
 
         // --- CUSTOM ALERT/CONFIRM MODAL ---
         const confirmModal = document.getElementById('confirmModal');
@@ -498,7 +546,18 @@
             renderAllTasks();
         }
         
-        // --- BACKUP & RESTORE & DELETE ALL LOGIC ---
+        // --- BACKGROUND & DATA MANAGEMENT ---
+        function applyBackground(url) {
+            const defaultUrl = 'https://cdn.3axis.co/user-images/qommmgko.png';
+            const finalUrl = url || defaultUrl;
+            document.documentElement.style.setProperty('--background-image', `url('${finalUrl}')`);
+        }
+
+        function loadCustomBackground() {
+            const savedUrl = localStorage.getItem('customBackgroundUrl');
+            applyBackground(savedUrl);
+        }
+
         function backupTasks() {
             if (allTasks.length === 0) {
                 showAlert('Không có công việc nào để sao lưu.');
@@ -800,6 +859,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (!db) return;
             setDynamicHeader();
+            loadCustomBackground();
 
             loginBtn.addEventListener('click', handleAdminLogin);
             passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAdminLogin(); });
@@ -810,6 +870,32 @@
             restoreFileInput.addEventListener('change', handleFileRestore);
             taskList.addEventListener('click', handleTaskListClick);
             
+            // Background Modal Listeners
+            changeBgBtn.addEventListener('click', () => {
+                const currentUrl = localStorage.getItem('customBackgroundUrl') || '';
+                bgUrlInput.value = currentUrl;
+                bgPreview.src = currentUrl;
+                bgPreview.style.display = currentUrl ? 'block' : 'none';
+            });
+            bgUrlInput.addEventListener('input', function() {
+                bgPreview.src = this.value;
+                bgPreview.style.display = 'block';
+            });
+            saveBgBtn.addEventListener('click', () => {
+                const newUrl = bgUrlInput.value.trim();
+                applyBackground(newUrl);
+                localStorage.setItem('customBackgroundUrl', newUrl);
+                backgroundModalControls.hide();
+            });
+            resetBgBtn.addEventListener('click', () => {
+                applyBackground(null); // Pass null to use default
+                localStorage.removeItem('customBackgroundUrl');
+                bgUrlInput.value = '';
+                bgPreview.src = '';
+                backgroundModalControls.hide();
+            });
+
+            // Filter Listeners
             const savedHideState = localStorage.getItem('hideCompletedState');
             if (savedHideState === null) {
                 hideCompletedToggle.checked = true;
