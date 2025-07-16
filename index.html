@@ -66,7 +66,7 @@
             opacity: 0;
             transform: scale(0.95);
         }
-        /* MỚI: Style cho loading spinner */
+        /* Style cho loading spinner */
         #loading-overlay {
             z-index: 100;
         }
@@ -81,7 +81,7 @@
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
     
-    <!-- MỚI: Loading Overlay -->
+    <!-- Loading Overlay -->
     <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex flex-col items-center justify-center">
         <div class="spinner w-16 h-16 border-8 border-gray-300 rounded-full"></div>
         <p class="text-white text-lg mt-4">Đang tải dữ liệu...</p>
@@ -166,7 +166,7 @@
             </button>
         </div>
         
-        <!-- MỚI: Hiển thị User ID -->
+        <!-- Hiển thị User ID -->
         <div id="userInfo" class="text-center mb-6 hidden">
             <p class="text-xs text-gray-500 dark:text-gray-400">Mã phiên làm việc (User ID): <span id="userIdDisplay" class="font-mono bg-gray-200 dark:bg-gray-700 p-1 rounded"></span></p>
         </div>
@@ -211,7 +211,7 @@
         <i class="fas fa-user-shield text-2xl"></i>
     </button>
     
-    <!-- MỚI: Firebase SDK -->
+    <!-- Firebase SDK -->
     <script type="module">
         // Import các hàm cần thiết từ Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -223,6 +223,8 @@
         let db, auth; // Firebase services
         let userId; // Current user's ID
         let tasksUnsubscribe = null; // Function to stop listening for task updates
+        // THAY ĐỔI: Lấy App ID một cách an toàn
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // --- DOM ELEMENTS ---
         const loadingOverlay = document.getElementById('loading-overlay');
@@ -330,7 +332,7 @@
             const url = URL.createObjectURL(dataBlob);
             const a = document.createElement('a');
             document.body.appendChild(a);
-            a.style.display = 'none';
+a.style.display = 'none';
             a.href = url;
             const date = new Date().toISOString().slice(0, 10);
             a.download = `sao-luu-cong-viec-${date}.json`;
@@ -351,19 +353,16 @@
                     const restoredTasks = JSON.parse(e.target.result);
                     if (!Array.isArray(restoredTasks)) throw new Error('Tệp không hợp lệ.');
                     
-                    // Xóa tất cả công việc cũ
                     const batchDelete = writeBatch(db);
                     allTasks.forEach(task => {
-                        const docRef = doc(db, `artifacts/${__app_id}/users/${userId}/tasks`, task.id);
+                        const docRef = doc(db, `artifacts/${appId}/users/${userId}/tasks`, task.id);
                         batchDelete.delete(docRef);
                     });
                     await batchDelete.commit();
 
-                    // Thêm công việc mới từ tệp
                     const batchAdd = writeBatch(db);
                     restoredTasks.forEach(task => {
-                        const newDocRef = doc(collection(db, `artifacts/${__app_id}/users/${userId}/tasks`));
-                        // Loại bỏ id cũ nếu có, Firestore sẽ tạo id mới
+                        const newDocRef = doc(collection(db, `artifacts/${appId}/users/${userId}/tasks`));
                         const { id, ...taskData } = task; 
                         batchAdd.set(newDocRef, taskData);
                     });
@@ -383,12 +382,13 @@
 
         // --- CORE RENDER LOGIC ---
         function renderAllTasks() {
-            // Sắp xếp công việc: chưa hoàn thành lên trước, mới nhất lên đầu
             const sortedTasks = [...allTasks].sort((a, b) => {
                 if (a.completed !== b.completed) {
                     return a.completed ? 1 : -1;
                 }
-                return b.createdAt - a.createdAt; // Giả sử có timestamp createdAt
+                const timeA = a.createdAt?.toDate() || 0;
+                const timeB = b.createdAt?.toDate() || 0;
+                return timeB - timeA;
             });
 
             taskList.innerHTML = '';
@@ -429,7 +429,7 @@
         // --- UI UTILITY FUNCTIONS ---
         function checkEmptyState() {
             const hasVisibleTasks = Array.from(taskList.children).some(task => !task.classList.contains('hidden'));
-            noTasksMessage.classList.toggle('hidden', allTasks.length > 0 && hasVisibleTasks);
+            noTasksMessage.classList.toggle('hidden', !(allTasks.length === 0 || !hasVisibleTasks));
         }
 
         function updateCompletedTasksVisibility() {
@@ -451,7 +451,7 @@
             if (!task) return;
 
             const action = button.dataset.action;
-            const docRef = doc(db, `artifacts/${__app_id}/users/${userId}/tasks`, taskId);
+            const docRef = doc(db, `artifacts/${appId}/users/${userId}/tasks`, taskId);
 
             if (action === 'toggle') {
                 try {
@@ -518,14 +518,12 @@
 
             try {
                 if (editId) {
-                    // Chế độ Sửa
-                    const docRef = doc(db, `artifacts/${__app_id}/users/${userId}/tasks`, editId);
+                    const docRef = doc(db, `artifacts/${appId}/users/${userId}/tasks`, editId);
                     await setDoc(docRef, taskData, { merge: true });
                 } else {
-                    // Chế độ Thêm mới
                     taskData.completed = false;
-                    taskData.createdAt = serverTimestamp(); // Thêm dấu thời gian
-                    const collectionRef = collection(db, `artifacts/${__app_id}/users/${userId}/tasks`);
+                    taskData.createdAt = serverTimestamp();
+                    const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/tasks`);
                     await addDoc(collectionRef, taskData);
                 }
                 taskModalControls.hide();
@@ -538,7 +536,13 @@
         }
         
         // --- FIREBASE INITIALIZATION ---
+        // THAY ĐỔI: Hàm khởi tạo an toàn hơn
         function initializeFirebase() {
+            if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                console.error("Lỗi: Cấu hình Firebase không tồn tại.");
+                loadingOverlay.innerHTML = '<p class="text-red-500 text-lg text-center px-4">Lỗi cấu hình máy chủ.<br>Vui lòng đảm bảo ứng dụng được chạy trong môi trường hợp lệ.</p>';
+                return;
+            }
             try {
                 const firebaseConfig = JSON.parse(__firebase_config);
                 const app = initializeApp(firebaseConfig);
@@ -569,13 +573,11 @@
                     userIdDisplay.textContent = userId;
                     userInfo.classList.remove('hidden');
                     
-                    // Hủy lắng nghe cũ (nếu có) trước khi tạo lắng nghe mới
                     if (tasksUnsubscribe) {
                         tasksUnsubscribe();
                     }
                     listenToTasks();
                 } else {
-                    // Xử lý khi người dùng đăng xuất
                     userId = null;
                     if (tasksUnsubscribe) {
                         tasksUnsubscribe();
@@ -588,7 +590,7 @@
         }
 
         function listenToTasks() {
-            const collectionRef = collection(db, `artifacts/${__app_id}/users/${userId}/tasks`);
+            const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/tasks`);
             const q = query(collectionRef, orderBy("createdAt", "desc"));
 
             tasksUnsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -607,7 +609,6 @@
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Setup Admin Listeners
             loginBtn.addEventListener('click', handleAdminLogin);
             passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAdminLogin(); });
             logoutBtn.addEventListener('click', handleAdminLogout);
@@ -615,16 +616,13 @@
             restoreBtn.addEventListener('click', () => restoreFileInput.click());
             restoreFileInput.addEventListener('change', handleFileRestore);
 
-            // Setup Task Listeners
             taskList.addEventListener('click', handleTaskListClick);
             hideCompletedToggle.addEventListener('change', updateCompletedTasksVisibility);
             submitTaskBtn.addEventListener('click', handleSubmitTask);
             taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmitTask(); }});
             
-            // Load initial state for toggle
-            hideCompletedToggle.checked = false; // Bắt đầu với việc hiển thị tất cả
+            hideCompletedToggle.checked = false;
             
-            // Initialize Firebase
             initializeFirebase();
         });
     </script>
