@@ -20,7 +20,7 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* --- START: GIAO DIỆN TƯƠNG THÍCH (ADAPTIVE UI) --- */
+        /* --- START: GIAO DIỆN TƯƠNG THÍCH (ADAPTIVE UI) - UPDATED --- */
         
         /* 1. Nền chung */
         body {
@@ -54,16 +54,20 @@
             z-index: -1;
         }
 
-        /* 2. Chế độ Mobile (Mặc định - Nhẹ & Mượt) */
+        /* 2. Hiệu ứng Glassmorphism (Mobile-First) */
         .glass-effect {
-            background: rgba(44, 62, 80, 0.75); /* Nền tối, bán trong suốt, rõ hơn trên mobile */
+            background: rgba(255, 255, 255, 0.15); /* Nền kính cho mọi thiết bị */
+            -webkit-backdrop-filter: blur(10px);  /* Độ mờ nhẹ cho mobile để tối ưu hiệu năng */
+            backdrop-filter: blur(10px);
             border-radius: 1.25rem;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .task-item-glass {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
             border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             transition: all 0.2s ease-in-out;
         }
         .input-glass {
@@ -77,31 +81,25 @@
         .glass-button {
             border-radius: 9999px;
             border: 1px solid transparent;
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
             transition: all 0.3s ease;
         }
 
-        /* 3. Chế độ Desktop (Nâng cao - Hiệu ứng kính mờ) */
+        /* 3. Nâng cấp hiệu ứng cho Desktop */
         @media (min-width: 768px) {
             .glass-effect {
-                background: rgba(255, 255, 255, 0.1);
-                -webkit-backdrop-filter: blur(15px);
+                background: rgba(255, 255, 255, 0.1); /* Nền trong hơn trên desktop */
+                -webkit-backdrop-filter: blur(15px); /* Độ mờ cao hơn cho desktop */
                 backdrop-filter: blur(15px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
                 box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
             }
             .task-item-glass {
                 background: rgba(255, 255, 255, 0.05);
-                -webkit-backdrop-filter: blur(5px);
-                backdrop-filter: blur(5px);
-                border: 1px solid rgba(255, 255, 255, 0.15);
             }
             .task-item-glass:hover {
                 background: rgba(255, 255, 255, 0.15);
                 transform: translateY(-2px);
-            }
-            .glass-button {
-                -webkit-backdrop-filter: blur(5px);
-                backdrop-filter: blur(5px);
             }
         }
 
@@ -260,6 +258,30 @@
             </div>
         </div>
     </div>
+    
+    <!-- Modal Sửa Lời Chào -->
+    <div id="greetingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div id="greetingModalContent" class="glass-effect w-full max-w-3xl relative">
+            <button id="closeGreetingModalBtn" class="absolute top-4 right-5 text-white hover:text-gray-300 text-3xl" aria-label="Đóng">&times;</button>
+            <div class="p-6 sm:p-8">
+                <h3 class="text-2xl font-bold mb-6 text-center text-white">Chỉnh Sửa Lời Chào</h3>
+                <div id="greetingListContainer" class="space-y-4 max-h-[50vh] overflow-y-auto pr-2 pb-2">
+                    <!-- Greeting items will be injected here by JS -->
+                </div>
+                <div class="mt-6 flex flex-col sm:flex-row gap-4">
+                    <button id="addGreetingBtn" class="glass-button w-full sm:w-auto flex-grow bg-blue-500/70 border-blue-400/60 text-white font-semibold py-3 px-6 hover:bg-blue-500/80 flex items-center justify-center gap-2">
+                        <i class="fas fa-plus"></i><span>Thêm Mới</span>
+                    </button>
+                    <button id="resetGreetingsBtn" class="glass-button w-full sm:w-auto flex-grow bg-yellow-500/70 border-yellow-400/60 text-white font-semibold py-3 px-6 hover:bg-yellow-500/80 flex items-center justify-center gap-2">
+                        <i class="fas fa-undo"></i><span>Mặc Định</span>
+                    </button>
+                    <button id="saveGreetingsBtn" class="glass-button w-full sm:w-auto flex-grow bg-green-500/70 border-green-400/60 text-white font-semibold py-3 px-6 hover:bg-green-500/80 flex items-center justify-center gap-2">
+                        <i class="fas fa-save"></i><span>Lưu Thay Đổi</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <!-- Nội dung chính của trang -->
@@ -273,7 +295,7 @@
         <header class="text-center mb-8">
             <h2 class="text-2xl sm:text-4xl font-bold text-white">Quản Lý Công Việc</h2>
             <div class="text-center mt-2">
-                <p id="greeting" class="text-gray-200 text-lg px-4"></p>
+                <p id="greeting" class="text-gray-200 text-lg px-4 h-6"></p>
                 <p id="live-clock" class="text-gray-400 text-sm font-mono mt-1"></p>
             </div>
         </header>
@@ -288,12 +310,13 @@
         <!-- Khu vực Admin Controls -->
         <div id="adminControls" class="hidden my-6 p-4 glass-effect">
             <h3 class="text-lg font-bold text-white mb-3 text-center">Bảng điều khiển Admin</h3>
-            <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 justify-center">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 justify-center">
                 <button id="backupBtn" class="glass-button bg-green-500/70 border-green-400/60 text-white font-semibold py-2 px-4 hover:bg-green-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-download"></i> Sao lưu</button>
                 <button id="restoreBtn" class="glass-button bg-yellow-500/70 border-yellow-400/60 text-white font-semibold py-2 px-4 hover:bg-yellow-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-upload"></i> Phục hồi</button>
                 <button id="changeBgBtn" class="glass-button bg-blue-500/70 border-blue-400/60 text-white font-semibold py-2 px-4 hover:bg-blue-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-image"></i> Đổi Nền</button>
-                <button id="deleteAllBtn" class="glass-button bg-red-600/80 border-red-500/70 text-white font-semibold py-2 px-4 hover:bg-red-600/90 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-exclamation-triangle"></i> Xoá Tất Cả</button>
-                <button id="logoutBtn" class="glass-button bg-gray-500/70 border-gray-400/60 text-white font-semibold py-2 px-4 hover:bg-gray-500/80 transition-all duration-200 flex items-center justify-center gap-2 lg:col-span-1 col-span-2"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+                <button id="editGreetingsBtn" class="glass-button bg-teal-500/70 border-teal-400/60 text-white font-semibold py-2 px-4 hover:bg-teal-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-comments"></i> Lời chào</button>
+                <button id="deleteAllBtn" class="glass-button bg-red-600/80 border-red-500/70 text-white font-semibold py-2 px-4 hover:bg-red-600/90 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-exclamation-triangle"></i> Xoá Hết</button>
+                <button id="logoutBtn" class="glass-button bg-gray-500/70 border-gray-400/60 text-white font-semibold py-2 px-4 hover:bg-gray-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
                 <input type="file" id="restoreFileInput" class="hidden" accept=".json">
             </div>
         </div>
@@ -362,7 +385,9 @@
             updateDoc, 
             deleteDoc, 
             serverTimestamp,
-            writeBatch
+            writeBatch,
+            setDoc,
+            getDoc
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- START: FIREBASE CONFIGURATION ---
@@ -380,8 +405,12 @@
         // --- INITIALIZE FIREBASE ---
         let app, auth, db;
         let allTasks = [];
+        let allGreetings = [];
         let unsubscribeFromTasks = null;
+        let unsubscribeFromSettings = null; 
+        let unsubscribeFromGreetings = null;
         let isAdminLoggedIn = false;
+        let currentBackgroundUrl = '';
 
         try {
             app = initializeApp(firebaseConfig);
@@ -436,6 +465,15 @@
         const bgPreview = document.getElementById('bgPreview');
         const saveBgBtn = document.getElementById('saveBgBtn');
         const resetBgBtn = document.getElementById('resetBgBtn');
+        
+        const greetingModal = document.getElementById('greetingModal');
+        const greetingModalContent = document.getElementById('greetingModalContent');
+        const closeGreetingModalBtn = document.getElementById('closeGreetingModalBtn');
+        const editGreetingsBtn = document.getElementById('editGreetingsBtn');
+        const greetingListContainer = document.getElementById('greetingListContainer');
+        const addGreetingBtn = document.getElementById('addGreetingBtn');
+        const saveGreetingsBtn = document.getElementById('saveGreetingsBtn');
+        const resetGreetingsBtn = document.getElementById('resetGreetingsBtn');
 
         // --- MODAL HELPER ---
         function setupModal(modal, openBtn, closeBtn, content) {
@@ -459,6 +497,7 @@
         const taskModalControls = setupModal(taskModal, openModalBtn, closeModalBtn, modalContent);
         const adminModalControls = setupModal(adminModal, openAdminModalBtn, closeAdminModalBtn, adminModalContent);
         const backgroundModalControls = setupModal(backgroundModal, changeBgBtn, closeBackgroundModalBtn, backgroundModalContent);
+        const greetingModalControls = setupModal(greetingModal, editGreetingsBtn, closeGreetingModalBtn, greetingModalContent);
 
         // --- CUSTOM ALERT/CONFIRM MODAL ---
         const confirmModal = document.getElementById('confirmModal');
@@ -515,7 +554,12 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 if (unsubscribeFromTasks) unsubscribeFromTasks();
+                if (unsubscribeFromSettings) unsubscribeFromSettings();
+                if (unsubscribeFromGreetings) unsubscribeFromGreetings();
+                
                 listenForTasks();
+                listenForSettings();
+                listenForGreetings();
             } else {
                 signInAnonymously(auth).catch((error) => {
                     console.error("Anonymous sign-in failed:", error);
@@ -547,15 +591,22 @@
         }
         
         // --- BACKGROUND & DATA MANAGEMENT ---
+        function listenForSettings() {
+            const settingsDocRef = doc(db, "settings", "app-config");
+            unsubscribeFromSettings = onSnapshot(settingsDocRef, (doc) => {
+                const data = doc.data();
+                const newUrl = data?.backgroundUrl || '';
+                currentBackgroundUrl = newUrl;
+                applyBackground(newUrl);
+            }, (error) => {
+                console.error("Error listening to settings:", error);
+            });
+        }
+
         function applyBackground(url) {
             const defaultUrl = 'https://cdn.3axis.co/user-images/qommmgko.png';
             const finalUrl = url || defaultUrl;
             document.documentElement.style.setProperty('--background-image', `url('${finalUrl}')`);
-        }
-
-        function loadCustomBackground() {
-            const savedUrl = localStorage.getItem('customBackgroundUrl');
-            applyBackground(savedUrl);
         }
 
         function backupTasks() {
@@ -822,44 +873,158 @@
             timeInput.value = now.toISOString().slice(0,16);
         }
 
-        function setDynamicHeader() {
+        // --- GREETING LOGIC ---
+        const DEFAULT_GREETINGS = [
+            { text: 'Chúc mọi người một buổi sáng tốt lành, tràn đầy năng lượng và làm việc hiệu quả nhé!', startTime: '06:00', endTime: '09:30' },
+            { text: 'Chúc mọi người buổi trưa vui vẻ', startTime: '09:31', endTime: '11:58' },
+            { text: 'Nghỉ trưa thôi cả nhà! Nạp lại năng lượng để chiều chiến tiếp nha.', startTime: '11:59', endTime: '13:30' },
+            { text: 'Buổi chiều tốt lành! Cùng nhau hoàn thành mục tiêu hôm nay thôi nào.', startTime: '13:31', endTime: '18:00' },
+            { text: 'Chúc mọi người buổi tối an lành, nghỉ ngơi thật tốt để mai lại tràn đầy năng lượng nhé!', startTime: '18:01', endTime: '05:59' }
+        ];
+
+        function listenForGreetings() {
+            const greetingsDocRef = doc(db, "settings", "greetings");
+            unsubscribeFromGreetings = onSnapshot(greetingsDocRef, (doc) => {
+                if (doc.exists() && doc.data().messages?.length > 0) {
+                    allGreetings = doc.data().messages;
+                } else {
+                    allGreetings = [...DEFAULT_GREETINGS];
+                }
+            }, (error) => {
+                console.error("Error listening to greetings:", error);
+                allGreetings = [...DEFAULT_GREETINGS];
+            });
+        }
+
+        function updateGreetingAndClock() {
             const greetingEl = document.getElementById('greeting');
             const clockEl = document.getElementById('live-clock');
+            const now = new Date();
 
-            function updateContent() {
-                const now = new Date();
-                const hour = now.getHours();
-                const minute = now.getMinutes();
-                let greetingText = '';
-
-                if (hour >= 6 && (hour < 9 || (hour === 9 && minute < 30))) {
-                    greetingText = 'Chúc mọi người một buổi sáng tốt lành, tràn đầy năng lượng và làm việc hiệu quả nhé!';
-                } else if ((hour === 9 && minute >= 30) || hour === 10 || (hour === 11 && minute <= 58)) {
-                    greetingText = 'Chúc mọi người buổi trưa vui vẻ';
-                } else if ((hour === 11 && minute >= 59) || hour === 12 || (hour === 13 && minute <= 30)) {
-                    greetingText = 'Nghỉ trưa thôi cả nhà! Nạp lại năng lượng để chiều chiến tiếp nha.';
-                } else if ((hour === 13 && minute >= 31) || (hour >= 14 && hour < 18)) {
-                    greetingText = 'Buổi chiều tốt lành! Cùng nhau hoàn thành mục tiêu hôm nay thôi nào.';
+            // Update greeting
+            const currentTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            let currentGreeting = "Chào mừng đến với Bảng Quản lý Công việc!"; // Default fallback
+            
+            for (const greeting of allGreetings) {
+                const { text, startTime, endTime } = greeting;
+                const isOvernight = startTime > endTime;
+                if (isOvernight) {
+                    if (currentTime >= startTime || currentTime <= endTime) {
+                        currentGreeting = text;
+                        break;
+                    }
                 } else {
-                    greetingText = 'Chúc mọi người buổi tối an lành, nghỉ ngơi thật tốt để mai lại tràn đầy năng lượng nhé!';
+                    if (currentTime >= startTime && currentTime <= endTime) {
+                        currentGreeting = text;
+                        break;
+                    }
                 }
-                greetingEl.textContent = greetingText;
+            }
+            greetingEl.textContent = currentGreeting;
 
-                const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-                const dayName = days[now.getDay()];
-                const clockString = `${dayName}, ${now.toLocaleDateString('vi-VN')} | ${now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute:'2-digit', second:'2-digit' })}`;
-                clockEl.textContent = clockString;
+            // Update clock
+            const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+            const dayName = days[now.getDay()];
+            const clockString = `${dayName}, ${now.toLocaleDateString('vi-VN')} | ${now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute:'2-digit', second:'2-digit' })}`;
+            clockEl.textContent = clockString;
+        }
+
+        function renderGreetingEditor() {
+            greetingListContainer.innerHTML = '';
+            // Create a temporary copy to render, so we don't alter the live `allGreetings` array
+            const greetingsToRender = JSON.parse(JSON.stringify(allGreetings));
+            greetingsToRender.forEach((greeting, index) => {
+                const greetingItem = document.createElement('div');
+                greetingItem.className = 'greeting-item p-4 rounded-lg border border-white/20 flex flex-col sm:flex-row items-center gap-4';
+                greetingItem.innerHTML = `
+                    <div class="flex-grow w-full">
+                        <label class="text-sm font-medium text-gray-200 mb-1 block">Nội dung lời chào</label>
+                        <textarea class="input-glass w-full p-2 rounded-md text-sm" rows="2">${greeting.text}</textarea>
+                    </div>
+                    <div class="flex-shrink-0 flex items-center gap-2 w-full sm:w-auto">
+                        <div>
+                            <label class="text-sm font-medium text-gray-200 mb-1 block">Từ</label>
+                            <input type="time" class="input-glass p-2 rounded-md" value="${greeting.startTime}" style="color-scheme: dark;">
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-200 mb-1 block">Đến</label>
+                            <input type="time" class="input-glass p-2 rounded-md" value="${greeting.endTime}" style="color-scheme: dark;">
+                        </div>
+                        <button data-index="${index}" class="delete-greeting-btn self-end bg-red-500/70 text-white w-10 h-10 rounded-md hover:bg-red-600/80 transition-colors flex-shrink-0"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                greetingListContainer.appendChild(greetingItem);
+            });
+            
+            document.querySelectorAll('.delete-greeting-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.greeting-item').remove();
+                });
+            });
+        }
+        
+        async function saveGreetings() {
+            const newGreetings = [];
+            const items = document.querySelectorAll('#greetingListContainer .greeting-item');
+            let hasError = false;
+            items.forEach(item => {
+                const text = item.querySelector('textarea').value.trim();
+                const startTime = item.querySelectorAll('input[type="time"]')[0].value;
+                const endTime = item.querySelectorAll('input[type="time"]')[1].value;
+                if (!text || !startTime || !endTime) {
+                    hasError = true;
+                }
+                newGreetings.push({ text, startTime, endTime });
+            });
+
+            if (hasError) {
+                showAlert("Vui lòng điền đầy đủ thông tin cho tất cả các lời chào.", "Lỗi");
+                return;
             }
 
-            updateContent();
-            setInterval(updateContent, 1000);
+            const greetingsDocRef = doc(db, "settings", "greetings");
+            try {
+                await setDoc(greetingsDocRef, { messages: newGreetings });
+                showAlert("Đã lưu cài đặt lời chào thành công!", "Thành công");
+                greetingModalControls.hide();
+            } catch (e) {
+                console.error("Error saving greetings:", e);
+                showAlert("Không thể lưu cài đặt. Vui lòng thử lại.", "Lỗi");
+            }
         }
+        
+        function addGreetingRow() {
+            const greetingItem = document.createElement('div');
+            greetingItem.className = 'greeting-item p-4 rounded-lg border border-white/20 flex flex-col sm:flex-row items-center gap-4';
+            greetingItem.innerHTML = `
+                <div class="flex-grow w-full">
+                    <label class="text-sm font-medium text-gray-200 mb-1 block">Nội dung lời chào</label>
+                    <textarea class="input-glass w-full p-2 rounded-md text-sm" rows="2" placeholder="Nhập lời chào..."></textarea>
+                </div>
+                <div class="flex-shrink-0 flex items-center gap-2 w-full sm:w-auto">
+                    <div>
+                        <label class="text-sm font-medium text-gray-200 mb-1 block">Từ</label>
+                        <input type="time" class="input-glass p-2 rounded-md" style="color-scheme: dark;">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-200 mb-1 block">Đến</label>
+                        <input type="time" class="input-glass p-2 rounded-md" style="color-scheme: dark;">
+                    </div>
+                    <button class="delete-greeting-btn self-end bg-red-500/70 text-white w-10 h-10 rounded-md hover:bg-red-600/80 transition-colors flex-shrink-0"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            greetingListContainer.appendChild(greetingItem);
+            greetingItem.querySelector('.delete-greeting-btn').addEventListener('click', function() {
+                this.closest('.greeting-item').remove();
+            });
+        }
+
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             if (!db) return;
-            setDynamicHeader();
-            loadCustomBackground();
+            updateGreetingAndClock();
+            setInterval(updateGreetingAndClock, 1000);
 
             loginBtn.addEventListener('click', handleAdminLogin);
             passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAdminLogin(); });
@@ -872,27 +1037,54 @@
             
             // Background Modal Listeners
             changeBgBtn.addEventListener('click', () => {
-                const currentUrl = localStorage.getItem('customBackgroundUrl') || '';
-                bgUrlInput.value = currentUrl;
-                bgPreview.src = currentUrl;
-                bgPreview.style.display = currentUrl ? 'block' : 'none';
+                bgUrlInput.value = currentBackgroundUrl;
+                bgPreview.src = currentBackgroundUrl;
+                bgPreview.style.display = currentBackgroundUrl ? 'block' : 'none';
             });
             bgUrlInput.addEventListener('input', function() {
                 bgPreview.src = this.value;
                 bgPreview.style.display = 'block';
             });
-            saveBgBtn.addEventListener('click', () => {
+            saveBgBtn.addEventListener('click', async () => {
                 const newUrl = bgUrlInput.value.trim();
-                applyBackground(newUrl);
-                localStorage.setItem('customBackgroundUrl', newUrl);
-                backgroundModalControls.hide();
+                const settingsDocRef = doc(db, "settings", "app-config");
+                try {
+                    await setDoc(settingsDocRef, { backgroundUrl: newUrl }, { merge: true });
+                    backgroundModalControls.hide();
+                } catch (e) {
+                    console.error("Error saving background:", e);
+                    showAlert("Không thể lưu hình nền. Vui lòng thử lại.", "Lỗi");
+                }
             });
-            resetBgBtn.addEventListener('click', () => {
-                applyBackground(null); // Pass null to use default
-                localStorage.removeItem('customBackgroundUrl');
-                bgUrlInput.value = '';
-                bgPreview.src = '';
-                backgroundModalControls.hide();
+            resetBgBtn.addEventListener('click', async () => {
+                const settingsDocRef = doc(db, "settings", "app-config");
+                try {
+                    await setDoc(settingsDocRef, { backgroundUrl: '' }, { merge: true });
+                    bgUrlInput.value = '';
+                    bgPreview.src = '';
+                    backgroundModalControls.hide();
+                } catch (e) {
+                    console.error("Error resetting background:", e);
+                    showAlert("Không thể khôi phục hình nền. Vui lòng thử lại.", "Lỗi");
+                }
+            });
+
+            // Greeting Modal Listeners
+            editGreetingsBtn.addEventListener('click', renderGreetingEditor);
+            addGreetingBtn.addEventListener('click', addGreetingRow);
+            saveGreetingsBtn.addEventListener('click', saveGreetings);
+            resetGreetingsBtn.addEventListener('click', () => {
+                showConfirm("Bạn có chắc muốn khôi phục tất cả lời chào về mặc định không?", "Xác nhận", async () => {
+                    const greetingsDocRef = doc(db, "settings", "greetings");
+                    try {
+                        await setDoc(greetingsDocRef, { messages: DEFAULT_GREETINGS });
+                        showAlert("Đã khôi phục lời chào mặc định.", "Thành công");
+                        greetingModalControls.hide();
+                    } catch (e) {
+                        console.error("Error resetting greetings:", e);
+                        showAlert("Không thể khôi phục. Vui lòng thử lại.", "Lỗi");
+                    }
+                });
             });
 
             // Filter Listeners
