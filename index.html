@@ -249,10 +249,11 @@
         <!-- Khu vực Admin Controls -->
         <div id="adminControls" class="hidden my-6 p-4 glass-effect">
             <h3 class="text-lg font-bold text-white mb-3 text-center">Bảng điều khiển Admin</h3>
-            <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <button id="backupBtn" class="glass-button flex-1 bg-green-500/70 border-green-400/60 text-white font-semibold py-2 px-4 hover:bg-green-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-download"></i> Sao lưu</button>
-                <button id="restoreBtn" class="glass-button flex-1 bg-yellow-500/70 border-yellow-400/60 text-white font-semibold py-2 px-4 hover:bg-yellow-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-upload"></i> Phục hồi</button>
-                <button id="logoutBtn" class="glass-button flex-1 bg-red-500/70 border-red-400/60 text-white font-semibold py-2 px-4 hover:bg-red-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 justify-center">
+                <button id="backupBtn" class="glass-button bg-green-500/70 border-green-400/60 text-white font-semibold py-2 px-4 hover:bg-green-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-download"></i> Sao lưu</button>
+                <button id="restoreBtn" class="glass-button bg-yellow-500/70 border-yellow-400/60 text-white font-semibold py-2 px-4 hover:bg-yellow-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-upload"></i> Phục hồi</button>
+                <button id="deleteAllBtn" class="glass-button bg-red-600/80 border-red-500/70 text-white font-semibold py-2 px-4 hover:bg-red-600/90 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-exclamation-triangle"></i> Xoá Tất Cả</button>
+                <button id="logoutBtn" class="glass-button bg-gray-500/70 border-gray-400/60 text-white font-semibold py-2 px-4 hover:bg-gray-500/80 transition-all duration-200 flex items-center justify-center gap-2"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
                 <input type="file" id="restoreFileInput" class="hidden" accept=".json">
             </div>
         </div>
@@ -384,6 +385,7 @@
         const adminControls = document.getElementById('adminControls');
         const backupBtn = document.getElementById('backupBtn');
         const restoreBtn = document.getElementById('restoreBtn');
+        const deleteAllBtn = document.getElementById('deleteAllBtn');
         const restoreFileInput = document.getElementById('restoreFileInput');
         const logoutBtn = document.getElementById('logoutBtn');
         const loadingOverlay = document.getElementById('loading-overlay');
@@ -573,6 +575,38 @@
                 restoreLogic
             );
             event.target.value = '';
+        }
+
+        async function handleDeleteAllTasks() {
+            if (!isAdminLoggedIn) {
+                showAlert("Bạn không có quyền thực hiện hành động này.", "Truy cập bị từ chối");
+                return;
+            }
+            if (allTasks.length === 0) {
+                showAlert("Không có công việc nào để xóa.");
+                return;
+            }
+
+            showConfirm(
+                `Bạn có chắc chắn muốn XÓA TẤT CẢ ${allTasks.length} công việc không? Hành động này không thể hoàn tác.`,
+                "XÁC NHẬN XÓA TOÀN BỘ",
+                async () => {
+                    loadingOverlay.classList.remove('hidden');
+                    try {
+                        const batch = writeBatch(db);
+                        allTasks.forEach(task => {
+                            batch.delete(doc(db, "tasks", task.id));
+                        });
+                        await batch.commit();
+                        showAlert("Đã xóa tất cả công việc thành công.", "Hoàn tất");
+                    } catch (e) {
+                        console.error("Error deleting all tasks:", e);
+                        showAlert("Đã xảy ra lỗi khi xóa công việc.", "Lỗi");
+                    } finally {
+                        loadingOverlay.classList.add('hidden');
+                    }
+                }
+            );
         }
 
         // --- CORE DATA & RENDER LOGIC ---
@@ -798,6 +832,7 @@
             logoutBtn.addEventListener('click', handleAdminLogout);
             backupBtn.addEventListener('click', backupTasks);
             restoreBtn.addEventListener('click', () => restoreFileInput.click());
+            deleteAllBtn.addEventListener('click', handleDeleteAllTasks);
             restoreFileInput.addEventListener('change', handleFileRestore);
             taskList.addEventListener('click', handleTaskListClick);
             
