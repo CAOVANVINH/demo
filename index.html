@@ -103,11 +103,29 @@
         }
 
         /* --- END: GIAO DIỆN TƯƠNG THÍCH --- */
+        
+        /* --- START: HIỆU ỨNG CHỮ --- */
+        /* Hiệu ứng Aurora cho Tên Công ty (Mới) */
+        .animated-aurora-text {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab, #fde047, #f97316);
+            background-size: 400% 400%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: aurora-animation 15s ease infinite;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
 
-        .animated-gradient-text {
+        @keyframes aurora-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Hiệu ứng Gradient chạy cho Địa chỉ (Cũ) */
+        .animated-gradient-legacy {
             background: linear-gradient(to right, #fde047, #f97316, #ec4899, #8b5cf6);
             background-size: 250% auto;
-            color: #000;
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -117,6 +135,7 @@
         @keyframes gradient-animation {
             to { background-position: 250% center; }
         }
+        /* --- END: HIỆU ỨNG CHỮ --- */
         
         .completed .task-content,
         .completed .customer-info {
@@ -284,8 +303,8 @@
     <div class="container mx-auto max-w-5xl mt-8 sm:mt-16 px-4 pb-20">
         
         <div class="text-center mb-6">
-            <h1 class="font-headline animated-gradient-text text-3xl sm:text-4xl md:text-5xl font-extrabold pb-2">Công Ty Thiết Kế In Ấn Hội An</h1>
-            <p class="font-headline animated-gradient-text text-2xl mt-2 font-bold">Địa chỉ : 69 Đào Duy Từ - Hội An</p>
+            <h1 class="font-headline animated-aurora-text text-3xl sm:text-4xl md:text-5xl font-extrabold pb-2">Công Ty Thiết Kế In Ấn Hội An</h1>
+            <p class="font-headline animated-gradient-legacy text-2xl mt-2 font-bold">Địa chỉ : 69 Đào Duy Từ - Hội An</p>
         </div>
 
         <header class="text-center mb-8">
@@ -351,7 +370,9 @@
         </div>
         
         <footer class="text-center mt-10 text-gray-200/80 text-sm">
-            <p>Copyright © 2025 Công Ty Thiết Kế In Ấn Hội An - Hỗ Trợ Google Gemini  </p>
+            <p>Copyright © 2025 Công Ty Thiết Kế In Ấn Hội An - Hỗ Trợ Google Gemini</p>
+            <!-- Visitor Counter -->
+            <p id="visitor-counter" class="mt-1">Lượt truy cập: Đang tải...</p>
         </footer>
     </div>
     
@@ -376,7 +397,8 @@
             serverTimestamp,
             writeBatch,
             setDoc,
-            getDoc
+            getDoc,
+            increment
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- START: FIREBASE CONFIGURATION ---
@@ -466,6 +488,8 @@
         const saveGreetingsBtn = document.getElementById('saveGreetingsBtn');
         const resetGreetingsBtn = document.getElementById('resetGreetingsBtn');
 
+        const visitorCounter = document.getElementById('visitor-counter');
+
         // --- MODAL HELPER ---
         function setupModal(modal, openBtn, closeBtn, content) {
             function show() {
@@ -551,6 +575,7 @@
                 listenForTasks();
                 listenForSettings();
                 listenForGreetings();
+                handleVisitorCount();
             } else {
                 signInAnonymously(auth).catch((error) => {
                     console.error("Anonymous sign-in failed:", error);
@@ -701,6 +726,34 @@
                 }
             );
         }
+
+        // --- VISITOR COUNTER LOGIC ---
+        async function handleVisitorCount() {
+            if (!db) return;
+            const statsDocRef = doc(db, "settings", "site-stats");
+
+            if (!sessionStorage.getItem('visitorCounted')) {
+                try {
+                    await setDoc(statsDocRef, { visitorCount: increment(1) }, { merge: true });
+                    sessionStorage.setItem('visitorCounted', 'true');
+                } catch (error) {
+                    console.error("Error incrementing visitor count:", error);
+                }
+            }
+
+            onSnapshot(statsDocRef, (doc) => {
+                if (doc.exists()) {
+                    const count = doc.data().visitorCount;
+                    visitorCounter.textContent = `Lượt truy cập: ${count.toLocaleString('vi-VN')}`;
+                } else {
+                    visitorCounter.textContent = `Lượt truy cập: 1`;
+                }
+            }, (error) => {
+                console.error("Error listening to visitor count:", error);
+                visitorCounter.textContent = 'Lượt truy cập: Lỗi';
+            });
+        }
+
 
         // --- CORE DATA & RENDER LOGIC ---
         function listenForTasks() {
