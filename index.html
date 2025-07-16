@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Công Ty Thiết Kế In Ấn Hội An</title>
-    <!-- Tích hợp Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
@@ -165,7 +164,6 @@
         <div class="spinner"></div>
     </div>
 
-    <!-- Modal Thêm Công Việc -->
     <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
         <div id="modalContent" class="glass-effect w-full max-w-2xl relative">
             <button id="closeModalBtn" class="absolute top-4 right-5 text-white hover:text-gray-300 text-3xl" aria-label="Đóng">&times;</button>
@@ -185,6 +183,10 @@
                             <input type="text" id="addressInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="(Không bắt buộc)">
                         </div>
                         <div>
+                            <label for="googleMapsLocationInput" class="block text-sm font-medium text-gray-200 mb-1">Định vị Google Maps</label>
+                            <input type="url" id="googleMapsLocationInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Dán link vị trí Google Maps (không bắt buộc)">
+                        </div>
+                        <div class="sm:col-span-2">
                             <label for="timeInput" class="block text-sm font-medium text-gray-200 mb-1">Thời gian <span class="text-red-400">*</span></label>
                             <input type="datetime-local" id="timeInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" style="color-scheme: dark;">
                         </div>
@@ -201,7 +203,6 @@
         </div>
     </div>
     
-    <!-- Modal Đăng nhập Admin -->
     <div id="adminModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
         <div id="adminModalContent" class="glass-effect w-full max-w-sm relative">
             <button id="closeAdminModalBtn" class="absolute top-4 right-5 text-white hover:text-gray-300 text-3xl" aria-label="Đóng">&times;</button>
@@ -223,7 +224,6 @@
         </div>
     </div>
 
-    <!-- Modal Xác nhận / Thông báo -->
     <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[60] hidden">
         <div id="confirmModalContent" class="glass-effect w-full max-w-sm relative p-8 text-center">
             <h3 id="confirmModalTitle" class="text-xl font-bold text-white mb-4"></h3>
@@ -235,7 +235,6 @@
         </div>
     </div>
 
-    <!-- Modal Đổi Hình Nền -->
     <div id="backgroundModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
         <div id="backgroundModalContent" class="glass-effect w-full max-w-lg relative">
             <button id="closeBackgroundModalBtn" class="absolute top-4 right-5 text-white hover:text-gray-300 text-3xl" aria-label="Đóng">&times;</button>
@@ -259,15 +258,13 @@
         </div>
     </div>
     
-    <!-- Modal Sửa Lời Chào -->
     <div id="greetingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
         <div id="greetingModalContent" class="glass-effect w-full max-w-3xl relative">
             <button id="closeGreetingModalBtn" class="absolute top-4 right-5 text-white hover:text-gray-300 text-3xl" aria-label="Đóng">&times;</button>
             <div class="p-6 sm:p-8">
                 <h3 class="text-2xl font-bold mb-6 text-center text-white">Chỉnh Sửa Lời Chào</h3>
                 <div id="greetingListContainer" class="space-y-4 max-h-[50vh] overflow-y-auto pr-2 pb-2">
-                    <!-- Greeting items will be injected here by JS -->
-                </div>
+                    </div>
                 <div class="mt-6 flex flex-col sm:flex-row gap-4">
                     <button id="addGreetingBtn" class="glass-button w-full sm:w-auto flex-grow bg-blue-500/70 border-blue-400/60 text-white font-semibold py-3 px-6 hover:bg-blue-500/80 flex items-center justify-center gap-2">
                         <i class="fas fa-plus"></i><span>Thêm Mới</span>
@@ -284,7 +281,6 @@
     </div>
 
 
-    <!-- Nội dung chính của trang -->
     <div class="container mx-auto max-w-5xl mt-8 sm:mt-16 px-4 pb-20">
         
         <div class="text-center mb-6">
@@ -294,7 +290,6 @@
 
         <header class="text-center mb-8">
             <h2 class="text-2xl sm:text-4xl font-bold text-white">Quản Lý Công Việc</h2>
-            <!-- UPDATED: Greeting and Clock Layout -->
             <div class="text-center mt-4">
                 <p id="greeting" class="text-gray-200 text-lg px-4 mb-1 min-h-[28px]"></p>
                 <p id="live-clock" class="text-gray-400 text-sm font-mono"></p>
@@ -308,7 +303,6 @@
             </button>
         </div>
         
-        <!-- Khu vực Admin Controls -->
         <div id="adminControls" class="hidden my-6 p-4 glass-effect">
             <h3 class="text-lg font-bold text-white mb-3 text-center">Bảng điều khiển Admin</h3>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 justify-center">
@@ -322,12 +316,10 @@
             </div>
         </div>
 
-        <!-- Danh sách công việc -->
         <div class="glass-effect p-4 sm:p-6">
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 pb-4 border-b border-white/20">
                 <h3 class="text-2xl font-bold text-white mb-4 lg:mb-0">Danh Sách Công Việc</h3>
                 <div class="flex flex-wrap items-center justify-start lg:justify-end gap-y-3 gap-x-6">
-                    <!-- Filter 1 -->
                     <div class="flex items-center justify-between sm:justify-start space-x-3">
                         <label for="hideCompletedToggle" class="text-sm font-medium text-gray-200 select-none">Ẩn việc đã xong</label>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -335,7 +327,6 @@
                             <div class="w-11 h-6 bg-gray-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
                         </label>
                     </div>
-                    <!-- Filter 2 -->
                     <div class="flex items-center justify-between sm:justify-start space-x-3">
                         <label for="showTodayOnlyToggle" class="text-sm font-medium text-gray-200 select-none">Chỉ việc hôm nay</label>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -343,7 +334,6 @@
                             <div class="w-11 h-6 bg-gray-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
                         </label>
                     </div>
-                    <!-- Filter 3 -->
                     <div class="flex items-center justify-between sm:justify-start space-x-3">
                         <label for="showOverdueOnlyToggle" class="text-sm font-medium text-gray-200 select-none">Chỉ việc quá hạn</label>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -365,12 +355,10 @@
         </footer>
     </div>
     
-    <!-- Nút Admin nổi -->
     <button id="openAdminModalBtn" class="fixed bottom-4 right-4 bg-purple-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-purple-700 transition-transform transform hover:scale-110 z-40">
         <i class="fas fa-user-shield text-2xl"></i>
     </button>
 
-    <!-- Firebase SDK -->
     <script type="module">
         // Import functions from the Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -428,6 +416,7 @@
         const customerNameInput = document.getElementById('customerNameInput');
         const phoneInput = document.getElementById('phoneInput');
         const addressInput = document.getElementById('addressInput');
+        const googleMapsLocationInput = document.getElementById('googleMapsLocationInput');
         const timeInput = document.getElementById('timeInput');
         const taskInput = document.getElementById('taskInput');
         const addTaskBtn = document.getElementById('addTaskBtn');
@@ -743,7 +732,7 @@
             const showOverdueOnly = showOverdueOnlyToggle.checked;
 
             allTasks.forEach((taskData) => {
-                const { id, customerName, phone, address, time, text, completed } = taskData;
+                const { id, customerName, phone, address, time, text, completed, googleMapsLocation } = taskData;
                 
                 const taskDate = time?.toDate ? time.toDate() : new Date(time);
                 
@@ -784,6 +773,7 @@
                             <span class="truncate"><i class="fas fa-clock fa-fw mr-1.5 ${isOverdue ? 'text-red-400' : 'text-orange-300'}"></i>${taskDate.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                             ${phone ? `<span class="truncate"><i class="fas fa-phone fa-fw mr-1.5 text-green-300"></i>${phone}</span>` : ''}
                             ${address ? `<span class="truncate"><i class="fas fa-map-marker-alt fa-fw mr-1.5 text-purple-300"></i>${address}</span>` : ''}
+                            ${googleMapsLocation ? `<a href="${googleMapsLocation}" target="_blank" rel="noopener noreferrer" class="truncate text-orange-400 hover:underline col-span-1 md:col-span-2"><i class="fas fa-map-marked-alt fa-fw mr-1.5"></i>Xem trên Google Maps</a>` : ''}
                         </div>
                     </div>
                     <div class="flex flex-col items-stretch space-y-2 flex-shrink-0 w-full sm:w-32">
@@ -848,6 +838,7 @@
                 customerName: customerNameInput.value.trim(),
                 phone: phoneInput.value.trim(),
                 address: addressInput.value.trim(),
+                googleMapsLocation: googleMapsLocationInput.value.trim(),
                 time: new Date(timeInput.value),
                 text: taskInput.value.trim(),
                 completed: false,
@@ -861,7 +852,7 @@
 
             try {
                 await addDoc(collection(db, "tasks"), taskData);
-                [customerNameInput, phoneInput, addressInput, timeInput, taskInput].forEach(input => input.value = '');
+                [customerNameInput, phoneInput, addressInput, timeInput, taskInput, googleMapsLocationInput].forEach(input => input.value = '');
                 taskModalControls.hide();
             } catch (e) {
                 console.error("Error adding document: ", e);
