@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Công Ty Thiết Kế In Ấn Hội An - Quản Lý Công Việc</title>
-    <!-- Tích hợp Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* Font tùy chỉnh */
         @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&display=swap');
@@ -70,14 +69,14 @@
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
 
-    <!-- Modal Thêm Công Việc -->
     <div id="taskModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
         <div id="modalContent" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl relative">
             <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 text-2xl" aria-label="Đóng">&times;</button>
             <div class="p-6 sm:p-8">
-                <h3 class="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">Thêm Công Việc Mới</h3>
+                <h3 id="modalTitle" class="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">Thêm Công Việc Mới</h3>
+                <input type="hidden" id="taskEditIndex" value="-1">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                     <div>
+                    <div>
                         <label for="customerNameInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tên khách hàng <span class="text-red-500">*</span></label>
                         <input type="text" id="customerNameInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="Nguyễn Văn A">
                     </div>
@@ -85,7 +84,7 @@
                         <label for="phoneInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Số điện thoại</label>
                         <input type="tel" id="phoneInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="(Không bắt buộc)">
                     </div>
-                     <div>
+                    <div>
                         <label for="addressInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Địa chỉ</label>
                         <input type="text" id="addressInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="(Không bắt buộc)">
                     </div>
@@ -98,15 +97,14 @@
                     <label for="taskInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nội dung công việc <span class="text-red-500">*</span></label>
                     <textarea id="taskInput" rows="3" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="Sửa chữa máy lạnh, thay gas..."></textarea>
                 </div>
-                <button id="addTaskBtn" class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-md flex items-center justify-center gap-2">
-                    <i class="fas fa-plus"></i>
-                    <span>Thêm Công Việc</span>
+                <button id="submitTaskBtn" class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-md flex items-center justify-center gap-2">
+                    <i id="submitIcon" class="fas fa-plus"></i>
+                    <span id="submitText">Thêm Công Việc</span>
                 </button>
             </div>
         </div>
     </div>
     
-    <!-- Modal Đăng nhập Admin -->
     <div id="adminModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
         <div id="adminModalContent" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm relative">
             <button id="closeAdminModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 text-2xl" aria-label="Đóng">&times;</button>
@@ -129,7 +127,6 @@
     </div>
 
 
-    <!-- Nội dung chính của trang -->
     <div class="container mx-auto max-w-4xl mt-8 sm:mt-16 px-4 pb-20">
         
         <div class="text-center mb-6">
@@ -148,7 +145,6 @@
             </button>
         </div>
         
-        <!-- Khu vực Admin Controls -->
         <div id="adminControls" class="hidden my-6 p-4 bg-purple-100 dark:bg-purple-900/30 border border-purple-300 dark:border-purple-700 rounded-lg">
             <h3 class="text-lg font-bold text-purple-800 dark:text-purple-300 mb-3 text-center">Bảng điều khiển Admin</h3>
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
@@ -159,7 +155,6 @@
             </div>
         </div>
 
-        <!-- Danh sách công việc -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-2 border-b-2 border-gray-200 dark:border-gray-700">
                 <h3 class="text-2xl font-bold mb-2 sm:mb-0">Danh Sách Công Việc</h3>
@@ -183,15 +178,14 @@
         </footer>
     </div>
     
-    <!-- Nút Admin nổi -->
     <button id="openAdminModalBtn" class="fixed bottom-4 right-4 bg-purple-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-purple-700 transition-transform transform hover:scale-110 z-40">
         <i class="fas fa-user-shield text-2xl"></i>
     </button>
 
     <script>
         // --- CONSTANTS & STATE ---
-        const LOCAL_STORAGE_KEY = 'customerTasksV11'; // Incremented version for stability fix
-        let allTasks = []; // The single source of truth for task data
+        const LOCAL_STORAGE_KEY = 'customerTasksV11'; 
+        let allTasks = []; 
 
         // --- DOM ELEMENTS ---
         const customerNameInput = document.getElementById('customerNameInput');
@@ -199,7 +193,13 @@
         const addressInput = document.getElementById('addressInput');
         const timeInput = document.getElementById('timeInput');
         const taskInput = document.getElementById('taskInput');
-        const addTaskBtn = document.getElementById('addTaskBtn');
+        // THAY ĐỔI: Lấy các element mới của modal
+        const submitTaskBtn = document.getElementById('submitTaskBtn');
+        const modalTitle = document.getElementById('modalTitle');
+        const submitIcon = document.getElementById('submitIcon');
+        const submitText = document.getElementById('submitText');
+        const taskEditIndex = document.getElementById('taskEditIndex');
+
         const taskList = document.getElementById('taskList');
         const noTasksMessage = document.getElementById('no-tasks-message');
         const hideCompletedToggle = document.getElementById('hideCompletedToggle');
@@ -225,7 +225,8 @@
         const logoutBtn = document.getElementById('logoutBtn');
 
         // --- MODAL HELPER ---
-        function setupModal(modal, openBtn, closeBtn, content) {
+        // THAY ĐỔI: Thêm hàm callback khi modal đóng
+        function setupModal(modal, openBtn, closeBtn, content, onCloseCallback) {
             function show() {
                 modal.classList.remove('hidden');
                 content.classList.remove('modal-leave-active');
@@ -236,6 +237,7 @@
                 setTimeout(() => {
                     modal.classList.add('hidden');
                     content.classList.remove('modal-leave-active');
+                    if(onCloseCallback) onCloseCallback(); // MỚI: Gọi callback khi đóng
                 }, 200);
             }
             if (openBtn) openBtn.addEventListener('click', show);
@@ -243,8 +245,22 @@
             modal.addEventListener('click', (e) => { if (e.target === modal) hide(); });
             return { show, hide };
         }
+        
+        // MỚI: Hàm để reset modal về trạng thái "Thêm mới"
+        function resetTaskModal() {
+            modalTitle.textContent = 'Thêm Công Việc Mới';
+            submitText.textContent = 'Thêm Công Việc';
+            submitIcon.className = 'fas fa-plus';
+            taskEditIndex.value = '-1';
+            
+            customerNameInput.value = '';
+            phoneInput.value = '';
+            addressInput.value = '';
+            timeInput.value = '';
+            taskInput.value = '';
+        }
 
-        const taskModalControls = setupModal(taskModal, openModalBtn, closeModalBtn, modalContent);
+        const taskModalControls = setupModal(taskModal, openModalBtn, closeModalBtn, modalContent, resetTaskModal);
         const adminModalControls = setupModal(adminModal, openAdminModalBtn, closeAdminModalBtn, adminModalContent);
 
         // --- ADMIN LOGIC ---
@@ -266,6 +282,7 @@
         }
         
         // --- BACKUP & RESTORE LOGIC ---
+        // THAY ĐỔI: Sửa lỗi backup không hoạt động trên một số trình duyệt
         function backupTasks() {
             if (allTasks.length === 0) {
                 alert('Không có công việc nào để sao lưu.');
@@ -275,11 +292,17 @@
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
             const a = document.createElement('a');
-a.href = url;
+
+            document.body.appendChild(a);
+            a.style.display = 'none';
+
+            a.href = url;
             const date = new Date().toISOString().slice(0, 10);
             a.download = `sao-luu-cong-viec-${date}.json`;
             a.click();
+            
             URL.revokeObjectURL(url);
+            document.body.removeChild(a);
         }
 
         function handleFileRestore(event) {
@@ -304,10 +327,6 @@ a.href = url;
         }
 
         // --- CORE DATA & RENDER LOGIC ---
-
-        /**
-         * A central function to save the current state and re-render the UI.
-         */
         function saveAndRender() {
             try {
                 localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allTasks));
@@ -318,9 +337,6 @@ a.href = url;
             renderAllTasks();
         }
 
-        /**
-         * Renders the entire list of tasks to the DOM from the `allTasks` array.
-         */
         function renderAllTasks() {
             taskList.innerHTML = '';
             allTasks.forEach((taskData, index) => {
@@ -332,6 +348,7 @@ a.href = url;
                 const completeBtnText = completed ? 'Làm lại' : 'Hoàn thành';
                 const completeBtnClass = completed ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600';
 
+                // THAY ĐỔI: Thêm nút Chỉnh sửa (Edit) vào HTML của mỗi task
                 li.innerHTML = `
                     <div class="flex-grow mr-0 sm:mr-4 mb-4 sm:mb-0 w-full">
                         <p class="font-bold text-lg task-content">${text}</p>
@@ -342,12 +359,15 @@ a.href = url;
                             ${address ? `<span class="customer-address truncate"><i class="fas fa-map-marker-alt fa-fw mr-1.5 text-purple-500"></i>${address}</span>` : ''}
                         </div>
                     </div>
-                    <div class="flex flex-col items-stretch space-y-2 flex-shrink-0 w-full sm:w-32">
-                        <button data-action="toggle" data-index="${index}" class="font-semibold py-2 px-3 rounded-lg text-sm text-white transition-colors duration-200 w-full ${completeBtnClass}">
+                    <div class="flex flex-row sm:flex-col items-stretch space-x-2 sm:space-x-0 sm:space-y-2 flex-shrink-0 w-full sm:w-32">
+                        <button data-action="toggle" data-index="${index}" class="flex-1 sm:flex-none font-semibold py-2 px-3 rounded-lg text-sm text-white transition-colors duration-200 ${completeBtnClass}">
                             ${completeBtnText}
                         </button>
-                        <button data-action="delete" data-index="${index}" class="flex items-center justify-center bg-red-500 text-white hover:bg-red-600 font-semibold py-2 px-3 rounded-lg text-sm transition-colors duration-200 w-full">
-                            <i class="fas fa-trash mr-2"></i> Xóa
+                        <button data-action="edit" data-index="${index}" class="flex-1 sm:flex-none flex items-center justify-center bg-blue-500 text-white hover:bg-blue-600 font-semibold py-2 px-3 rounded-lg text-sm transition-colors duration-200">
+                           <i class="fas fa-pencil-alt mr-2"></i> Sửa
+                        </button>
+                        <button data-action="delete" data-index="${index}" class="flex-1 sm:flex-none flex items-center justify-center bg-red-500 text-white hover:bg-red-600 font-semibold py-2 px-3 rounded-lg text-sm transition-colors duration-200">
+                           <i class="fas fa-trash mr-2"></i> Xóa
                         </button>
                     </div>
                 `;
@@ -374,6 +394,7 @@ a.href = url;
 
         // --- EVENT HANDLERS ---
         
+        // THAY ĐỔI: Cập nhật hàm xử lý click để có thêm action "edit"
         function handleTaskListClick(event) {
             const button = event.target.closest('button[data-action]');
             if (!button) return;
@@ -392,16 +413,49 @@ a.href = url;
                     saveAndRender();
                 }
             }
+            
+            // MỚI: Xử lý khi nhấn nút "Sửa"
+            if (action === 'edit') {
+                openEditModal(index);
+            }
         }
 
-        function handleAddTask() {
+        // MỚI: Hàm mở modal để sửa công việc
+        function openEditModal(index) {
+            const task = allTasks[index];
+            if (!task) return;
+            
+            // Đổi tiêu đề và nút trong modal
+            modalTitle.textContent = 'Chỉnh Sửa Công Việc';
+            submitText.textContent = 'Lưu Thay Đổi';
+            submitIcon.className = 'fas fa-save';
+
+            // Điền thông tin cũ vào form
+            customerNameInput.value = task.customerName;
+            phoneInput.value = task.phone;
+            addressInput.value = task.address;
+            taskInput.value = task.text;
+            // Chuyển đổi định dạng thời gian cho input datetime-local
+            const date = new Date(task.time);
+            date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+            timeInput.value = date.toISOString().slice(0, 16);
+            
+            // Lưu lại index của công việc đang sửa
+            taskEditIndex.value = index;
+
+            // Mở modal
+            taskModalControls.show();
+        }
+
+        // THAY ĐỔI: Đổi tên hàm và thêm logic xử lý cho cả Thêm và Sửa
+        function handleSubmitTask() {
             const taskData = {
                 customerName: customerNameInput.value.trim(),
                 phone: phoneInput.value.trim(),
                 address: addressInput.value.trim(),
                 time: timeInput.value,
                 text: taskInput.value.trim(),
-                completed: false,
+                completed: false, 
             };
 
             if (!taskData.customerName || !taskData.time || !taskData.text) {
@@ -409,10 +463,18 @@ a.href = url;
                 return;
             }
 
-            allTasks.unshift(taskData);
-            saveAndRender();
+            const editIndex = parseInt(taskEditIndex.value, 10);
 
-            [customerNameInput, phoneInput, addressInput, timeInput, taskInput].forEach(input => input.value = '');
+            if (editIndex > -1) {
+                // Chế độ Sửa
+                taskData.completed = allTasks[editIndex].completed; // Giữ nguyên trạng thái completed cũ
+                allTasks[editIndex] = taskData;
+            } else {
+                // Chế độ Thêm mới
+                allTasks.unshift(taskData);
+            }
+            
+            saveAndRender();
             taskModalControls.hide();
         }
 
@@ -429,8 +491,10 @@ a.href = url;
             // Setup Task Listeners
             taskList.addEventListener('click', handleTaskListClick);
             hideCompletedToggle.addEventListener('change', updateCompletedTasksVisibility);
-            addTaskBtn.addEventListener('click', handleAddTask);
-            taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddTask(); }});
+            
+            // THAY ĐỔI: Gán sự kiện click cho nút submit của modal
+            submitTaskBtn.addEventListener('click', handleSubmitTask);
+            taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmitTask(); }});
 
             // Load initial state
             const savedHideState = JSON.parse(localStorage.getItem('hideCompletedState'));
