@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Công Ty Thiết Kế In Ấn Hội An - Quản Lý Công Việc (Firebase)</title>
+    <title>Công Ty Thiết Kế In Ấn Hội An</title>
     <!-- Tích hợp Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -49,6 +49,7 @@
             background: rgba(255, 255, 255, 0.08);
             border-radius: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease-in-out;
         }
         .input-glass {
             background: rgba(0, 0, 0, 0.25) !important;
@@ -116,9 +117,9 @@
         }
 
         @keyframes blinking-warning {
-            0% { background-color: rgba(239, 68, 68, 0.1); }
-            50% { background-color: rgba(239, 68, 68, 0.3); }
-            100% { background-color: rgba(239, 68, 68, 0.1); }
+            0% { background-color: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
+            50% { background-color: rgba(239, 68, 68, 0.3); border-color: rgba(239, 68, 68, 0.5); }
+            100% { background-color: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); }
         }
         
         .hidden { display: none !important; }
@@ -158,22 +159,22 @@
             <div class="p-6 sm:p-8">
                 <h3 class="text-2xl font-bold mb-6 text-center text-white">Thêm Công Việc Mới</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                     <div>
-                        <label for="customerNameInput" class="block text-sm font-medium text-gray-200 mb-1">Tên khách hàng <span class="text-red-400">*</span></label>
-                        <input type="text" id="customerNameInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Tên Khách Hàng">
-                    </div>
-                    <div>
-                        <label for="phoneInput" class="block text-sm font-medium text-gray-200 mb-1">Số điện thoại</label>
-                        <input type="tel" id="phoneInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="(Không bắt buộc)">
-                    </div>
-                     <div>
-                        <label for="addressInput" class="block text-sm font-medium text-gray-200 mb-1">Địa chỉ</label>
-                        <input type="text" id="addressInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="(Không bắt buộc)">
-                    </div>
-                    <div>
-                        <label for="timeInput" class="block text-sm font-medium text-gray-200 mb-1">Thời gian <span class="text-red-400">*</span></label>
-                        <input type="datetime-local" id="timeInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" style="color-scheme: dark;">
-                    </div>
+                        <div>
+                            <label for="customerNameInput" class="block text-sm font-medium text-gray-200 mb-1">Tên khách hàng <span class="text-red-400">*</span></label>
+                            <input type="text" id="customerNameInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="Tên Khách Hàng">
+                        </div>
+                        <div>
+                            <label for="phoneInput" class="block text-sm font-medium text-gray-200 mb-1">Số điện thoại</label>
+                            <input type="tel" id="phoneInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="(Không bắt buộc)">
+                        </div>
+                        <div>
+                            <label for="addressInput" class="block text-sm font-medium text-gray-200 mb-1">Địa chỉ</label>
+                            <input type="text" id="addressInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" placeholder="(Không bắt buộc)">
+                        </div>
+                        <div>
+                            <label for="timeInput" class="block text-sm font-medium text-gray-200 mb-1">Thời gian <span class="text-red-400">*</span></label>
+                            <input type="datetime-local" id="timeInput" class="input-glass w-full p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400" style="color-scheme: dark;">
+                        </div>
                 </div>
                 <div class="mb-6">
                     <label for="taskInput" class="block text-sm font-medium text-gray-200 mb-1">Nội dung công việc <span class="text-red-400">*</span></label>
@@ -209,9 +210,21 @@
         </div>
     </div>
 
+    <!-- Modal Xác nhận / Thông báo -->
+    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[60] hidden">
+        <div id="confirmModalContent" class="glass-effect w-full max-w-sm relative p-8 text-center">
+            <h3 id="confirmModalTitle" class="text-xl font-bold text-white mb-4"></h3>
+            <p id="confirmModalText" class="text-gray-200 mb-6"></p>
+            <div id="confirmModalButtons" class="flex justify-center gap-4">
+                <button id="confirmModalCancel" class="glass-button flex-1 bg-gray-500/70 border-gray-400/60 text-white font-semibold py-2 px-4 hover:bg-gray-500/80">Hủy</button>
+                <button id="confirmModalOk" class="glass-button flex-1 bg-red-500/70 border-red-400/60 text-white font-semibold py-2 px-4 hover:bg-red-500/80">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Nội dung chính của trang -->
-    <div class="container mx-auto max-w-4xl mt-8 sm:mt-16 px-4 pb-20">
+    <div class="container mx-auto max-w-5xl mt-8 sm:mt-16 px-4 pb-20">
         
         <div class="text-center mb-6">
             <h1 class="font-headline animated-gradient-text text-3xl sm:text-4xl md:text-5xl font-extrabold pb-2">Công Ty Thiết Kế In Ấn Hội An</h1>
@@ -220,7 +233,10 @@
 
         <header class="text-center mb-8">
             <h2 class="text-2xl sm:text-4xl font-bold text-white">Quản Lý Công Việc</h2>
-            <p class="text-gray-200 mt-2">Nơi quản lý tất cả công việc của bạn.</p>
+            <div class="text-center mt-2">
+                <p id="greeting" class="text-gray-200 text-lg px-4"></p>
+                <p id="live-clock" class="text-gray-400 text-sm font-mono mt-1"></p>
+            </div>
         </header>
 
         <div class="mb-8 text-center">
@@ -243,20 +259,39 @@
 
         <!-- Danh sách công việc -->
         <div class="glass-effect p-4 sm:p-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-4 border-b border-white/20">
-                <h3 class="text-2xl font-bold text-white mb-2 sm:mb-0">Danh Sách Công Việc</h3>
-                <div class="flex items-center space-x-3">
-                    <label for="hideCompletedToggle" class="text-sm font-medium text-gray-200 select-none">Ẩn việc đã xong</label>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" id="hideCompletedToggle" class="sr-only peer">
-                      <div class="w-11 h-6 bg-gray-500/50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pink-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
-                    </label>
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 pb-4 border-b border-white/20">
+                <h3 class="text-2xl font-bold text-white mb-4 lg:mb-0">Danh Sách Công Việc</h3>
+                <div class="flex flex-wrap items-center justify-start lg:justify-end gap-y-3 gap-x-6">
+                    <!-- Filter 1 -->
+                    <div class="flex items-center justify-between sm:justify-start space-x-3">
+                        <label for="hideCompletedToggle" class="text-sm font-medium text-gray-200 select-none">Ẩn việc đã xong</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="hideCompletedToggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
+                        </label>
+                    </div>
+                    <!-- Filter 2 -->
+                    <div class="flex items-center justify-between sm:justify-start space-x-3">
+                        <label for="showTodayOnlyToggle" class="text-sm font-medium text-gray-200 select-none">Chỉ việc hôm nay</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="showTodayOnlyToggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                        </label>
+                    </div>
+                    <!-- Filter 3 -->
+                    <div class="flex items-center justify-between sm:justify-start space-x-3">
+                        <label for="showOverdueOnlyToggle" class="text-sm font-medium text-gray-200 select-none">Chỉ việc quá hạn</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="showOverdueOnlyToggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                        </label>
+                    </div>
                 </div>
             </div>
             <ul id="taskList" class="space-y-3"></ul>
             <div id="no-tasks-message" class="text-center text-gray-200 py-6 hidden">
                 <i class="fas fa-check-circle fa-2x mb-2"></i>
-                <p>Tuyệt vời! Không có công việc nào cần làm.</p>
+                <p>Tuyệt vời! Không có công việc nào phù hợp với bộ lọc.</p>
             </div>
         </div>
         
@@ -290,6 +325,8 @@
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- START: FIREBASE CONFIGURATION ---
+        // QUAN TRỌNG: Thay thế các giá trị dưới đây bằng cấu hình Firebase của bạn.
+        // Bạn có thể lấy thông tin này từ Console của Firebase project của bạn.
         const firebaseConfig = {
             apiKey: "AIzaSyDJBY6U0LUtmnk4PrfNeA7UE7qq1FZ84X8",
             authDomain: "data-chung-a62ee.firebaseapp.com",
@@ -313,7 +350,7 @@
             db = getFirestore(app);
         } catch (e) {
             console.error("Lỗi khởi tạo Firebase. Bạn đã điền đúng firebaseConfig chưa?", e);
-            alert("Lỗi cấu hình Firebase! Vui lòng kiểm tra lại thông tin cấu hình trong mã nguồn. Chi tiết xem ở Console (F12).");
+            showAlert("Lỗi cấu hình Firebase! Vui lòng kiểm tra lại thông tin cấu hình trong mã nguồn. Chi tiết xem ở Console (F12).", "Lỗi nghiêm trọng");
             document.getElementById('loading-overlay').classList.add('hidden');
         }
 
@@ -327,6 +364,8 @@
         const taskList = document.getElementById('taskList');
         const noTasksMessage = document.getElementById('no-tasks-message');
         const hideCompletedToggle = document.getElementById('hideCompletedToggle');
+        const showTodayOnlyToggle = document.getElementById('showTodayOnlyToggle');
+        const showOverdueOnlyToggle = document.getElementById('showOverdueOnlyToggle');
         
         const taskModal = document.getElementById('taskModal');
         const modalContent = document.getElementById('modalContent');
@@ -371,7 +410,64 @@
         const taskModalControls = setupModal(taskModal, openModalBtn, closeModalBtn, modalContent);
         const adminModalControls = setupModal(adminModal, openAdminModalBtn, closeAdminModalBtn, adminModalContent);
 
+        // --- CUSTOM ALERT/CONFIRM MODAL ---
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmModalContent = document.getElementById('confirmModalContent');
+        const confirmModalTitle = document.getElementById('confirmModalTitle');
+        const confirmModalText = document.getElementById('confirmModalText');
+        const confirmModalOk = document.getElementById('confirmModalOk');
+        const confirmModalCancel = document.getElementById('confirmModalCancel');
+        let confirmCallback = null;
+
+        function hideConfirmModal() {
+            confirmModalContent.classList.remove('modal-enter-to');
+            confirmModalContent.classList.add('modal-leave-to');
+            setTimeout(() => confirmModal.classList.add('hidden'), 200);
+        }
+
+        function showConfirm(text, title = "Xác nhận", onConfirm) {
+            confirmModalText.textContent = text;
+            confirmModalTitle.textContent = title;
+            confirmModalCancel.classList.remove('hidden');
+            confirmModalOk.textContent = 'Xác nhận';
+            confirmCallback = onConfirm;
+            
+            confirmModal.classList.remove('hidden');
+            confirmModalContent.classList.remove('modal-leave-to');
+            confirmModalContent.classList.add('modal-enter-from');
+            setTimeout(() => confirmModalContent.classList.add('modal-enter-to'), 10);
+        }
+
+        function showAlert(text, title = "Thông báo") {
+            confirmModalText.textContent = text;
+            confirmModalTitle.textContent = title;
+            confirmModalCancel.classList.add('hidden');
+            confirmModalOk.textContent = 'OK';
+            confirmCallback = null;
+
+            confirmModal.classList.remove('hidden');
+            confirmModalContent.classList.remove('modal-leave-to');
+            confirmModalContent.classList.add('modal-enter-from');
+            setTimeout(() => confirmModalContent.classList.add('modal-enter-to'), 10);
+        }
+
+        confirmModalOk.addEventListener('click', () => {
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            hideConfirmModal();
+        });
+        confirmModalCancel.addEventListener('click', hideConfirmModal);
+        confirmModal.addEventListener('click', (e) => { if (e.target === confirmModal) hideConfirmModal(); });
+
+
         // --- ADMIN & AUTH LOGIC ---
+        // CẢNH BÁO BẢO MẬT: Logic đăng nhập admin hiện tại KHÔNG AN TOÀN.
+        // Mật khẩu được lưu và kiểm tra ngay trên trình duyệt, bất kỳ ai cũng có thể xem mã nguồn để tìm ra.
+        // GIẢI PHÁP ĐÚNG: Sử dụng Firebase Authentication với Email/Password cho tài khoản admin.
+        // Sau đó, bảo vệ dữ liệu bằng Firestore Security Rules, ví dụ:
+        // allow read: if request.auth != null;
+        // allow write, delete: if request.auth.uid == "ID_CUA_ADMIN";
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 console.log("User signed in anonymously:", user.uid);
@@ -381,7 +477,7 @@
                 console.log("User is signed out. Attempting to sign in anonymously.");
                 signInAnonymously(auth).catch((error) => {
                     console.error("Anonymous sign-in failed:", error);
-                    alert("Không thể kết nối đến máy chủ. Lỗi: " + error.message);
+                    showAlert(`Không thể kết nối đến máy chủ. Lỗi: ${error.message}`, "Lỗi kết nối");
                     loadingOverlay.classList.add('hidden');
                 });
             }
@@ -396,7 +492,7 @@
                 loginError.classList.add('hidden');
                 usernameInput.value = '';
                 passwordInput.value = '';
-                renderAllTasks();
+                renderAllTasks(); // Re-render to show admin buttons
             } else {
                 loginError.classList.remove('hidden');
             }
@@ -405,13 +501,13 @@
             isAdminLoggedIn = false;
             adminControls.classList.add('hidden');
             openAdminModalBtn.classList.remove('hidden');
-            renderAllTasks();
+            renderAllTasks(); // Re-render to hide admin buttons
         }
         
         // --- BACKUP & RESTORE LOGIC ---
         function backupTasks() {
             if (allTasks.length === 0) {
-                alert('Không có công việc nào để sao lưu.');
+                showAlert('Không có công việc nào để sao lưu.');
                 return;
             }
             const backupData = allTasks.map(({ id, createdAt, ...task }) => {
@@ -431,52 +527,60 @@
             URL.revokeObjectURL(url);
         }
 
-        async function handleFileRestore(event) {
+        function handleFileRestore(event) {
             const file = event.target.files[0];
             if (!file) return;
-            if (!confirm('CẢNH BÁO: Hành động này sẽ XÓA TẤT CẢ công việc hiện có và thay thế bằng dữ liệu từ tệp này. Bạn có chắc chắn?')) {
-                event.target.value = '';
-                return;
-            }
-            
-            loadingOverlay.classList.remove('hidden');
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const restoredTasks = JSON.parse(e.target.result);
-                    if (!Array.isArray(restoredTasks)) throw new Error('Tệp không hợp lệ.');
 
-                    const batchDelete = writeBatch(db);
-                    allTasks.forEach(task => {
-                        batchDelete.delete(doc(db, "tasks", task.id));
-                    });
-                    await batchDelete.commit();
+            const restoreLogic = () => {
+                loadingOverlay.classList.remove('hidden');
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const restoredTasks = JSON.parse(e.target.result);
+                        if (!Array.isArray(restoredTasks)) throw new Error('Tệp không hợp lệ.');
 
-                    const batchAdd = writeBatch(db);
-                    restoredTasks.forEach(task => {
-                        const newDocRef = doc(collection(db, "tasks"));
-                        if (typeof task.time === 'string') {
-                            task.time = new Date(task.time);
-                        }
-                        batchAdd.set(newDocRef, { ...task, createdAt: serverTimestamp() });
-                    });
-                    await batchAdd.commit();
-                    
-                    alert('Phục hồi thành công!');
-                } catch (err) {
-                    console.error("Restore error:", err);
-                    alert('Lỗi: Không thể đọc tệp sao lưu.');
-                } finally {
-                    loadingOverlay.classList.add('hidden');
-                    event.target.value = '';
-                }
+                        const batchDelete = writeBatch(db);
+                        allTasks.forEach(task => {
+                            batchDelete.delete(doc(db, "tasks", task.id));
+                        });
+                        await batchDelete.commit();
+
+                        const batchAdd = writeBatch(db);
+                        restoredTasks.forEach(task => {
+                            const newDocRef = doc(collection(db, "tasks"));
+                            if (typeof task.time === 'string') {
+                                task.time = new Date(task.time);
+                            }
+                            batchAdd.set(newDocRef, { ...task, createdAt: serverTimestamp() });
+                        });
+                        await batchAdd.commit();
+                        
+                        showAlert('Phục hồi thành công!', 'Hoàn tất');
+                    } catch (err) {
+                        console.error("Restore error:", err);
+                        showAlert('Lỗi: Không thể đọc tệp sao lưu. Tệp có thể bị hỏng hoặc không đúng định dạng.', 'Lỗi phục hồi');
+                    } finally {
+                        loadingOverlay.classList.add('hidden');
+                        event.target.value = '';
+                    }
+                };
+                reader.readAsText(file);
             };
-            reader.readAsText(file);
+
+            showConfirm(
+                'Hành động này sẽ XÓA TẤT CẢ công việc hiện có và thay thế bằng dữ liệu từ tệp này. Bạn có chắc chắn muốn tiếp tục?', 
+                'CẢNH BÁO', 
+                restoreLogic
+            );
+            event.target.value = '';
         }
 
         // --- CORE DATA & RENDER LOGIC ---
         function listenForTasks() {
             const tasksCollection = collection(db, 'tasks');
+            // QUAN TRỌNG: Để query với orderBy hoạt động, bạn cần tạo một Index tương ứng trong Firestore.
+            // Truy cập Firestore -> Indexes -> Composite Indexes -> Create Index.
+            // Collection ID: tasks, Fields to index: createdAt (Descending).
             const q = query(tasksCollection, orderBy('createdAt', 'desc'));
 
             unsubscribeFromTasks = onSnapshot(q, (querySnapshot) => {
@@ -488,7 +592,7 @@
                 loadingOverlay.classList.add('hidden');
             }, (error) => {
                 console.error("Error listening to tasks:", error);
-                alert("Mất kết nối với cơ sở dữ liệu.");
+                showAlert("Mất kết nối với cơ sở dữ liệu. Vui lòng kiểm tra lại kết nối mạng.", "Lỗi kết nối");
                 loadingOverlay.classList.add('hidden');
             });
         }
@@ -496,26 +600,49 @@
         function renderAllTasks() {
             taskList.innerHTML = '';
             const now = new Date();
-            const oneDayInMs = 24 * 60 * 60 * 1000; // Milliseconds in one day
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+            const shouldHideCompleted = hideCompletedToggle.checked;
+            const showTodayOnly = showTodayOnlyToggle.checked;
+            const showOverdueOnly = showOverdueOnlyToggle.checked;
 
             allTasks.forEach((taskData) => {
                 const { id, customerName, phone, address, time, text, completed } = taskData;
                 
+                const taskDate = time?.toDate ? time.toDate() : new Date(time);
+                
+                // LOGIC CẢNH BÁO QUÁ HẠN:
+                // Công việc được coi là quá hạn nếu chưa hoàn thành và ngày hiện tại đã sau ngày hẹn.
+                // Cảnh báo bắt đầu từ 00:00 của ngày hôm sau.
+                const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Lấy thời điểm 00:00 của ngày hôm nay
+                const isOverdue = !completed && startOfToday > taskDate;
+                
+                const isToday = taskDate >= todayStart && taskDate < todayEnd;
+
+                // --- FILTERING LOGIC ---
+                if (shouldHideCompleted && completed) {
+                    return; // Skip this task if it's completed and the toggle is on
+                }
+                if (showTodayOnly && !isToday) {
+                    return; // Skip if "Today only" is on and the task is not for today
+                }
+                if (showOverdueOnly && !isOverdue) {
+                    return; // Skip if "Overdue only" is on and the task is not overdue
+                }
+                // --- END FILTERING LOGIC ---
+
                 const li = document.createElement('li');
                 li.className = `task-item-glass flex flex-col sm:flex-row items-start justify-between p-3 sm:p-4 ${completed ? 'completed' : ''}`;
                 li.dataset.id = id;
-                li.dataset.completed = completed;
 
-                const completeBtnText = completed ? 'Làm lại' : 'Hoàn thành';
-                const completeBtnClass = completed ? 'bg-yellow-500/70 border-yellow-400/60 hover:bg-yellow-500/80' : 'bg-green-500/70 border-green-400/60 hover:bg-green-500/80';
-                const taskDate = time?.toDate ? time.toDate() : new Date(time);
-
-                // Check for tasks overdue by at least 1 day (24 hours)
-                const isOverdue = !completed && (now.getTime() - taskDate.getTime() >= oneDayInMs);
                 if (isOverdue) {
                     li.classList.add('overdue-task');
                 }
 
+                const completeBtnText = completed ? 'Làm lại' : 'Hoàn thành';
+                const completeBtnClass = completed ? 'bg-yellow-500/70 border-yellow-400/60 hover:bg-yellow-500/80' : 'bg-green-500/70 border-green-400/60 hover:bg-green-500/80';
+                
                 const deleteButtonHTML = isAdminLoggedIn ? `
                     <button data-action="delete" class="glass-button flex items-center justify-center bg-red-500/70 border-red-400/60 text-white hover:bg-red-500/80 font-semibold py-2 px-3 text-sm transition-all duration-200 w-full">
                         <i class="fas fa-trash mr-2"></i> Xóa
@@ -527,13 +654,13 @@
                         <p class="font-bold text-lg text-white task-content">${text}</p>
                         <div class="customer-info grid grid-cols-1 md:grid-cols-2 text-sm text-gray-200 mt-2 gap-x-4 gap-y-1">
                             <span class="truncate"><i class="fas fa-user fa-fw mr-1.5 text-blue-300"></i>${customerName}</span>
-                            <span class="truncate"><i class="fas fa-clock fa-fw mr-1.5 text-orange-300"></i>${taskDate.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            <span class="truncate"><i class="fas fa-clock fa-fw mr-1.5 ${isOverdue ? 'text-red-400' : 'text-orange-300'}"></i>${taskDate.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                             ${phone ? `<span class="truncate"><i class="fas fa-phone fa-fw mr-1.5 text-green-300"></i>${phone}</span>` : ''}
                             ${address ? `<span class="truncate"><i class="fas fa-map-marker-alt fa-fw mr-1.5 text-purple-300"></i>${address}</span>` : ''}
                         </div>
                     </div>
                     <div class="flex flex-col items-stretch space-y-2 flex-shrink-0 w-full sm:w-32">
-                        <button data-action="toggle" class="glass-button font-semibold py-2 px-3 text-sm text-white transition-all duration-200 w-full border ${completeBtnClass}">
+                        <button data-action="toggle" data-completed="${completed}" class="glass-button font-semibold py-2 px-3 text-sm text-white transition-all duration-200 w-full border ${completeBtnClass}">
                             ${completeBtnText}
                         </button>
                         ${deleteButtonHTML}
@@ -541,23 +668,12 @@
                 `;
                 taskList.appendChild(li);
             });
-            updateCompletedTasksVisibility();
+            checkEmptyState();
         }
         
         // --- UI UTILITY FUNCTIONS ---
         function checkEmptyState() {
-            const hasVisibleTasks = Array.from(taskList.children).some(task => !task.classList.contains('hidden'));
-            noTasksMessage.classList.toggle('hidden', !(taskList.children.length > 0 && !hasVisibleTasks));
-        }
-
-        function updateCompletedTasksVisibility() {
-            const shouldHide = hideCompletedToggle.checked;
-            taskList.querySelectorAll('li').forEach(li => {
-                const isCompleted = li.dataset.completed === 'true';
-                li.classList.toggle('hidden', shouldHide && isCompleted);
-            });
-            localStorage.setItem('hideCompletedState', shouldHide);
-            checkEmptyState();
+            noTasksMessage.classList.toggle('hidden', taskList.children.length > 0);
         }
 
         // --- EVENT HANDLERS ---
@@ -574,29 +690,29 @@
             const taskDocRef = doc(db, "tasks", taskId);
 
             if (action === 'toggle') {
-                const isCompleted = li.dataset.completed === 'true';
+                const isCompleted = button.dataset.completed === 'true';
                 try {
                     await updateDoc(taskDocRef, { completed: !isCompleted });
                 } catch (e) {
                     console.error("Error updating task: ", e);
-                    alert("Lỗi cập nhật công việc.");
+                    showAlert("Lỗi cập nhật công việc.", "Lỗi");
                 }
             }
 
             if (action === 'delete') {
                 if (!isAdminLoggedIn) {
-                    alert("Bạn không có quyền thực hiện hành động này.");
+                    showAlert("Bạn không có quyền thực hiện hành động này.", "Truy cập bị từ chối");
                     return;
                 }
                 const taskText = li.querySelector('.task-content')?.textContent || 'công việc này';
-                if (confirm(`Bạn có chắc muốn xóa "${taskText}"?`)) {
+                showConfirm(`Bạn có chắc muốn xóa công việc "${taskText}"? Hành động này không thể hoàn tác.`, "Xác nhận xóa", async () => {
                     try {
                         await deleteDoc(taskDocRef);
                     } catch (e) {
                         console.error("Error deleting task: ", e);
-                        alert("Lỗi xóa công việc.");
+                        showAlert("Lỗi xóa công việc.", "Lỗi");
                     }
-                }
+                });
             }
         }
 
@@ -612,7 +728,7 @@
             };
 
             if (!taskData.customerName || !timeInput.value || !taskData.text) {
-                alert('Vui lòng nhập các trường bắt buộc!');
+                showAlert('Vui lòng nhập đầy đủ các trường bắt buộc (*).', 'Thiếu thông tin');
                 return;
             }
 
@@ -622,13 +738,61 @@
                 taskModalControls.hide();
             } catch (e) {
                 console.error("Error adding document: ", e);
-                alert("Lỗi khi thêm công việc mới.");
+                showAlert("Lỗi khi thêm công việc mới.", "Lỗi");
             }
         }
 
+        // Cải thiện: Đặt giá trị mặc định cho ô nhập thời gian là thời điểm hiện tại
+        function setModalDefaults() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            timeInput.value = now.toISOString().slice(0,16);
+        }
+
+        // --- DYNAMIC HEADER FUNCTION ---
+        function setDynamicHeader() {
+            const greetingEl = document.getElementById('greeting');
+            const clockEl = document.getElementById('live-clock');
+
+            function updateContent() {
+                const now = new Date();
+                const hour = now.getHours();
+                const minute = now.getMinutes();
+                let greetingText = '';
+
+                // Xác định lời chào dựa trên các khung giờ
+                if (hour >= 6 && (hour < 9 || (hour === 9 && minute < 30))) { // 6:00 - 9:29
+                    greetingText = 'Chúc mọi người một buổi sáng tốt lành, tràn đầy năng lượng và làm việc hiệu quả nhé!';
+                } else if ((hour === 9 && minute >= 30) || hour === 10 || (hour === 11 && minute <= 58)) { // 9:30 - 11:58
+                    greetingText = 'Chúc mọi người buổi trưa vui vẻ';
+                } else if ((hour === 11 && minute >= 59) || hour === 12 || (hour === 13 && minute <= 30)) { // 11:59 - 13:30
+                    greetingText = 'Nghỉ trưa thôi cả nhà! Nạp lại năng lượng để chiều chiến tiếp nha.';
+                } else if ((hour === 13 && minute >= 31) || hour === 14 || hour === 15) { // 13:31 - 15:59
+                    greetingText = 'Buổi chiều tốt lành! Cùng nhau hoàn thành mục tiêu hôm nay thôi nào.';
+                } else { // Bao gồm 16:00 - 5:59
+                    greetingText = 'Chúc mọi người buổi tối an lành, nghỉ ngơi thật tốt để mai lại tràn đầy năng lượng nhé!';
+                }
+                greetingEl.textContent = greetingText;
+
+                // Cập nhật đồng hồ
+                const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+                const dayName = days[now.getDay()];
+                const clockString = `${dayName}, ${now.toLocaleDateString('vi-VN')} | ${now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute:'2-digit', second:'2-digit' })}`;
+                clockEl.textContent = clockString;
+            }
+
+            updateContent(); // Chạy lần đầu khi tải trang
+            setInterval(updateContent, 1000); // Cập nhật mỗi giây
+        }
+
+
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-             if (!db) return;
+            if (!db) return;
+
+            // Thiết lập lời chào và đồng hồ động
+            setDynamicHeader();
+
             loginBtn.addEventListener('click', handleAdminLogin);
             passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAdminLogin(); });
             logoutBtn.addEventListener('click', handleAdminLogout);
@@ -636,11 +800,47 @@
             restoreBtn.addEventListener('click', () => restoreFileInput.click());
             restoreFileInput.addEventListener('change', handleFileRestore);
             taskList.addEventListener('click', handleTaskListClick);
-            hideCompletedToggle.addEventListener('change', updateCompletedTasksVisibility);
+            
+            // --- CÀI ĐẶT BỘ LỌC ---
+            // Mặc định "Ẩn việc đã xong" là BẬT cho lần truy cập đầu tiên.
+            const savedHideState = localStorage.getItem('hideCompletedState');
+            if (savedHideState === null) {
+                hideCompletedToggle.checked = true;
+                localStorage.setItem('hideCompletedState', 'true');
+            } else {
+                hideCompletedToggle.checked = JSON.parse(savedHideState);
+            }
+            
+            // Tải trạng thái các bộ lọc khác từ localStorage
+            showTodayOnlyToggle.checked = JSON.parse(localStorage.getItem('showTodayOnlyState')) || false;
+            showOverdueOnlyToggle.checked = JSON.parse(localStorage.getItem('showOverdueOnlyState')) || false;
+
+            // Thêm sự kiện lắng nghe cho các bộ lọc
+            hideCompletedToggle.addEventListener('change', () => {
+                localStorage.setItem('hideCompletedState', hideCompletedToggle.checked);
+                renderAllTasks();
+            });
+            showTodayOnlyToggle.addEventListener('change', () => {
+                if (showTodayOnlyToggle.checked) {
+                    showOverdueOnlyToggle.checked = false;
+                    localStorage.setItem('showOverdueOnlyState', 'false');
+                }
+                localStorage.setItem('showTodayOnlyState', showTodayOnlyToggle.checked);
+                renderAllTasks();
+            });
+            showOverdueOnlyToggle.addEventListener('change', () => {
+                if (showOverdueOnlyToggle.checked) {
+                    showTodayOnlyToggle.checked = false;
+                    localStorage.setItem('showTodayOnlyState', 'false');
+                }
+                localStorage.setItem('showOverdueOnlyState', showOverdueOnlyToggle.checked);
+                renderAllTasks();
+            });
+
             addTaskBtn.addEventListener('click', handleAddTask);
+            openModalBtn.addEventListener('click', setModalDefaults);
             taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddTask(); }});
-            const savedHideState = JSON.parse(localStorage.getItem('hideCompletedState'));
-            hideCompletedToggle.checked = savedHideState !== false; 
+            
         });
     </script>
 </body>
