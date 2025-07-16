@@ -66,9 +66,26 @@
             opacity: 0;
             transform: scale(0.95);
         }
+        /* Style cho loading spinner */
+        #loading-overlay {
+            z-index: 100;
+        }
+        .spinner {
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex flex-col items-center justify-center">
+        <div class="spinner w-16 h-16 border-8 border-gray-300 rounded-full"></div>
+        <p class="text-white text-lg mt-4">Đang kết nối đến máy chủ...</p>
+    </div>
 
     <!-- Modal Thêm/Sửa Công Việc -->
     <div id="taskModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
@@ -76,7 +93,7 @@
             <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 text-2xl" aria-label="Đóng">&times;</button>
             <div class="p-6 sm:p-8">
                 <h3 id="modalTitle" class="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">Thêm Công Việc Mới</h3>
-                <input type="hidden" id="taskEditIndex" value="-1">
+                <input type="hidden" id="taskEditId" value="">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label for="customerNameInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tên khách hàng <span class="text-red-500">*</span></label>
@@ -149,6 +166,11 @@
             </button>
         </div>
         
+        <!-- Hiển thị User ID -->
+        <div id="userInfo" class="text-center mb-6 hidden">
+            <p class="text-xs text-gray-500 dark:text-gray-400">Mã phiên làm việc (User ID): <span id="userIdDisplay" class="font-mono bg-gray-200 dark:bg-gray-700 p-1 rounded"></span></p>
+        </div>
+
         <!-- Khu vực Admin Controls -->
         <div id="adminControls" class="hidden my-6 p-4 bg-purple-100 dark:bg-purple-900/30 border border-purple-300 dark:border-purple-700 rounded-lg">
             <h3 class="text-lg font-bold text-purple-800 dark:text-purple-300 mb-3 text-center">Bảng điều khiển Admin</h3>
@@ -189,12 +211,22 @@
         <i class="fas fa-user-shield text-2xl"></i>
     </button>
     
-    <script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import các hàm cần thiết từ Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, collection, addDoc, setDoc, deleteDoc, onSnapshot, writeBatch, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         // --- STATE & CONSTANTS ---
-        const LOCAL_STORAGE_KEY = 'customerTasksV12'; // Key for local storage
         let allTasks = []; // Local cache of tasks
+        let db, auth; // Firebase services
+        let userId; // Current user's ID
+        let tasksUnsubscribe = null; // Function to stop listening for task updates
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // --- DOM ELEMENTS ---
+        const loadingOverlay = document.getElementById('loading-overlay');
         const customerNameInput = document.getElementById('customerNameInput');
         const phoneInput = document.getElementById('phoneInput');
         const addressInput = document.getElementById('addressInput');
@@ -204,7 +236,7 @@
         const modalTitle = document.getElementById('modalTitle');
         const submitIcon = document.getElementById('submitIcon');
         const submitText = document.getElementById('submitText');
-        const taskEditIndex = document.getElementById('taskEditIndex');
+        const taskEditId = document.getElementById('taskEditId');
 
         const taskList = document.getElementById('taskList');
         const noTasksMessage = document.getElementById('no-tasks-message');
@@ -229,6 +261,9 @@
         const restoreBtn = document.getElementById('restoreBtn');
         const restoreFileInput = document.getElementById('restoreFileInput');
         const logoutBtn = document.getElementById('logoutBtn');
+        
+        const userInfo = document.getElementById('userInfo');
+        const userIdDisplay = document.getElementById('userIdDisplay');
 
         // --- MODAL HELPER ---
         function setupModal(modal, openBtn, closeBtn, content, onCloseCallback) {
@@ -255,7 +290,7 @@
             modalTitle.textContent = 'Thêm Công Việc Mới';
             submitText.textContent = 'Thêm Công Việc';
             submitIcon.className = 'fas fa-plus';
-            taskEditIndex.value = '-1';
+            taskEditId.value = '';
             
             customerNameInput.value = '';
             phoneInput.value = '';
@@ -285,32 +320,79 @@
             openAdminModalBtn.classList.remove('hidden');
         }
         
-        // --- DATA & RENDER LOGIC ---
-        function saveAndRender() {
-            try {
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allTasks));
-            } catch (e) {
-                console.error("Error saving to localStorage:", e);
-                alert("Không thể lưu công việc. LocalStorage có thể bị đầy hoặc không được hỗ trợ.");
+        // --- BACKUP & RESTORE LOGIC ---
+        function backupTasks() {
+            if (allTasks.length === 0) {
+                alert('Không có công việc nào để sao lưu.');
+                return;
             }
-            renderAllTasks();
+            const dataStr = JSON.stringify(allTasks, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const a = document.createElement('a');
+            document.body.appendChild(a);
+            a.style.display = 'none';
+            a.href = url;
+            const date = new Date().toISOString().slice(0, 10);
+            a.download = `sao-luu-cong-viec-cloud-${date}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            document.body.removeChild(a);
         }
 
+        async function handleFileRestore(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!confirm('Bạn có chắc chắn muốn phục hồi? Hành động này sẽ XÓA TOÀN BỘ công việc hiện tại trên đám mây và thay thế bằng dữ liệu từ tệp này.')) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    loadingOverlay.classList.remove('hidden');
+                    const restoredTasks = JSON.parse(e.target.result);
+                    if (!Array.isArray(restoredTasks)) throw new Error('Tệp không hợp lệ.');
+                    
+                    const batchDelete = writeBatch(db);
+                    allTasks.forEach(task => {
+                        const docRef = doc(db, `artifacts/${appId}/users/${userId}/tasks`, task.id);
+                        batchDelete.delete(docRef);
+                    });
+                    await batchDelete.commit();
+
+                    const batchAdd = writeBatch(db);
+                    restoredTasks.forEach(task => {
+                        const newDocRef = doc(collection(db, `artifacts/${appId}/users/${userId}/tasks`));
+                        const { id, ...taskData } = task; 
+                        batchAdd.set(newDocRef, taskData);
+                    });
+                    await batchAdd.commit();
+
+                    alert('Phục hồi thành công!');
+                } catch (err) {
+                    console.error("Lỗi phục hồi:", err);
+                    alert('Lỗi: Không thể đọc tệp sao lưu. Tệp có thể bị hỏng hoặc không đúng định dạng.');
+                } finally {
+                    loadingOverlay.classList.add('hidden');
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- CORE RENDER LOGIC ---
         function renderAllTasks() {
-            // Sort tasks: incomplete first, then by time (newest first)
             const sortedTasks = [...allTasks].sort((a, b) => {
                 if (a.completed !== b.completed) {
                     return a.completed ? 1 : -1;
                 }
-                return new Date(b.time) - new Date(a.time);
+                const timeA = a.createdAt?.toDate() || 0;
+                const timeB = b.createdAt?.toDate() || 0;
+                return timeB - timeA;
             });
 
             taskList.innerHTML = '';
-            sortedTasks.forEach((taskData, sortedIndex) => {
-                // Find original index to ensure edits/deletes work correctly
-                const originalIndex = allTasks.findIndex(task => task === taskData);
-
-                const { customerName, phone, address, time, text, completed } = taskData;
+            sortedTasks.forEach(taskData => {
+                const { id, customerName, phone, address, time, text, completed } = taskData;
                 
                 const li = document.createElement('li');
                 li.className = `bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${completed ? 'completed opacity-60' : ''}`;
@@ -329,12 +411,12 @@
                         </div>
                     </div>
                     <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                        <button data-action="toggle" data-index="${originalIndex}" class="font-semibold py-1.5 px-3 rounded-lg text-xs text-white transition-colors duration-200 ${completeBtnClass}">
+                        <button data-action="toggle" data-id="${id}" class="font-semibold py-1.5 px-3 rounded-lg text-xs text-white transition-colors duration-200 ${completeBtnClass}">
                             ${completeBtnText}
                         </button>
                         <div class="flex space-x-2">
-                            <button data-action="edit" data-index="${originalIndex}" class="flex items-center justify-center bg-blue-500 text-white hover:bg-blue-600 w-8 h-8 rounded-full text-sm transition-colors duration-200" aria-label="Sửa"><i class="fas fa-pencil-alt"></i></button>
-                            <button data-action="delete" data-index="${originalIndex}" class="flex items-center justify-center bg-red-500 text-white hover:bg-red-600 w-8 h-8 rounded-full text-sm transition-colors duration-200" aria-label="Xóa"><i class="fas fa-trash"></i></button>
+                            <button data-action="edit" data-id="${id}" class="flex items-center justify-center bg-blue-500 text-white hover:bg-blue-600 w-8 h-8 rounded-full text-sm transition-colors duration-200" aria-label="Sửa"><i class="fas fa-pencil-alt"></i></button>
+                            <button data-action="delete" data-id="${id}" class="flex items-center justify-center bg-red-500 text-white hover:bg-red-600 w-8 h-8 rounded-full text-sm transition-colors duration-200" aria-label="Xóa"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
@@ -358,36 +440,45 @@
             checkEmptyState();
         }
 
-        // --- EVENT HANDLERS ---
-        function handleTaskListClick(event) {
+        // --- EVENT HANDLERS (FIRESTORE) ---
+        async function handleTaskListClick(event) {
             const button = event.target.closest('button[data-action]');
             if (!button) return;
 
-            const index = parseInt(button.dataset.index, 10);
-            const task = allTasks[index];
+            const taskId = button.dataset.id;
+            const task = allTasks.find(t => t.id === taskId);
             if (!task) return;
 
             const action = button.dataset.action;
+            const docRef = doc(db, `artifacts/${appId}/users/${userId}/tasks`, taskId);
 
             if (action === 'toggle') {
-                task.completed = !task.completed;
-                saveAndRender();
+                try {
+                    await setDoc(docRef, { completed: !task.completed }, { merge: true });
+                } catch (e) {
+                    console.error("Lỗi cập nhật công việc: ", e);
+                    alert("Đã xảy ra lỗi khi cập nhật trạng thái công việc.");
+                }
             }
 
             if (action === 'delete') {
                 if (confirm(`Bạn có chắc muốn xóa công việc của "${task.customerName}"?`)) {
-                    allTasks.splice(index, 1);
-                    saveAndRender();
+                    try {
+                        await deleteDoc(docRef);
+                    } catch (e) {
+                        console.error("Lỗi xóa công việc: ", e);
+                        alert("Đã xảy ra lỗi khi xóa công việc.");
+                    }
                 }
             }
             
             if (action === 'edit') {
-                openEditModal(index);
+                openEditModal(taskId);
             }
         }
 
-        function openEditModal(index) {
-            const task = allTasks[index];
+        function openEditModal(taskId) {
+            const task = allTasks.find(t => t.id === taskId);
             if (!task) return;
             
             modalTitle.textContent = 'Chỉnh Sửa Công Việc';
@@ -403,11 +494,11 @@
             date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
             timeInput.value = date.toISOString().slice(0, 16);
             
-            taskEditIndex.value = index;
+            taskEditId.value = taskId;
             taskModalControls.show();
         }
 
-        function handleSubmitTask() {
+        async function handleSubmitTask() {
             const taskData = {
                 customerName: customerNameInput.value.trim(),
                 phone: phoneInput.value.trim(),
@@ -421,66 +512,98 @@
                 return;
             }
 
-            const editIndex = parseInt(taskEditIndex.value, 10);
+            const editId = taskEditId.value;
+            submitTaskBtn.disabled = true;
 
-            if (editIndex > -1) {
-                // Edit mode
-                taskData.completed = allTasks[editIndex].completed; // Preserve completed state
-                allTasks[editIndex] = taskData;
-            } else {
-                // Add new mode
-                taskData.completed = false;
-                allTasks.unshift(taskData);
+            try {
+                if (editId) {
+                    const docRef = doc(db, `artifacts/${appId}/users/${userId}/tasks`, editId);
+                    await setDoc(docRef, taskData, { merge: true });
+                } else {
+                    taskData.completed = false;
+                    taskData.createdAt = serverTimestamp();
+                    const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/tasks`);
+                    await addDoc(collectionRef, taskData);
+                }
+                taskModalControls.hide();
+            } catch (e) {
+                console.error("Lỗi lưu công việc:", e);
+                alert("Đã xảy ra lỗi khi lưu công việc vào đám mây.");
+            } finally {
+                submitTaskBtn.disabled = false;
             }
-            
-            saveAndRender();
-            taskModalControls.hide();
         }
-
-        // --- BACKUP & RESTORE LOGIC ---
-        function backupTasks() {
-            if (allTasks.length === 0) {
-                alert('Không có công việc nào để sao lưu.');
+        
+        // --- FIREBASE INITIALIZATION ---
+        function initializeFirebase() {
+            if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                console.error("Lỗi: Cấu hình Firebase không tồn tại.");
+                loadingOverlay.innerHTML = '<p class="text-red-500 text-lg text-center px-4">Lỗi cấu hình máy chủ.<br>Vui lòng đảm bảo ứng dụng được chạy trong môi trường hợp lệ.</p>';
                 return;
             }
-            const dataStr = JSON.stringify(allTasks, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const a = document.createElement('a');
-            document.body.appendChild(a);
-            a.style.display = 'none';
-            a.href = url;
-            const date = new Date().toISOString().slice(0, 10);
-            a.download = `sao-luu-cong-viec-local-${date}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            try {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                handleAuthentication();
+            } catch (e) {
+                console.error("Lỗi khởi tạo Firebase:", e);
+                loadingOverlay.innerHTML = '<p class="text-red-500 text-lg">Lỗi kết nối đến máy chủ. Vui lòng tải lại trang.</p>';
+            }
         }
 
-        function handleFileRestore(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            if (!confirm('Bạn có chắc chắn muốn phục hồi? Hành động này sẽ XÓA TOÀN BỘ công việc hiện tại và thay thế bằng dữ liệu từ tệp này.')) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const restoredTasks = JSON.parse(e.target.result);
-                    if (!Array.isArray(restoredTasks)) throw new Error('Tệp không hợp lệ.');
-                    
-                    allTasks = restoredTasks;
-                    saveAndRender();
-
-                    alert('Phục hồi thành công!');
-                } catch (err) {
-                    console.error("Lỗi phục hồi:", err);
-                    alert('Lỗi: Không thể đọc tệp sao lưu. Tệp có thể bị hỏng hoặc không đúng định dạng.');
-                } finally {
-                    event.target.value = '';
+        async function handleAuthentication() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
                 }
-            };
-            reader.readAsText(file);
+            } catch (error) {
+                console.error("Lỗi đăng nhập:", error);
+                loadingOverlay.innerHTML = '<p class="text-red-500 text-lg">Lỗi xác thực người dùng.</p>';
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                    userIdDisplay.textContent = userId;
+                    userInfo.classList.remove('hidden');
+                    
+                    if (tasksUnsubscribe) {
+                        tasksUnsubscribe();
+                    }
+                    listenToTasks();
+                } else {
+                    userId = null;
+                    if (tasksUnsubscribe) {
+                        tasksUnsubscribe();
+                    }
+                    allTasks = [];
+                    renderAllTasks();
+                    loadingOverlay.classList.remove('hidden');
+                }
+            });
         }
+
+        function listenToTasks() {
+            const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/tasks`);
+            const q = query(collectionRef, orderBy("createdAt", "desc"));
+
+            tasksUnsubscribe = onSnapshot(q, (querySnapshot) => {
+                allTasks = [];
+                querySnapshot.forEach((doc) => {
+                    allTasks.push({ id: doc.id, ...doc.data() });
+                });
+                renderAllTasks();
+                loadingOverlay.classList.add('hidden');
+            }, (error) => {
+                console.error("Lỗi lắng nghe dữ liệu:", error);
+                loadingOverlay.innerHTML = '<p class="text-red-500 text-lg">Lỗi tải dữ liệu công việc.</p>';
+            });
+        }
+
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -496,18 +619,9 @@
             submitTaskBtn.addEventListener('click', handleSubmitTask);
             taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmitTask(); }});
             
-            // Load data from localStorage
-            try {
-                const savedTasks = localStorage.getItem(LOCAL_STORAGE_KEY);
-                if (savedTasks) {
-                    allTasks = JSON.parse(savedTasks);
-                }
-            } catch (e) {
-                console.error("Error loading from localStorage:", e);
-                allTasks = [];
-            }
+            hideCompletedToggle.checked = false;
             
-            renderAllTasks();
+            initializeFirebase();
         });
     </script>
 </body>
