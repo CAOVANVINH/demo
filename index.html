@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Công Ty Thiết Kế In Ấn Hội An - Quản Lý Công Việc</title>
+    <!-- Tích hợp Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* Font tùy chỉnh */
         @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&display=swap');
@@ -65,16 +66,34 @@
             opacity: 0;
             transform: scale(0.95);
         }
+        /* MỚI: Style cho loading spinner */
+        #loading-overlay {
+            z-index: 100;
+        }
+        .spinner {
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    
+    <!-- MỚI: Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex flex-col items-center justify-center">
+        <div class="spinner w-16 h-16 border-8 border-gray-300 rounded-full"></div>
+        <p class="text-white text-lg mt-4">Đang tải dữ liệu...</p>
+    </div>
 
+    <!-- Modal Thêm/Sửa Công Việc -->
     <div id="taskModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
         <div id="modalContent" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl relative">
             <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 text-2xl" aria-label="Đóng">&times;</button>
             <div class="p-6 sm:p-8">
                 <h3 id="modalTitle" class="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">Thêm Công Việc Mới</h3>
-                <input type="hidden" id="taskEditIndex" value="-1">
+                <input type="hidden" id="taskEditId" value="">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label for="customerNameInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tên khách hàng <span class="text-red-500">*</span></label>
@@ -105,6 +124,7 @@
         </div>
     </div>
     
+    <!-- Modal Đăng nhập Admin -->
     <div id="adminModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
         <div id="adminModalContent" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm relative">
             <button id="closeAdminModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 text-2xl" aria-label="Đóng">&times;</button>
@@ -127,7 +147,8 @@
     </div>
 
 
-    <div class="container mx-auto max-w-4xl mt-8 sm:mt-16 px-4 pb-20">
+    <!-- Nội dung chính của trang -->
+    <div class="container mx-auto max-w-7xl mt-8 sm:mt-16 px-4 pb-20">
         
         <div class="text-center mb-6">
             <h1 class="animated-gradient-text text-3xl sm:text-4xl md:text-5xl font-extrabold pb-2">Công Ty Thiết Kế In Ấn Hội An</h1>
@@ -145,6 +166,12 @@
             </button>
         </div>
         
+        <!-- MỚI: Hiển thị User ID -->
+        <div id="userInfo" class="text-center mb-6 hidden">
+            <p class="text-xs text-gray-500 dark:text-gray-400">Mã phiên làm việc (User ID): <span id="userIdDisplay" class="font-mono bg-gray-200 dark:bg-gray-700 p-1 rounded"></span></p>
+        </div>
+
+        <!-- Khu vực Admin Controls -->
         <div id="adminControls" class="hidden my-6 p-4 bg-purple-100 dark:bg-purple-900/30 border border-purple-300 dark:border-purple-700 rounded-lg">
             <h3 class="text-lg font-bold text-purple-800 dark:text-purple-300 mb-3 text-center">Bảng điều khiển Admin</h3>
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
@@ -155,8 +182,9 @@
             </div>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-2 border-b-2 border-gray-200 dark:border-gray-700">
+        <!-- Danh sách công việc -->
+        <div class="bg-transparent dark:bg-transparent rounded-lg p-0">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b-2 border-gray-200 dark:border-gray-700">
                 <h3 class="text-2xl font-bold mb-2 sm:mb-0">Danh Sách Công Việc</h3>
                 <div class="flex items-center space-x-3">
                     <label for="hideCompletedToggle" class="text-sm font-medium text-gray-600 dark:text-gray-300 select-none">Ẩn việc đã xong</label>
@@ -166,10 +194,10 @@
                     </label>
                 </div>
             </div>
-            <ul id="taskList" class="space-y-4"></ul>
-            <div id="no-tasks-message" class="text-center text-gray-500 dark:text-gray-400 py-6 hidden">
-                <i class="fas fa-check-circle fa-2x mb-2"></i>
-                <p>Tuyệt vời! Không có công việc nào cần làm.</p>
+            <ul id="taskList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></ul>
+            <div id="no-tasks-message" class="text-center text-gray-500 dark:text-gray-400 py-10 hidden">
+                <i class="fas fa-check-circle fa-3x mb-3 text-green-500"></i>
+                <p class="text-lg">Tuyệt vời! Không có công việc nào cần làm.</p>
             </div>
         </div>
         
@@ -178,27 +206,36 @@
         </footer>
     </div>
     
+    <!-- Nút Admin nổi -->
     <button id="openAdminModalBtn" class="fixed bottom-4 right-4 bg-purple-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-purple-700 transition-transform transform hover:scale-110 z-40">
         <i class="fas fa-user-shield text-2xl"></i>
     </button>
+    
+    <!-- MỚI: Firebase SDK -->
+    <script type="module">
+        // Import các hàm cần thiết từ Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, collection, addDoc, setDoc, deleteDoc, onSnapshot, writeBatch, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    <script>
-        // --- CONSTANTS & STATE ---
-        const LOCAL_STORAGE_KEY = 'customerTasksV11'; 
-        let allTasks = []; 
+        // --- STATE & CONSTANTS ---
+        let allTasks = []; // Local cache of tasks
+        let db, auth; // Firebase services
+        let userId; // Current user's ID
+        let tasksUnsubscribe = null; // Function to stop listening for task updates
 
         // --- DOM ELEMENTS ---
+        const loadingOverlay = document.getElementById('loading-overlay');
         const customerNameInput = document.getElementById('customerNameInput');
         const phoneInput = document.getElementById('phoneInput');
         const addressInput = document.getElementById('addressInput');
         const timeInput = document.getElementById('timeInput');
         const taskInput = document.getElementById('taskInput');
-        // THAY ĐỔI: Lấy các element mới của modal
         const submitTaskBtn = document.getElementById('submitTaskBtn');
         const modalTitle = document.getElementById('modalTitle');
         const submitIcon = document.getElementById('submitIcon');
         const submitText = document.getElementById('submitText');
-        const taskEditIndex = document.getElementById('taskEditIndex');
+        const taskEditId = document.getElementById('taskEditId');
 
         const taskList = document.getElementById('taskList');
         const noTasksMessage = document.getElementById('no-tasks-message');
@@ -223,9 +260,11 @@
         const restoreBtn = document.getElementById('restoreBtn');
         const restoreFileInput = document.getElementById('restoreFileInput');
         const logoutBtn = document.getElementById('logoutBtn');
+        
+        const userInfo = document.getElementById('userInfo');
+        const userIdDisplay = document.getElementById('userIdDisplay');
 
         // --- MODAL HELPER ---
-        // THAY ĐỔI: Thêm hàm callback khi modal đóng
         function setupModal(modal, openBtn, closeBtn, content, onCloseCallback) {
             function show() {
                 modal.classList.remove('hidden');
@@ -237,7 +276,7 @@
                 setTimeout(() => {
                     modal.classList.add('hidden');
                     content.classList.remove('modal-leave-active');
-                    if(onCloseCallback) onCloseCallback(); // MỚI: Gọi callback khi đóng
+                    if(onCloseCallback) onCloseCallback();
                 }, 200);
             }
             if (openBtn) openBtn.addEventListener('click', show);
@@ -246,12 +285,11 @@
             return { show, hide };
         }
         
-        // MỚI: Hàm để reset modal về trạng thái "Thêm mới"
         function resetTaskModal() {
             modalTitle.textContent = 'Thêm Công Việc Mới';
             submitText.textContent = 'Thêm Công Việc';
             submitIcon.className = 'fas fa-plus';
-            taskEditIndex.value = '-1';
+            taskEditId.value = '';
             
             customerNameInput.value = '';
             phoneInput.value = '';
@@ -282,7 +320,6 @@
         }
         
         // --- BACKUP & RESTORE LOGIC ---
-        // THAY ĐỔI: Sửa lỗi backup không hoạt động trên một số trình duyệt
         function backupTasks() {
             if (allTasks.length === 0) {
                 alert('Không có công việc nào để sao lưu.');
@@ -292,83 +329,96 @@
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
             const a = document.createElement('a');
-
             document.body.appendChild(a);
             a.style.display = 'none';
-
             a.href = url;
             const date = new Date().toISOString().slice(0, 10);
             a.download = `sao-luu-cong-viec-${date}.json`;
             a.click();
-            
             URL.revokeObjectURL(url);
             document.body.removeChild(a);
         }
 
-        function handleFileRestore(event) {
+        async function handleFileRestore(event) {
             const file = event.target.files[0];
             if (!file) return;
-            if (!confirm('Bạn có chắc chắn muốn phục hồi? Hành động này sẽ XÓA TOÀN BỘ công việc hiện tại.')) return;
+            if (!confirm('Bạn có chắc chắn muốn phục hồi? Hành động này sẽ XÓA TOÀN BỘ công việc hiện tại trên đám mây và thay thế bằng dữ liệu từ tệp này.')) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
+                    loadingOverlay.classList.remove('hidden');
                     const restoredTasks = JSON.parse(e.target.result);
                     if (!Array.isArray(restoredTasks)) throw new Error('Tệp không hợp lệ.');
-                    allTasks = restoredTasks;
-                    saveAndRender();
+                    
+                    // Xóa tất cả công việc cũ
+                    const batchDelete = writeBatch(db);
+                    allTasks.forEach(task => {
+                        const docRef = doc(db, `artifacts/${__app_id}/users/${userId}/tasks`, task.id);
+                        batchDelete.delete(docRef);
+                    });
+                    await batchDelete.commit();
+
+                    // Thêm công việc mới từ tệp
+                    const batchAdd = writeBatch(db);
+                    restoredTasks.forEach(task => {
+                        const newDocRef = doc(collection(db, `artifacts/${__app_id}/users/${userId}/tasks`));
+                        // Loại bỏ id cũ nếu có, Firestore sẽ tạo id mới
+                        const { id, ...taskData } = task; 
+                        batchAdd.set(newDocRef, taskData);
+                    });
+                    await batchAdd.commit();
+
                     alert('Phục hồi thành công!');
                 } catch (err) {
+                    console.error("Lỗi phục hồi:", err);
                     alert('Lỗi: Không thể đọc tệp sao lưu. Tệp có thể bị hỏng hoặc không đúng định dạng.');
+                } finally {
+                    loadingOverlay.classList.add('hidden');
+                    event.target.value = '';
                 }
             };
             reader.readAsText(file);
-            event.target.value = '';
         }
 
-        // --- CORE DATA & RENDER LOGIC ---
-        function saveAndRender() {
-            try {
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allTasks));
-            } catch (e) {
-                console.error("Lỗi khi lưu vào localStorage:", e);
-                alert("Không thể lưu công việc. Trình duyệt của bạn có thể không hỗ trợ hoặc đã tắt bộ nhớ cục bộ (localStorage). Điều này thường xảy ra khi mở tệp trực tiếp từ máy tính.");
-            }
-            renderAllTasks();
-        }
-
+        // --- CORE RENDER LOGIC ---
         function renderAllTasks() {
+            // Sắp xếp công việc: chưa hoàn thành lên trước, mới nhất lên đầu
+            const sortedTasks = [...allTasks].sort((a, b) => {
+                if (a.completed !== b.completed) {
+                    return a.completed ? 1 : -1;
+                }
+                return b.createdAt - a.createdAt; // Giả sử có timestamp createdAt
+            });
+
             taskList.innerHTML = '';
-            allTasks.forEach((taskData, index) => {
-                const { customerName, phone, address, time, text, completed } = taskData;
+            sortedTasks.forEach(taskData => {
+                const { id, customerName, phone, address, time, text, completed } = taskData;
                 
                 const li = document.createElement('li');
-                li.className = `flex flex-col sm:flex-row items-start justify-between bg-gray-50 dark:bg-gray-700 p-3 sm:p-4 rounded-lg shadow-sm transition-all duration-300 ${completed ? 'completed' : ''}`;
+                li.className = `bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${completed ? 'completed opacity-60' : ''}`;
                 
                 const completeBtnText = completed ? 'Làm lại' : 'Hoàn thành';
                 const completeBtnClass = completed ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600';
 
-                // THAY ĐỔI: Thêm nút Chỉnh sửa (Edit) vào HTML của mỗi task
                 li.innerHTML = `
-                    <div class="flex-grow mr-0 sm:mr-4 mb-4 sm:mb-0 w-full">
-                        <p class="font-bold text-lg task-content">${text}</p>
-                        <div class="customer-info grid grid-cols-1 md:grid-cols-2 text-sm text-gray-600 dark:text-gray-400 mt-2 gap-x-4 gap-y-1">
-                            <span class="customer-name truncate"><i class="fas fa-user fa-fw mr-1.5 text-blue-500"></i>${customerName}</span>
-                            <span class="task-time truncate"><i class="fas fa-clock fa-fw mr-1.5 text-orange-500"></i>${new Date(time).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                            ${phone ? `<span class="customer-phone truncate"><i class="fas fa-phone fa-fw mr-1.5 text-green-500"></i>${phone}</span>` : ''}
-                            ${address ? `<span class="customer-address truncate"><i class="fas fa-map-marker-alt fa-fw mr-1.5 text-purple-500"></i>${address}</span>` : ''}
+                    <div> 
+                        <p class="font-bold text-lg task-content mb-3 break-words">${text}</p>
+                        <div class="customer-info text-sm text-gray-600 dark:text-gray-400 space-y-2">
+                            <div class="flex items-center"><i class="fas fa-user fa-fw mr-2 text-blue-500"></i><span class="customer-name truncate" title="${customerName}">${customerName}</span></div>
+                            <div class="flex items-center"><i class="fas fa-clock fa-fw mr-2 text-orange-500"></i><span class="task-time truncate">${new Date(time).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>
+                            ${phone ? `<div class="flex items-center"><i class="fas fa-phone fa-fw mr-2 text-green-500"></i><span class="customer-phone truncate" title="${phone}">${phone}</span></div>` : ''}
+                            ${address ? `<div class="flex items-center"><i class="fas fa-map-marker-alt fa-fw mr-2 text-purple-500"></i><span class="customer-address" title="${address}">${address}</span></div>` : ''}
                         </div>
                     </div>
-                    <div class="flex flex-row sm:flex-col items-stretch space-x-2 sm:space-x-0 sm:space-y-2 flex-shrink-0 w-full sm:w-32">
-                        <button data-action="toggle" data-index="${index}" class="flex-1 sm:flex-none font-semibold py-2 px-3 rounded-lg text-sm text-white transition-colors duration-200 ${completeBtnClass}">
+                    <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                        <button data-action="toggle" data-id="${id}" class="font-semibold py-1.5 px-3 rounded-lg text-xs text-white transition-colors duration-200 ${completeBtnClass}">
                             ${completeBtnText}
                         </button>
-                        <button data-action="edit" data-index="${index}" class="flex-1 sm:flex-none flex items-center justify-center bg-blue-500 text-white hover:bg-blue-600 font-semibold py-2 px-3 rounded-lg text-sm transition-colors duration-200">
-                           <i class="fas fa-pencil-alt mr-2"></i> Sửa
-                        </button>
-                        <button data-action="delete" data-index="${index}" class="flex-1 sm:flex-none flex items-center justify-center bg-red-500 text-white hover:bg-red-600 font-semibold py-2 px-3 rounded-lg text-sm transition-colors duration-200">
-                           <i class="fas fa-trash mr-2"></i> Xóa
-                        </button>
+                        <div class="flex space-x-2">
+                            <button data-action="edit" data-id="${id}" class="flex items-center justify-center bg-blue-500 text-white hover:bg-blue-600 w-8 h-8 rounded-full text-sm transition-colors duration-200" aria-label="Sửa"><i class="fas fa-pencil-alt"></i></button>
+                            <button data-action="delete" data-id="${id}" class="flex items-center justify-center bg-red-500 text-white hover:bg-red-600 w-8 h-8 rounded-full text-sm transition-colors duration-200" aria-label="Xóa"><i class="fas fa-trash"></i></button>
+                        </div>
                     </div>
                 `;
                 taskList.appendChild(li);
@@ -379,7 +429,7 @@
         // --- UI UTILITY FUNCTIONS ---
         function checkEmptyState() {
             const hasVisibleTasks = Array.from(taskList.children).some(task => !task.classList.contains('hidden'));
-            noTasksMessage.classList.toggle('hidden', taskList.children.length > 0 && hasVisibleTasks);
+            noTasksMessage.classList.toggle('hidden', allTasks.length > 0 && hasVisibleTasks);
         }
 
         function updateCompletedTasksVisibility() {
@@ -388,74 +438,74 @@
                 const isCompleted = li.classList.contains('completed');
                 li.classList.toggle('hidden', shouldHide && isCompleted);
             });
-            localStorage.setItem('hideCompletedState', shouldHide);
             checkEmptyState();
         }
 
-        // --- EVENT HANDLERS ---
-        
-        // THAY ĐỔI: Cập nhật hàm xử lý click để có thêm action "edit"
-        function handleTaskListClick(event) {
+        // --- EVENT HANDLERS (FIRESTORE) ---
+        async function handleTaskListClick(event) {
             const button = event.target.closest('button[data-action]');
             if (!button) return;
 
+            const taskId = button.dataset.id;
+            const task = allTasks.find(t => t.id === taskId);
+            if (!task) return;
+
             const action = button.dataset.action;
-            const index = parseInt(button.dataset.index, 10);
+            const docRef = doc(db, `artifacts/${__app_id}/users/${userId}/tasks`, taskId);
 
             if (action === 'toggle') {
-                allTasks[index].completed = !allTasks[index].completed;
-                saveAndRender();
+                try {
+                    await setDoc(docRef, { completed: !task.completed }, { merge: true });
+                } catch (e) {
+                    console.error("Lỗi cập nhật công việc: ", e);
+                    alert("Đã xảy ra lỗi khi cập nhật trạng thái công việc.");
+                }
             }
 
             if (action === 'delete') {
-                if (confirm(`Bạn có chắc muốn xóa công việc của "${allTasks[index].customerName}"?`)) {
-                    allTasks.splice(index, 1);
-                    saveAndRender();
+                if (confirm(`Bạn có chắc muốn xóa công việc của "${task.customerName}"?`)) {
+                    try {
+                        await deleteDoc(docRef);
+                    } catch (e) {
+                        console.error("Lỗi xóa công việc: ", e);
+                        alert("Đã xảy ra lỗi khi xóa công việc.");
+                    }
                 }
             }
             
-            // MỚI: Xử lý khi nhấn nút "Sửa"
             if (action === 'edit') {
-                openEditModal(index);
+                openEditModal(taskId);
             }
         }
 
-        // MỚI: Hàm mở modal để sửa công việc
-        function openEditModal(index) {
-            const task = allTasks[index];
+        function openEditModal(taskId) {
+            const task = allTasks.find(t => t.id === taskId);
             if (!task) return;
             
-            // Đổi tiêu đề và nút trong modal
             modalTitle.textContent = 'Chỉnh Sửa Công Việc';
             submitText.textContent = 'Lưu Thay Đổi';
             submitIcon.className = 'fas fa-save';
 
-            // Điền thông tin cũ vào form
             customerNameInput.value = task.customerName;
             phoneInput.value = task.phone;
             addressInput.value = task.address;
             taskInput.value = task.text;
-            // Chuyển đổi định dạng thời gian cho input datetime-local
+            
             const date = new Date(task.time);
             date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
             timeInput.value = date.toISOString().slice(0, 16);
             
-            // Lưu lại index của công việc đang sửa
-            taskEditIndex.value = index;
-
-            // Mở modal
+            taskEditId.value = taskId;
             taskModalControls.show();
         }
 
-        // THAY ĐỔI: Đổi tên hàm và thêm logic xử lý cho cả Thêm và Sửa
-        function handleSubmitTask() {
+        async function handleSubmitTask() {
             const taskData = {
                 customerName: customerNameInput.value.trim(),
                 phone: phoneInput.value.trim(),
                 address: addressInput.value.trim(),
                 time: timeInput.value,
                 text: taskInput.value.trim(),
-                completed: false, 
             };
 
             if (!taskData.customerName || !taskData.time || !taskData.text) {
@@ -463,20 +513,97 @@
                 return;
             }
 
-            const editIndex = parseInt(taskEditIndex.value, 10);
+            const editId = taskEditId.value;
+            submitTaskBtn.disabled = true;
 
-            if (editIndex > -1) {
-                // Chế độ Sửa
-                taskData.completed = allTasks[editIndex].completed; // Giữ nguyên trạng thái completed cũ
-                allTasks[editIndex] = taskData;
-            } else {
-                // Chế độ Thêm mới
-                allTasks.unshift(taskData);
+            try {
+                if (editId) {
+                    // Chế độ Sửa
+                    const docRef = doc(db, `artifacts/${__app_id}/users/${userId}/tasks`, editId);
+                    await setDoc(docRef, taskData, { merge: true });
+                } else {
+                    // Chế độ Thêm mới
+                    taskData.completed = false;
+                    taskData.createdAt = serverTimestamp(); // Thêm dấu thời gian
+                    const collectionRef = collection(db, `artifacts/${__app_id}/users/${userId}/tasks`);
+                    await addDoc(collectionRef, taskData);
+                }
+                taskModalControls.hide();
+            } catch (e) {
+                console.error("Lỗi lưu công việc:", e);
+                alert("Đã xảy ra lỗi khi lưu công việc vào đám mây.");
+            } finally {
+                submitTaskBtn.disabled = false;
             }
-            
-            saveAndRender();
-            taskModalControls.hide();
         }
+        
+        // --- FIREBASE INITIALIZATION ---
+        function initializeFirebase() {
+            try {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                handleAuthentication();
+            } catch (e) {
+                console.error("Lỗi khởi tạo Firebase:", e);
+                loadingOverlay.innerHTML = '<p class="text-red-500 text-lg">Lỗi kết nối đến máy chủ. Vui lòng tải lại trang.</p>';
+            }
+        }
+
+        async function handleAuthentication() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Lỗi đăng nhập:", error);
+                loadingOverlay.innerHTML = '<p class="text-red-500 text-lg">Lỗi xác thực người dùng.</p>';
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                    userIdDisplay.textContent = userId;
+                    userInfo.classList.remove('hidden');
+                    
+                    // Hủy lắng nghe cũ (nếu có) trước khi tạo lắng nghe mới
+                    if (tasksUnsubscribe) {
+                        tasksUnsubscribe();
+                    }
+                    listenToTasks();
+                } else {
+                    // Xử lý khi người dùng đăng xuất
+                    userId = null;
+                    if (tasksUnsubscribe) {
+                        tasksUnsubscribe();
+                    }
+                    allTasks = [];
+                    renderAllTasks();
+                    loadingOverlay.classList.remove('hidden');
+                }
+            });
+        }
+
+        function listenToTasks() {
+            const collectionRef = collection(db, `artifacts/${__app_id}/users/${userId}/tasks`);
+            const q = query(collectionRef, orderBy("createdAt", "desc"));
+
+            tasksUnsubscribe = onSnapshot(q, (querySnapshot) => {
+                allTasks = [];
+                querySnapshot.forEach((doc) => {
+                    allTasks.push({ id: doc.id, ...doc.data() });
+                });
+                renderAllTasks();
+                loadingOverlay.classList.add('hidden');
+            }, (error) => {
+                console.error("Lỗi lắng nghe dữ liệu:", error);
+                loadingOverlay.innerHTML = '<p class="text-red-500 text-lg">Lỗi tải dữ liệu công việc.</p>';
+            });
+        }
+
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -491,22 +618,14 @@
             // Setup Task Listeners
             taskList.addEventListener('click', handleTaskListClick);
             hideCompletedToggle.addEventListener('change', updateCompletedTasksVisibility);
-            
-            // THAY ĐỔI: Gán sự kiện click cho nút submit của modal
             submitTaskBtn.addEventListener('click', handleSubmitTask);
             taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmitTask(); }});
-
-            // Load initial state
-            const savedHideState = JSON.parse(localStorage.getItem('hideCompletedState'));
-            hideCompletedToggle.checked = savedHideState !== false; 
             
-            try {
-                allTasks = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
-            } catch (e) {
-                console.error("Lỗi khi tải dữ liệu từ localStorage:", e);
-                allTasks = [];
-            }
-            renderAllTasks();
+            // Load initial state for toggle
+            hideCompletedToggle.checked = false; // Bắt đầu với việc hiển thị tất cả
+            
+            // Initialize Firebase
+            initializeFirebase();
         });
     </script>
 </body>
