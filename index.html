@@ -20,7 +20,7 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* --- START: GIAO DIỆN TƯƠNG THÍCH (ADAPTIVE UI) - UPDATED --- */
+        /* --- START: GIAO DIỆN TƯƠNG THÍCH (ADAPTIVE UI) --- */
         
         /* 1. Nền chung */
         body {
@@ -294,9 +294,10 @@
 
         <header class="text-center mb-8">
             <h2 class="text-2xl sm:text-4xl font-bold text-white">Quản Lý Công Việc</h2>
-            <div class="text-center mt-2">
-                <p id="greeting" class="text-gray-200 text-lg px-4 h-6"></p>
-                <p id="live-clock" class="text-gray-400 text-sm font-mono mt-1"></p>
+            <!-- UPDATED: Greeting and Clock Layout -->
+            <div class="text-center mt-4">
+                <p id="greeting" class="text-gray-200 text-lg px-4 mb-1 min-h-[28px]"></p>
+                <p id="live-clock" class="text-gray-400 text-sm font-mono"></p>
             </div>
         </header>
 
@@ -411,6 +412,7 @@
         let unsubscribeFromGreetings = null;
         let isAdminLoggedIn = false;
         let currentBackgroundUrl = '';
+        let clockIntervalId = null; // To manage the clock interval
 
         try {
             app = initializeApp(firebaseConfig);
@@ -928,10 +930,17 @@
             const clockString = `${dayName}, ${now.toLocaleDateString('vi-VN')} | ${now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute:'2-digit', second:'2-digit' })}`;
             clockEl.textContent = clockString;
         }
+        
+        function startClock() {
+            if (clockIntervalId) {
+                clearInterval(clockIntervalId);
+            }
+            updateGreetingAndClock();
+            clockIntervalId = setInterval(updateGreetingAndClock, 1000);
+        }
 
         function renderGreetingEditor() {
             greetingListContainer.innerHTML = '';
-            // Create a temporary copy to render, so we don't alter the live `allGreetings` array
             const greetingsToRender = JSON.parse(JSON.stringify(allGreetings));
             greetingsToRender.forEach((greeting, index) => {
                 const greetingItem = document.createElement('div');
@@ -1023,8 +1032,7 @@
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             if (!db) return;
-            updateGreetingAndClock();
-            setInterval(updateGreetingAndClock, 1000);
+            startClock();
 
             loginBtn.addEventListener('click', handleAdminLogin);
             passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAdminLogin(); });
