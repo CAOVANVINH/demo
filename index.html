@@ -464,19 +464,11 @@
 
 
         // --- ADMIN & AUTH LOGIC ---
-        // CẢNH BÁO BẢO MẬT: Logic đăng nhập admin hiện tại KHÔNG AN TOÀN.
-        // Mật khẩu được lưu và kiểm tra ngay trên trình duyệt, bất kỳ ai cũng có thể xem mã nguồn để tìm ra.
-        // GIẢI PHÁP ĐÚNG: Sử dụng Firebase Authentication với Email/Password cho tài khoản admin.
-        // Sau đó, bảo vệ dữ liệu bằng Firestore Security Rules, ví dụ:
-        // allow read: if request.auth != null;
-        // allow write, delete: if request.auth.uid == "ID_CUA_ADMIN";
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                console.log("User signed in anonymously:", user.uid);
                 if (unsubscribeFromTasks) unsubscribeFromTasks();
                 listenForTasks();
             } else {
-                console.log("User is signed out. Attempting to sign in anonymously.");
                 signInAnonymously(auth).catch((error) => {
                     console.error("Anonymous sign-in failed:", error);
                     showAlert(`Không thể kết nối đến máy chủ. Lỗi: ${error.message}`, "Lỗi kết nối");
@@ -494,7 +486,7 @@
                 loginError.classList.add('hidden');
                 usernameInput.value = '';
                 passwordInput.value = '';
-                renderAllTasks(); // Re-render to show admin buttons
+                renderAllTasks();
             } else {
                 loginError.classList.remove('hidden');
             }
@@ -503,10 +495,10 @@
             isAdminLoggedIn = false;
             adminControls.classList.add('hidden');
             openAdminModalBtn.classList.remove('hidden');
-            renderAllTasks(); // Re-render to hide admin buttons
+            renderAllTasks();
         }
         
-        // --- BACKUP & RESTORE LOGIC ---
+        // --- BACKUP & RESTORE & DELETE ALL LOGIC ---
         function backupTasks() {
             if (allTasks.length === 0) {
                 showAlert('Không có công việc nào để sao lưu.');
@@ -612,9 +604,6 @@
         // --- CORE DATA & RENDER LOGIC ---
         function listenForTasks() {
             const tasksCollection = collection(db, 'tasks');
-            // QUAN TRỌNG: Để query với orderBy hoạt động, bạn cần tạo một Index tương ứng trong Firestore.
-            // Truy cập Firestore -> Indexes -> Composite Indexes -> Create Index.
-            // Collection ID: tasks, Fields to index: createdAt (Descending).
             const q = query(tasksCollection, orderBy('createdAt', 'desc'));
 
             unsubscribeFromTasks = onSnapshot(q, (querySnapshot) => {
@@ -646,25 +635,15 @@
                 
                 const taskDate = time?.toDate ? time.toDate() : new Date(time);
                 
-                // LOGIC CẢNH BÁO QUÁ HẠN:
-                // Công việc được coi là quá hạn nếu chưa hoàn thành và ngày hiện tại đã sau ngày hẹn.
-                // Cảnh báo bắt đầu từ 00:00 của ngày hôm sau.
-                const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Lấy thời điểm 00:00 của ngày hôm nay
+                const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
                 const isOverdue = !completed && startOfToday > taskDate;
                 
                 const isToday = taskDate >= todayStart && taskDate < todayEnd;
 
                 // --- FILTERING LOGIC ---
-                if (shouldHideCompleted && completed) {
-                    return; // Skip this task if it's completed and the toggle is on
-                }
-                if (showTodayOnly && !isToday) {
-                    return; // Skip if "Today only" is on and the task is not for today
-                }
-                if (showOverdueOnly && !isOverdue) {
-                    return; // Skip if "Overdue only" is on and the task is not overdue
-                }
-                // --- END FILTERING LOGIC ---
+                if (shouldHideCompleted && completed) return;
+                if (showTodayOnly && !isToday) return;
+                if (showOverdueOnly && !isOverdue) return;
 
                 const li = document.createElement('li');
                 li.className = `task-item-glass flex flex-col sm:flex-row items-start justify-between p-3 sm:p-4 ${completed ? 'completed' : ''}`;
@@ -682,10 +661,12 @@
                         <i class="fas fa-trash mr-2"></i> Xóa
                     </button>
                 ` : '';
+                
+                const formattedText = text.replace(/\n/g, '<br>');
 
                 li.innerHTML = `
                     <div class="flex-grow mr-0 sm:mr-4 mb-4 sm:mb-0 w-full">
-                        <p class="font-bold text-lg text-white task-content">${text}</p>
+                        <p class="font-bold text-lg text-white task-content whitespace-pre-wrap">${formattedText}</p>
                         <div class="customer-info grid grid-cols-1 md:grid-cols-2 text-sm text-gray-200 mt-2 gap-x-4 gap-y-1">
                             <span class="truncate"><i class="fas fa-user fa-fw mr-1.5 text-blue-300"></i>${customerName}</span>
                             <span class="truncate"><i class="fas fa-clock fa-fw mr-1.5 ${isOverdue ? 'text-red-400' : 'text-orange-300'}"></i>${taskDate.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
@@ -776,14 +757,12 @@
             }
         }
 
-        // Cải thiện: Đặt giá trị mặc định cho ô nhập thời gian là thời điểm hiện tại
         function setModalDefaults() {
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             timeInput.value = now.toISOString().slice(0,16);
         }
 
-        // --- DYNAMIC HEADER FUNCTION ---
         function setDynamicHeader() {
             const greetingEl = document.getElementById('greeting');
             const clockEl = document.getElementById('live-clock');
@@ -794,37 +773,32 @@
                 const minute = now.getMinutes();
                 let greetingText = '';
 
-                // Xác định lời chào dựa trên các khung giờ
-                if (hour >= 6 && (hour < 9 || (hour === 9 && minute < 30))) { // 6:00 - 9:29
+                if (hour >= 6 && (hour < 9 || (hour === 9 && minute < 30))) {
                     greetingText = 'Chúc mọi người một buổi sáng tốt lành, tràn đầy năng lượng và làm việc hiệu quả nhé!';
-                } else if ((hour === 9 && minute >= 30) || hour === 10 || (hour === 11 && minute <= 58)) { // 9:30 - 11:58
+                } else if ((hour === 9 && minute >= 30) || hour === 10 || (hour === 11 && minute <= 58)) {
                     greetingText = 'Chúc mọi người buổi trưa vui vẻ';
-                } else if ((hour === 11 && minute >= 59) || hour === 12 || (hour === 13 && minute <= 30)) { // 11:59 - 13:30
+                } else if ((hour === 11 && minute >= 59) || hour === 12 || (hour === 13 && minute <= 30)) {
                     greetingText = 'Nghỉ trưa thôi cả nhà! Nạp lại năng lượng để chiều chiến tiếp nha.';
-                } else if ((hour === 13 && minute >= 31) || hour === 14 || hour === 15) { // 13:31 - 15:59
+                } else if ((hour === 13 && minute >= 31) || (hour >= 14 && hour < 18)) {
                     greetingText = 'Buổi chiều tốt lành! Cùng nhau hoàn thành mục tiêu hôm nay thôi nào.';
-                } else { // Bao gồm 16:00 - 5:59
+                } else {
                     greetingText = 'Chúc mọi người buổi tối an lành, nghỉ ngơi thật tốt để mai lại tràn đầy năng lượng nhé!';
                 }
                 greetingEl.textContent = greetingText;
 
-                // Cập nhật đồng hồ
                 const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
                 const dayName = days[now.getDay()];
                 const clockString = `${dayName}, ${now.toLocaleDateString('vi-VN')} | ${now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute:'2-digit', second:'2-digit' })}`;
                 clockEl.textContent = clockString;
             }
 
-            updateContent(); // Chạy lần đầu khi tải trang
-            setInterval(updateContent, 1000); // Cập nhật mỗi giây
+            updateContent();
+            setInterval(updateContent, 1000);
         }
-
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             if (!db) return;
-
-            // Thiết lập lời chào và đồng hồ động
             setDynamicHeader();
 
             loginBtn.addEventListener('click', handleAdminLogin);
@@ -836,8 +810,6 @@
             restoreFileInput.addEventListener('change', handleFileRestore);
             taskList.addEventListener('click', handleTaskListClick);
             
-            // --- CÀI ĐẶT BỘ LỌC ---
-            // Mặc định "Ẩn việc đã xong" là BẬT cho lần truy cập đầu tiên.
             const savedHideState = localStorage.getItem('hideCompletedState');
             if (savedHideState === null) {
                 hideCompletedToggle.checked = true;
@@ -846,11 +818,9 @@
                 hideCompletedToggle.checked = JSON.parse(savedHideState);
             }
             
-            // Tải trạng thái các bộ lọc khác từ localStorage
             showTodayOnlyToggle.checked = JSON.parse(localStorage.getItem('showTodayOnlyState')) || false;
             showOverdueOnlyToggle.checked = JSON.parse(localStorage.getItem('showOverdueOnlyState')) || false;
 
-            // Thêm sự kiện lắng nghe cho các bộ lọc
             hideCompletedToggle.addEventListener('change', () => {
                 localStorage.setItem('hideCompletedState', hideCompletedToggle.checked);
                 renderAllTasks();
@@ -875,7 +845,6 @@
             addTaskBtn.addEventListener('click', handleAddTask);
             openModalBtn.addEventListener('click', setModalDefaults);
             taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddTask(); }});
-            
         });
     </script>
 </body>
