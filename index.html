@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Ty Thiết Kế In Ấn Hội An - Quản Lý Công Việc</title>
+    <!-- Tích hợp Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Font tùy chỉnh */
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&display=swap');
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        /* Hiệu ứng chữ chạy màu gradient */
+        .animated-gradient-text {
+            background: linear-gradient(to right, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #3b82f6);
+            background-size: 250% auto;
+            color: #000;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-animation 5s linear infinite;
+        }
+
+        @keyframes gradient-animation {
+            to {
+                background-position: 250% center;
+            }
+        }
+        /* Hiệu ứng khi gạch ngang công việc */
+        .completed .task-content,
+        .completed .customer-info {
+            text-decoration: line-through;
+            color: #9ca3af; /* gray-400 */
+        }
+        /* Style cho date time picker để dễ nhìn hơn trong dark mode */
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.5);
+        }
+        .dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+        /* Ẩn các mục không cần thiết */
+        .hidden {
+            display: none !important;
+        }
+        /* Hiệu ứng cho modal */
+        .modal-enter-active, .modal-leave-active {
+            transition: opacity 200ms, transform 200ms;
+        }
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .modal-leave {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .modal-leave-active {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+
+    <!-- Modal Thêm Công Việc -->
+    <div id="taskModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
+        <div id="modalContent" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl relative">
+            <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 text-2xl" aria-label="Đóng">&times;</button>
+            <div class="p-6 sm:p-8">
+                <h3 class="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">Thêm Công Việc Mới</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                     <div>
+                        <label for="customerNameInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tên khách hàng <span class="text-red-500">*</span></label>
+                        <input type="text" id="customerNameInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="Nguyễn Văn A">
+                    </div>
+                    <div>
+                        <label for="phoneInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Số điện thoại</label>
+                        <input type="tel" id="phoneInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="(Không bắt buộc)">
+                    </div>
+                     <div>
+                        <label for="addressInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Địa chỉ</label>
+                        <input type="text" id="addressInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="(Không bắt buộc)">
+                    </div>
+                    <div>
+                        <label for="timeInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Thời gian <span class="text-red-500">*</span></label>
+                        <input type="datetime-local" id="timeInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700">
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label for="taskInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nội dung công việc <span class="text-red-500">*</span></label>
+                    <textarea id="taskInput" rows="3" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="Sửa chữa máy lạnh, thay gas..."></textarea>
+                </div>
+                <button id="addTaskBtn" class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-plus"></i>
+                    <span>Thêm Công Việc</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Đăng nhập Admin -->
+    <div id="adminModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
+        <div id="adminModalContent" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm relative">
+            <button id="closeAdminModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 text-2xl" aria-label="Đóng">&times;</button>
+            <div class="p-8">
+                <h3 class="text-2xl font-bold mb-6 text-center text-purple-600 dark:text-purple-400">Đăng Nhập Admin</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="usernameInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tên người dùng</label>
+                        <input type="text" id="usernameInput" class="mt-1 w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700">
+                    </div>
+                    <div>
+                        <label for="passwordInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu</label>
+                        <input type="password" id="passwordInput" class="mt-1 w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700">
+                    </div>
+                </div>
+                 <p id="loginError" class="text-red-500 text-sm mt-2 text-center hidden">Sai thông tin đăng nhập!</p>
+                <button id="loginBtn" class="mt-6 w-full bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-purple-700 transition-colors duration-300 shadow-md">Đăng Nhập</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Nội dung chính của trang -->
+    <div class="container mx-auto max-w-4xl mt-8 sm:mt-16 px-4 pb-20">
+        
+        <div class="text-center mb-6">
+            <h1 class="animated-gradient-text text-3xl sm:text-4xl md:text-5xl font-extrabold pb-2">Công Ty Thiết Kế In Ấn Hội An</h1>
+        </div>
+
+        <header class="text-center mb-8">
+            <h2 class="text-2xl sm:text-4xl font-bold text-blue-600 dark:text-blue-400">Quản Lý Công Việc</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Nơi quản lý tất cả công việc của bạn.</p>
+        </header>
+
+        <div class="mb-8 text-center">
+             <button id="openModalBtn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-lg transform hover:scale-105 flex items-center justify-center gap-2 mx-auto">
+                <i class="fas fa-plus-circle"></i>
+                <span>Tạo Công Việc Mới</span>
+            </button>
+        </div>
+        
+        <!-- Khu vực Admin Controls -->
+        <div id="adminControls" class="hidden my-6 p-4 bg-purple-100 dark:bg-purple-900/30 border border-purple-300 dark:border-purple-700 rounded-lg">
+            <h3 class="text-lg font-bold text-purple-800 dark:text-purple-300 mb-3 text-center">Bảng điều khiển Admin</h3>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button id="backupBtn" class="flex-1 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"><i class="fas fa-download"></i> Sao lưu</button>
+                <button id="restoreBtn" class="flex-1 bg-yellow-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-yellow-600 transition-colors flex items-center justify-center gap-2"><i class="fas fa-upload"></i> Phục hồi</button>
+                <button id="logoutBtn" class="flex-1 bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+                <input type="file" id="restoreFileInput" class="hidden" accept=".json">
+            </div>
+        </div>
+
+        <!-- Danh sách công việc -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-2 border-b-2 border-gray-200 dark:border-gray-700">
+                <h3 class="text-2xl font-bold mb-2 sm:mb-0">Danh Sách Công Việc</h3>
+                <div class="flex items-center space-x-3">
+                    <label for="hideCompletedToggle" class="text-sm font-medium text-gray-600 dark:text-gray-300 select-none">Ẩn việc đã xong</label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="hideCompletedToggle" class="sr-only peer">
+                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+            </div>
+            <ul id="taskList" class="space-y-4"></ul>
+            <div id="no-tasks-message" class="text-center text-gray-500 dark:text-gray-400 py-6 hidden">
+                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                <p>Tuyệt vời! Không có công việc nào cần làm.</p>
+            </div>
+        </div>
+        
+        <footer class="text-center mt-10 text-gray-500 dark:text-gray-400 text-sm">
+            <p>Tạo bởi Gemini với ❤️</p>
+        </footer>
+    </div>
+    
+    <!-- Nút Admin nổi -->
+    <button id="openAdminModalBtn" class="fixed bottom-4 right-4 bg-purple-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-purple-700 transition-transform transform hover:scale-110 z-40">
+        <i class="fas fa-user-shield text-2xl"></i>
+    </button>
+
+    <script>
+        // --- CONSTANTS & STATE ---
+        const LOCAL_STORAGE_KEY = 'customerTasksV11'; // Incremented version for stability fix
+        let allTasks = []; // The single source of truth for task data
+
+        // --- DOM ELEMENTS ---
+        const customerNameInput = document.getElementById('customerNameInput');
+        const phoneInput = document.getElementById('phoneInput');
+        const addressInput = document.getElementById('addressInput');
+        const timeInput = document.getElementById('timeInput');
+        const taskInput = document.getElementById('taskInput');
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        const taskList = document.getElementById('taskList');
+        const noTasksMessage = document.getElementById('no-tasks-message');
+        const hideCompletedToggle = document.getElementById('hideCompletedToggle');
+        
+        const taskModal = document.getElementById('taskModal');
+        const modalContent = document.getElementById('modalContent');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        const adminModal = document.getElementById('adminModal');
+        const adminModalContent = document.getElementById('adminModalContent');
+        const openAdminModalBtn = document.getElementById('openAdminModalBtn');
+        const closeAdminModalBtn = document.getElementById('closeAdminModalBtn');
+        const usernameInput = document.getElementById('usernameInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginError = document.getElementById('loginError');
+
+        const adminControls = document.getElementById('adminControls');
+        const backupBtn = document.getElementById('backupBtn');
+        const restoreBtn = document.getElementById('restoreBtn');
+        const restoreFileInput = document.getElementById('restoreFileInput');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // --- MODAL HELPER ---
+        function setupModal(modal, openBtn, closeBtn, content) {
+            function show() {
+                modal.classList.remove('hidden');
+                content.classList.remove('modal-leave-active');
+                content.classList.add('modal-enter-active');
+            }
+            function hide() {
+                content.classList.add('modal-leave-active');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    content.classList.remove('modal-leave-active');
+                }, 200);
+            }
+            if (openBtn) openBtn.addEventListener('click', show);
+            if (closeBtn) closeBtn.addEventListener('click', hide);
+            modal.addEventListener('click', (e) => { if (e.target === modal) hide(); });
+            return { show, hide };
+        }
+
+        const taskModalControls = setupModal(taskModal, openModalBtn, closeModalBtn, modalContent);
+        const adminModalControls = setupModal(adminModal, openAdminModalBtn, closeAdminModalBtn, adminModalContent);
+
+        // --- ADMIN LOGIC ---
+        function handleAdminLogin() {
+            if (usernameInput.value === 'admin' && passwordInput.value === 'admin') {
+                adminControls.classList.remove('hidden');
+                openAdminModalBtn.classList.add('hidden');
+                adminModalControls.hide();
+                loginError.classList.add('hidden');
+                usernameInput.value = '';
+                passwordInput.value = '';
+            } else {
+                loginError.classList.remove('hidden');
+            }
+        }
+        function handleAdminLogout() {
+            adminControls.classList.add('hidden');
+            openAdminModalBtn.classList.remove('hidden');
+        }
+        
+        // --- BACKUP & RESTORE LOGIC ---
+        function backupTasks() {
+            if (allTasks.length === 0) {
+                alert('Không có công việc nào để sao lưu.');
+                return;
+            }
+            const dataStr = JSON.stringify(allTasks, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const a = document.createElement('a');
+a.href = url;
+            const date = new Date().toISOString().slice(0, 10);
+            a.download = `sao-luu-cong-viec-${date}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function handleFileRestore(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!confirm('Bạn có chắc chắn muốn phục hồi? Hành động này sẽ XÓA TOÀN BỘ công việc hiện tại.')) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const restoredTasks = JSON.parse(e.target.result);
+                    if (!Array.isArray(restoredTasks)) throw new Error('Tệp không hợp lệ.');
+                    allTasks = restoredTasks;
+                    saveAndRender();
+                    alert('Phục hồi thành công!');
+                } catch (err) {
+                    alert('Lỗi: Không thể đọc tệp sao lưu. Tệp có thể bị hỏng hoặc không đúng định dạng.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // --- CORE DATA & RENDER LOGIC ---
+
+        /**
+         * A central function to save the current state and re-render the UI.
+         */
+        function saveAndRender() {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allTasks));
+            } catch (e) {
+                console.error("Lỗi khi lưu vào localStorage:", e);
+                alert("Không thể lưu công việc. Trình duyệt của bạn có thể không hỗ trợ hoặc đã tắt bộ nhớ cục bộ (localStorage). Điều này thường xảy ra khi mở tệp trực tiếp từ máy tính.");
+            }
+            renderAllTasks();
+        }
+
+        /**
+         * Renders the entire list of tasks to the DOM from the `allTasks` array.
+         */
+        function renderAllTasks() {
+            taskList.innerHTML = '';
+            allTasks.forEach((taskData, index) => {
+                const { customerName, phone, address, time, text, completed } = taskData;
+                
+                const li = document.createElement('li');
+                li.className = `flex flex-col sm:flex-row items-start justify-between bg-gray-50 dark:bg-gray-700 p-3 sm:p-4 rounded-lg shadow-sm transition-all duration-300 ${completed ? 'completed' : ''}`;
+                
+                const completeBtnText = completed ? 'Làm lại' : 'Hoàn thành';
+                const completeBtnClass = completed ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600';
+
+                li.innerHTML = `
+                    <div class="flex-grow mr-0 sm:mr-4 mb-4 sm:mb-0 w-full">
+                        <p class="font-bold text-lg task-content">${text}</p>
+                        <div class="customer-info grid grid-cols-1 md:grid-cols-2 text-sm text-gray-600 dark:text-gray-400 mt-2 gap-x-4 gap-y-1">
+                            <span class="customer-name truncate"><i class="fas fa-user fa-fw mr-1.5 text-blue-500"></i>${customerName}</span>
+                            <span class="task-time truncate"><i class="fas fa-clock fa-fw mr-1.5 text-orange-500"></i>${new Date(time).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            ${phone ? `<span class="customer-phone truncate"><i class="fas fa-phone fa-fw mr-1.5 text-green-500"></i>${phone}</span>` : ''}
+                            ${address ? `<span class="customer-address truncate"><i class="fas fa-map-marker-alt fa-fw mr-1.5 text-purple-500"></i>${address}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-stretch space-y-2 flex-shrink-0 w-full sm:w-32">
+                        <button data-action="toggle" data-index="${index}" class="font-semibold py-2 px-3 rounded-lg text-sm text-white transition-colors duration-200 w-full ${completeBtnClass}">
+                            ${completeBtnText}
+                        </button>
+                        <button data-action="delete" data-index="${index}" class="flex items-center justify-center bg-red-500 text-white hover:bg-red-600 font-semibold py-2 px-3 rounded-lg text-sm transition-colors duration-200 w-full">
+                            <i class="fas fa-trash mr-2"></i> Xóa
+                        </button>
+                    </div>
+                `;
+                taskList.appendChild(li);
+            });
+            updateCompletedTasksVisibility();
+        }
+        
+        // --- UI UTILITY FUNCTIONS ---
+        function checkEmptyState() {
+            const hasVisibleTasks = Array.from(taskList.children).some(task => !task.classList.contains('hidden'));
+            noTasksMessage.classList.toggle('hidden', taskList.children.length > 0 && hasVisibleTasks);
+        }
+
+        function updateCompletedTasksVisibility() {
+            const shouldHide = hideCompletedToggle.checked;
+            taskList.querySelectorAll('li').forEach(li => {
+                const isCompleted = li.classList.contains('completed');
+                li.classList.toggle('hidden', shouldHide && isCompleted);
+            });
+            localStorage.setItem('hideCompletedState', shouldHide);
+            checkEmptyState();
+        }
+
+        // --- EVENT HANDLERS ---
+        
+        function handleTaskListClick(event) {
+            const button = event.target.closest('button[data-action]');
+            if (!button) return;
+
+            const action = button.dataset.action;
+            const index = parseInt(button.dataset.index, 10);
+
+            if (action === 'toggle') {
+                allTasks[index].completed = !allTasks[index].completed;
+                saveAndRender();
+            }
+
+            if (action === 'delete') {
+                if (confirm(`Bạn có chắc muốn xóa công việc của "${allTasks[index].customerName}"?`)) {
+                    allTasks.splice(index, 1);
+                    saveAndRender();
+                }
+            }
+        }
+
+        function handleAddTask() {
+            const taskData = {
+                customerName: customerNameInput.value.trim(),
+                phone: phoneInput.value.trim(),
+                address: addressInput.value.trim(),
+                time: timeInput.value,
+                text: taskInput.value.trim(),
+                completed: false,
+            };
+
+            if (!taskData.customerName || !taskData.time || !taskData.text) {
+                alert('Vui lòng nhập các trường bắt buộc: Tên khách hàng, Thời gian và Nội dung công việc!');
+                return;
+            }
+
+            allTasks.unshift(taskData);
+            saveAndRender();
+
+            [customerNameInput, phoneInput, addressInput, timeInput, taskInput].forEach(input => input.value = '');
+            taskModalControls.hide();
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup Admin Listeners
+            loginBtn.addEventListener('click', handleAdminLogin);
+            passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAdminLogin(); });
+            logoutBtn.addEventListener('click', handleAdminLogout);
+            backupBtn.addEventListener('click', backupTasks);
+            restoreBtn.addEventListener('click', () => restoreFileInput.click());
+            restoreFileInput.addEventListener('change', handleFileRestore);
+
+            // Setup Task Listeners
+            taskList.addEventListener('click', handleTaskListClick);
+            hideCompletedToggle.addEventListener('change', updateCompletedTasksVisibility);
+            addTaskBtn.addEventListener('click', handleAddTask);
+            taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddTask(); }});
+
+            // Load initial state
+            const savedHideState = JSON.parse(localStorage.getItem('hideCompletedState'));
+            hideCompletedToggle.checked = savedHideState !== false; 
+            
+            try {
+                allTasks = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+            } catch (e) {
+                console.error("Lỗi khi tải dữ liệu từ localStorage:", e);
+                allTasks = [];
+            }
+            renderAllTasks();
+        });
+    </script>
+</body>
+</html>
