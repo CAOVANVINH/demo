@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Công Ty Thiết Kế In Ấn Hội An - Quản Lý Công Việc</title>
+    <title>Công Ty Thiết Kế In Ấn Hội An - Quản Lý Công Việc (Firebase)</title>
     <!-- Tích hợp Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -50,52 +50,64 @@
         .modal-enter-active, .modal-leave-active {
             transition: opacity 200ms, transform 200ms;
         }
-        .modal-enter {
+        .modal-enter-from {
             opacity: 0;
             transform: scale(0.95);
         }
-        .modal-enter-active {
+        .modal-enter-to {
             opacity: 1;
             transform: scale(1);
         }
-        .modal-leave {
+        .modal-leave-from {
             opacity: 1;
             transform: scale(1);
         }
-        .modal-leave-active {
+        .modal-leave-to {
             opacity: 0;
             transform: scale(0.95);
         }
-        /* Style cho loading spinner */
+        /* Spinner/Loading Indicator */
         #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             z-index: 100;
         }
         .spinner {
-            border-top-color: #3498db;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
     
     <!-- Loading Overlay -->
-    <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex flex-col items-center justify-center">
-        <div class="spinner w-16 h-16 border-8 border-gray-300 rounded-full"></div>
-        <p class="text-white text-lg mt-4">Đang kết nối đến máy chủ...</p>
+    <div id="loading-overlay">
+        <div class="spinner"></div>
     </div>
 
-    <!-- Modal Thêm/Sửa Công Việc -->
+    <!-- Modal Thêm Công Việc -->
     <div id="taskModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
         <div id="modalContent" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl relative">
             <button id="closeModalBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 text-2xl" aria-label="Đóng">&times;</button>
             <div class="p-6 sm:p-8">
-                <h3 id="modalTitle" class="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">Thêm Công Việc Mới</h3>
-                <input type="hidden" id="taskEditId" value="">
+                <h3 class="text-2xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">Thêm Công Việc Mới</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div>
+                     <div>
                         <label for="customerNameInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tên khách hàng <span class="text-red-500">*</span></label>
                         <input type="text" id="customerNameInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="Nguyễn Văn A">
                     </div>
@@ -103,7 +115,7 @@
                         <label for="phoneInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Số điện thoại</label>
                         <input type="tel" id="phoneInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="(Không bắt buộc)">
                     </div>
-                    <div>
+                     <div>
                         <label for="addressInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Địa chỉ</label>
                         <input type="text" id="addressInput" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="(Không bắt buộc)">
                     </div>
@@ -116,9 +128,9 @@
                     <label for="taskInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nội dung công việc <span class="text-red-500">*</span></label>
                     <textarea id="taskInput" rows="3" class="w-full p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700" placeholder="Sửa chữa máy lạnh, thay gas..."></textarea>
                 </div>
-                <button id="submitTaskBtn" class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-md flex items-center justify-center gap-2">
-                    <i id="submitIcon" class="fas fa-plus"></i>
-                    <span id="submitText">Thêm Công Việc</span>
+                <button id="addTaskBtn" class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-plus"></i>
+                    <span>Thêm Công Việc</span>
                 </button>
             </div>
         </div>
@@ -148,7 +160,7 @@
 
 
     <!-- Nội dung chính của trang -->
-    <div class="container mx-auto max-w-7xl mt-8 sm:mt-16 px-4 pb-20">
+    <div class="container mx-auto max-w-4xl mt-8 sm:mt-16 px-4 pb-20">
         
         <div class="text-center mb-6">
             <h1 class="animated-gradient-text text-3xl sm:text-4xl md:text-5xl font-extrabold pb-2">Công Ty Thiết Kế In Ấn Hội An</h1>
@@ -166,11 +178,6 @@
             </button>
         </div>
         
-        <!-- Hiển thị User ID -->
-        <div id="userInfo" class="text-center mb-6 hidden">
-            <p class="text-xs text-gray-500 dark:text-gray-400">Mã phiên làm việc (User ID): <span id="userIdDisplay" class="font-mono bg-gray-200 dark:bg-gray-700 p-1 rounded"></span></p>
-        </div>
-
         <!-- Khu vực Admin Controls -->
         <div id="adminControls" class="hidden my-6 p-4 bg-purple-100 dark:bg-purple-900/30 border border-purple-300 dark:border-purple-700 rounded-lg">
             <h3 class="text-lg font-bold text-purple-800 dark:text-purple-300 mb-3 text-center">Bảng điều khiển Admin</h3>
@@ -183,8 +190,8 @@
         </div>
 
         <!-- Danh sách công việc -->
-        <div class="bg-transparent dark:bg-transparent rounded-lg p-0">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b-2 border-gray-200 dark:border-gray-700">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-2 border-b-2 border-gray-200 dark:border-gray-700">
                 <h3 class="text-2xl font-bold mb-2 sm:mb-0">Danh Sách Công Việc</h3>
                 <div class="flex items-center space-x-3">
                     <label for="hideCompletedToggle" class="text-sm font-medium text-gray-600 dark:text-gray-300 select-none">Ẩn việc đã xong</label>
@@ -194,15 +201,15 @@
                     </label>
                 </div>
             </div>
-            <ul id="taskList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></ul>
-            <div id="no-tasks-message" class="text-center text-gray-500 dark:text-gray-400 py-10 hidden">
-                <i class="fas fa-check-circle fa-3x mb-3 text-green-500"></i>
-                <p class="text-lg">Tuyệt vời! Không có công việc nào cần làm.</p>
+            <ul id="taskList" class="space-y-4"></ul>
+            <div id="no-tasks-message" class="text-center text-gray-500 dark:text-gray-400 py-6 hidden">
+                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                <p>Tuyệt vời! Không có công việc nào cần làm.</p>
             </div>
         </div>
         
         <footer class="text-center mt-10 text-gray-500 dark:text-gray-400 text-sm">
-            <p>Tạo bởi Gemini với ❤️</p>
+            <p>Nâng cấp bởi Gemini với ❤️ và Firebase</p>
         </footer>
     </div>
     
@@ -210,34 +217,65 @@
     <button id="openAdminModalBtn" class="fixed bottom-4 right-4 bg-purple-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-purple-700 transition-transform transform hover:scale-110 z-40">
         <i class="fas fa-user-shield text-2xl"></i>
     </button>
-    
+
     <!-- Firebase SDK -->
     <script type="module">
-        // Import các hàm cần thiết từ Firebase SDK
+        // Import functions from the Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, collection, addDoc, setDoc, deleteDoc, onSnapshot, writeBatch, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            onSnapshot, 
+            query, 
+            orderBy, 
+            doc, 
+            updateDoc, 
+            deleteDoc, 
+            serverTimestamp,
+            writeBatch
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- STATE & CONSTANTS ---
-        let allTasks = []; // Local cache of tasks
-        let db, auth; // Firebase services
-        let userId; // Current user's ID
-        let tasksUnsubscribe = null; // Function to stop listening for task updates
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // --- START: FIREBASE CONFIGURATION ---
+        // QUAN TRỌNG: BẠN PHẢI THAY THẾ ĐỐI TƯỢNG NÀY BẰNG CẤU HÌNH FIREBASE CỦA CHÍNH BẠN
+        // 1. Truy cập https://console.firebase.google.com/
+        // 2. Tạo một dự án mới.
+        // 3. Trong dự án của bạn, nhấp vào biểu tượng </> để thêm ứng dụng web.
+        // 4. Sao chép đối tượng firebaseConfig và dán vào đây.
+        const firebaseConfig = {
+           apiKey: "AIzaSyB6e_dhy8Z4zFGL-rAf572rgdyFG-dAMbI",
+            authDomain: "congviec-cfa50.firebaseapp.com",
+            projectId: "congviec-cfa50",
+            storageBucket: "congviec-cfa50.appspot.com", // FIX: Corrected the storageBucket format
+            messagingSenderId: "320610123969",
+            appId: "1:320610123969:web:00b68ee05d228fd8c21440",
+            measurementId: "G-0V5KEJF57S"
+        };
+        // --- END: FIREBASE CONFIGURATION ---
+
+        // --- INITIALIZE FIREBASE ---
+        let app, auth, db;
+        let allTasks = []; // Local cache of tasks from Firestore
+        let unsubscribeFromTasks = null; // To stop listening for changes when needed
+
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Lỗi khởi tạo Firebase. Bạn đã điền đúng firebaseConfig chưa?", e);
+            alert("Lỗi cấu hình Firebase! Vui lòng kiểm tra lại thông tin cấu hình trong mã nguồn. Chi tiết xem ở Console (F12).");
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
 
         // --- DOM ELEMENTS ---
-        const loadingOverlay = document.getElementById('loading-overlay');
         const customerNameInput = document.getElementById('customerNameInput');
         const phoneInput = document.getElementById('phoneInput');
         const addressInput = document.getElementById('addressInput');
         const timeInput = document.getElementById('timeInput');
         const taskInput = document.getElementById('taskInput');
-        const submitTaskBtn = document.getElementById('submitTaskBtn');
-        const modalTitle = document.getElementById('modalTitle');
-        const submitIcon = document.getElementById('submitIcon');
-        const submitText = document.getElementById('submitText');
-        const taskEditId = document.getElementById('taskEditId');
-
+        const addTaskBtn = document.getElementById('addTaskBtn');
         const taskList = document.getElementById('taskList');
         const noTasksMessage = document.getElementById('no-tasks-message');
         const hideCompletedToggle = document.getElementById('hideCompletedToggle');
@@ -261,49 +299,59 @@
         const restoreBtn = document.getElementById('restoreBtn');
         const restoreFileInput = document.getElementById('restoreFileInput');
         const logoutBtn = document.getElementById('logoutBtn');
-        
-        const userInfo = document.getElementById('userInfo');
-        const userIdDisplay = document.getElementById('userIdDisplay');
+        const loadingOverlay = document.getElementById('loading-overlay');
 
         // --- MODAL HELPER ---
-        function setupModal(modal, openBtn, closeBtn, content, onCloseCallback) {
+        function setupModal(modal, openBtn, closeBtn, content) {
             function show() {
                 modal.classList.remove('hidden');
-                content.classList.remove('modal-leave-active');
-                content.classList.add('modal-enter-active');
+                content.classList.remove('modal-leave-to');
+                content.classList.add('modal-enter-from');
+                setTimeout(() => content.classList.add('modal-enter-to'), 10);
             }
             function hide() {
-                content.classList.add('modal-leave-active');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    content.classList.remove('modal-leave-active');
-                    if(onCloseCallback) onCloseCallback();
-                }, 200);
+                content.classList.remove('modal-enter-to');
+                content.classList.add('modal-leave-to');
+                setTimeout(() => modal.classList.add('hidden'), 200);
             }
             if (openBtn) openBtn.addEventListener('click', show);
             if (closeBtn) closeBtn.addEventListener('click', hide);
             modal.addEventListener('click', (e) => { if (e.target === modal) hide(); });
             return { show, hide };
         }
-        
-        function resetTaskModal() {
-            modalTitle.textContent = 'Thêm Công Việc Mới';
-            submitText.textContent = 'Thêm Công Việc';
-            submitIcon.className = 'fas fa-plus';
-            taskEditId.value = '';
-            
-            customerNameInput.value = '';
-            phoneInput.value = '';
-            addressInput.value = '';
-            timeInput.value = '';
-            taskInput.value = '';
-        }
 
-        const taskModalControls = setupModal(taskModal, openModalBtn, closeModalBtn, modalContent, resetTaskModal);
+        const taskModalControls = setupModal(taskModal, openModalBtn, closeModalBtn, modalContent);
         const adminModalControls = setupModal(adminModal, openAdminModalBtn, closeAdminModalBtn, adminModalContent);
 
-        // --- ADMIN LOGIC ---
+        // --- ADMIN & AUTH LOGIC ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in.
+                console.log("User signed in anonymously:", user.uid);
+                if (unsubscribeFromTasks) unsubscribeFromTasks(); // Stop previous listener if any
+                listenForTasks();
+            } else {
+                // User is signed out.
+                console.log("User is signed out. Attempting to sign in anonymously.");
+                signInAnonymously(auth).catch((error) => {
+                    console.error("Anonymous sign-in failed:", error);
+                    // FIX: Provide a more specific and helpful error message.
+                    if (error.code === 'auth/configuration-not-found') {
+                         alert("Lỗi Cấu hình Firebase (auth/configuration-not-found).\n\n" +
+                              "Vui lòng kiểm tra lại các bước sau:\n" +
+                              "1. Đảm bảo bạn đã sao chép chính xác 'firebaseConfig' từ dự án Firebase của mình vào tệp HTML.\n" +
+                              "2. Trong Firebase Console, hãy vào mục 'Authentication' -> tab 'Sign-in method' và đảm bảo 'Anonymous' (Ẩn danh) đã được BẬT.\n\n" +
+                              "Lỗi này thường xảy ra do một trong hai lý do trên.");
+                    } else {
+                        alert("Không thể đăng nhập ẩn danh. Lỗi: " + error.message);
+                    }
+                    loadingOverlay.classList.add('hidden');
+                });
+            }
+        });
+
         function handleAdminLogin() {
+            // This remains a local UI toggle, not real Firebase auth
             if (usernameInput.value === 'admin' && passwordInput.value === 'admin') {
                 adminControls.classList.remove('hidden');
                 openAdminModalBtn.classList.add('hidden');
@@ -326,50 +374,63 @@
                 alert('Không có công việc nào để sao lưu.');
                 return;
             }
-            const dataStr = JSON.stringify(allTasks, null, 2);
+            // Create a clean version for backup, removing Firestore-specific fields
+            const backupData = allTasks.map(({ id, createdAt, ...task }) => {
+                // Convert Firestore Timestamps to ISO strings for JSON compatibility
+                if (task.time?.toDate) {
+                    task.time = task.time.toDate().toISOString();
+                }
+                return task;
+            });
+            const dataStr = JSON.stringify(backupData, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
             const a = document.createElement('a');
-            document.body.appendChild(a);
-            a.style.display = 'none';
             a.href = url;
             const date = new Date().toISOString().slice(0, 10);
-            a.download = `sao-luu-cong-viec-cloud-${date}.json`;
+            a.download = `sao-luu-cong-viec-${date}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            document.body.removeChild(a);
         }
 
         async function handleFileRestore(event) {
             const file = event.target.files[0];
             if (!file) return;
-            if (!confirm('Bạn có chắc chắn muốn phục hồi? Hành động này sẽ XÓA TOÀN BỘ công việc hiện tại trên đám mây và thay thế bằng dữ liệu từ tệp này.')) return;
-
+            if (!confirm('CẢNH BÁO: Hành động này sẽ XÓA TẤT CẢ công việc hiện có trên cơ sở dữ liệu và thay thế bằng dữ liệu từ tệp này. Bạn có chắc chắn muốn tiếp tục?')) {
+                event.target.value = '';
+                return;
+            }
+            
+            loadingOverlay.classList.remove('hidden');
             const reader = new FileReader();
             reader.onload = async function(e) {
                 try {
-                    loadingOverlay.classList.remove('hidden');
                     const restoredTasks = JSON.parse(e.target.result);
                     if (!Array.isArray(restoredTasks)) throw new Error('Tệp không hợp lệ.');
-                    
+
+                    // Step 1: Delete all existing documents
                     const batchDelete = writeBatch(db);
                     allTasks.forEach(task => {
-                        const docRef = doc(db, `artifacts/${appId}/users/${userId}/tasks`, task.id);
-                        batchDelete.delete(docRef);
+                        batchDelete.delete(doc(db, "tasks", task.id));
                     });
                     await batchDelete.commit();
+                    console.log("All existing tasks deleted.");
 
+                    // Step 2: Add new documents from the file
                     const batchAdd = writeBatch(db);
                     restoredTasks.forEach(task => {
-                        const newDocRef = doc(collection(db, `artifacts/${appId}/users/${userId}/tasks`));
-                        const { id, ...taskData } = task; 
-                        batchAdd.set(newDocRef, taskData);
+                        const newDocRef = doc(collection(db, "tasks"));
+                        // Convert ISO string back to Date object if needed
+                        if (typeof task.time === 'string') {
+                            task.time = new Date(task.time);
+                        }
+                        batchAdd.set(newDocRef, { ...task, createdAt: serverTimestamp() });
                     });
                     await batchAdd.commit();
-
+                    
                     alert('Phục hồi thành công!');
                 } catch (err) {
-                    console.error("Lỗi phục hồi:", err);
+                    console.error("Restore error:", err);
                     alert('Lỗi: Không thể đọc tệp sao lưu. Tệp có thể bị hỏng hoặc không đúng định dạng.');
                 } finally {
                     loadingOverlay.classList.add('hidden');
@@ -379,45 +440,63 @@
             reader.readAsText(file);
         }
 
-        // --- CORE RENDER LOGIC ---
-        function renderAllTasks() {
-            const sortedTasks = [...allTasks].sort((a, b) => {
-                if (a.completed !== b.completed) {
-                    return a.completed ? 1 : -1;
-                }
-                const timeA = a.createdAt?.toDate() || 0;
-                const timeB = b.createdAt?.toDate() || 0;
-                return timeB - timeA;
-            });
+        // --- CORE DATA & RENDER LOGIC ---
 
+        /**
+         * Listens for real-time updates from Firestore and re-renders the list.
+         */
+        function listenForTasks() {
+            const tasksCollection = collection(db, 'tasks');
+            const q = query(tasksCollection, orderBy('createdAt', 'desc'));
+
+            unsubscribeFromTasks = onSnapshot(q, (querySnapshot) => {
+                allTasks = [];
+                querySnapshot.forEach((doc) => {
+                    allTasks.push({ id: doc.id, ...doc.data() });
+                });
+                renderAllTasks();
+                loadingOverlay.classList.add('hidden');
+            }, (error) => {
+                console.error("Error listening to tasks:", error);
+                alert("Mất kết nối với cơ sở dữ liệu. Vui lòng kiểm tra lại Rules trong Firebase và kết nối mạng.");
+                loadingOverlay.classList.add('hidden');
+            });
+        }
+
+        /**
+         * Renders the entire list of tasks to the DOM from the `allTasks` array.
+         */
+        function renderAllTasks() {
             taskList.innerHTML = '';
-            sortedTasks.forEach(taskData => {
+            allTasks.forEach((taskData) => {
                 const { id, customerName, phone, address, time, text, completed } = taskData;
                 
                 const li = document.createElement('li');
-                li.className = `bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${completed ? 'completed opacity-60' : ''}`;
-                
+                li.className = `flex flex-col sm:flex-row items-start justify-between bg-gray-50 dark:bg-gray-700 p-3 sm:p-4 rounded-lg shadow-sm transition-all duration-300 ${completed ? 'completed' : ''}`;
+                li.dataset.id = id; // Store Firestore document ID
+                li.dataset.completed = completed; // Store completion status
+
                 const completeBtnText = completed ? 'Làm lại' : 'Hoàn thành';
                 const completeBtnClass = completed ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600';
+                const taskDate = time?.toDate ? time.toDate() : new Date(time); // Handle both Firestore Timestamp and string
 
                 li.innerHTML = `
-                    <div> 
-                        <p class="font-bold text-lg task-content mb-3 break-words">${text}</p>
-                        <div class="customer-info text-sm text-gray-600 dark:text-gray-400 space-y-2">
-                            <div class="flex items-center"><i class="fas fa-user fa-fw mr-2 text-blue-500"></i><span class="customer-name truncate" title="${customerName}">${customerName}</span></div>
-                            <div class="flex items-center"><i class="fas fa-clock fa-fw mr-2 text-orange-500"></i><span class="task-time truncate">${new Date(time).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>
-                            ${phone ? `<div class="flex items-center"><i class="fas fa-phone fa-fw mr-2 text-green-500"></i><span class="customer-phone truncate" title="${phone}">${phone}</span></div>` : ''}
-                            ${address ? `<div class="flex items-center"><i class="fas fa-map-marker-alt fa-fw mr-2 text-purple-500"></i><span class="customer-address" title="${address}">${address}</span></div>` : ''}
+                    <div class="flex-grow mr-0 sm:mr-4 mb-4 sm:mb-0 w-full">
+                        <p class="font-bold text-lg task-content">${text}</p>
+                        <div class="customer-info grid grid-cols-1 md:grid-cols-2 text-sm text-gray-600 dark:text-gray-400 mt-2 gap-x-4 gap-y-1">
+                            <span class="customer-name truncate"><i class="fas fa-user fa-fw mr-1.5 text-blue-500"></i>${customerName}</span>
+                            <span class="task-time truncate"><i class="fas fa-clock fa-fw mr-1.5 text-orange-500"></i>${taskDate.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            ${phone ? `<span class="customer-phone truncate"><i class="fas fa-phone fa-fw mr-1.5 text-green-500"></i>${phone}</span>` : ''}
+                            ${address ? `<span class="customer-address truncate"><i class="fas fa-map-marker-alt fa-fw mr-1.5 text-purple-500"></i>${address}</span>` : ''}
                         </div>
                     </div>
-                    <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                        <button data-action="toggle" data-id="${id}" class="font-semibold py-1.5 px-3 rounded-lg text-xs text-white transition-colors duration-200 ${completeBtnClass}">
+                    <div class="flex flex-col items-stretch space-y-2 flex-shrink-0 w-full sm:w-32">
+                        <button data-action="toggle" class="font-semibold py-2 px-3 rounded-lg text-sm text-white transition-colors duration-200 w-full ${completeBtnClass}">
                             ${completeBtnText}
                         </button>
-                        <div class="flex space-x-2">
-                            <button data-action="edit" data-id="${id}" class="flex items-center justify-center bg-blue-500 text-white hover:bg-blue-600 w-8 h-8 rounded-full text-sm transition-colors duration-200" aria-label="Sửa"><i class="fas fa-pencil-alt"></i></button>
-                            <button data-action="delete" data-id="${id}" class="flex items-center justify-center bg-red-500 text-white hover:bg-red-600 w-8 h-8 rounded-full text-sm transition-colors duration-200" aria-label="Xóa"><i class="fas fa-trash"></i></button>
-                        </div>
+                        <button data-action="delete" class="flex items-center justify-center bg-red-500 text-white hover:bg-red-600 font-semibold py-2 px-3 rounded-lg text-sm transition-colors duration-200 w-full">
+                            <i class="fas fa-trash mr-2"></i> Xóa
+                        </button>
                     </div>
                 `;
                 taskList.appendChild(li);
@@ -428,185 +507,92 @@
         // --- UI UTILITY FUNCTIONS ---
         function checkEmptyState() {
             const hasVisibleTasks = Array.from(taskList.children).some(task => !task.classList.contains('hidden'));
-            noTasksMessage.classList.toggle('hidden', !(allTasks.length === 0 || !hasVisibleTasks));
+            noTasksMessage.classList.toggle('hidden', !(taskList.children.length > 0 && hasVisibleTasks));
         }
 
         function updateCompletedTasksVisibility() {
             const shouldHide = hideCompletedToggle.checked;
             taskList.querySelectorAll('li').forEach(li => {
-                const isCompleted = li.classList.contains('completed');
+                const isCompleted = li.dataset.completed === 'true';
                 li.classList.toggle('hidden', shouldHide && isCompleted);
             });
+            localStorage.setItem('hideCompletedState', shouldHide); // This UI state can still be local
             checkEmptyState();
         }
 
-        // --- EVENT HANDLERS (FIRESTORE) ---
+        // --- EVENT HANDLERS ---
+        
         async function handleTaskListClick(event) {
             const button = event.target.closest('button[data-action]');
             if (!button) return;
 
-            const taskId = button.dataset.id;
-            const task = allTasks.find(t => t.id === taskId);
-            if (!task) return;
-
+            const li = button.closest('li');
+            const taskId = li.dataset.id;
             const action = button.dataset.action;
-            const docRef = doc(db, `artifacts/${appId}/users/${userId}/tasks`, taskId);
+
+            if (!taskId) return;
+
+            const taskDocRef = doc(db, "tasks", taskId);
 
             if (action === 'toggle') {
+                const isCompleted = li.dataset.completed === 'true';
                 try {
-                    await setDoc(docRef, { completed: !task.completed }, { merge: true });
+                    await updateDoc(taskDocRef, { completed: !isCompleted });
+                    // The onSnapshot listener will handle the re-render automatically
                 } catch (e) {
-                    console.error("Lỗi cập nhật công việc: ", e);
-                    alert("Đã xảy ra lỗi khi cập nhật trạng thái công việc.");
+                    console.error("Error updating task: ", e);
+                    alert("Lỗi cập nhật công việc.");
                 }
             }
 
             if (action === 'delete') {
-                if (confirm(`Bạn có chắc muốn xóa công việc của "${task.customerName}"?`)) {
+                const taskText = li.querySelector('.task-content')?.textContent || 'công việc này';
+                if (confirm(`Bạn có chắc muốn xóa "${taskText}"?`)) {
                     try {
-                        await deleteDoc(docRef);
+                        await deleteDoc(taskDocRef);
+                        // The onSnapshot listener will handle the re-render automatically
                     } catch (e) {
-                        console.error("Lỗi xóa công việc: ", e);
-                        alert("Đã xảy ra lỗi khi xóa công việc.");
+                        console.error("Error deleting task: ", e);
+                        alert("Lỗi xóa công việc.");
                     }
                 }
             }
-            
-            if (action === 'edit') {
-                openEditModal(taskId);
-            }
         }
 
-        function openEditModal(taskId) {
-            const task = allTasks.find(t => t.id === taskId);
-            if (!task) return;
-            
-            modalTitle.textContent = 'Chỉnh Sửa Công Việc';
-            submitText.textContent = 'Lưu Thay Đổi';
-            submitIcon.className = 'fas fa-save';
-
-            customerNameInput.value = task.customerName;
-            phoneInput.value = task.phone;
-            addressInput.value = task.address;
-            taskInput.value = task.text;
-            
-            const date = new Date(task.time);
-            date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-            timeInput.value = date.toISOString().slice(0, 16);
-            
-            taskEditId.value = taskId;
-            taskModalControls.show();
-        }
-
-        async function handleSubmitTask() {
+        async function handleAddTask() {
             const taskData = {
                 customerName: customerNameInput.value.trim(),
                 phone: phoneInput.value.trim(),
                 address: addressInput.value.trim(),
-                time: timeInput.value,
+                time: new Date(timeInput.value), // Store as a Date object for Firestore
                 text: taskInput.value.trim(),
+                completed: false,
+                createdAt: serverTimestamp() // Add a server-side timestamp for sorting
             };
 
-            if (!taskData.customerName || !taskData.time || !taskData.text) {
+            if (!taskData.customerName || !timeInput.value || !taskData.text) {
                 alert('Vui lòng nhập các trường bắt buộc: Tên khách hàng, Thời gian và Nội dung công việc!');
                 return;
             }
 
-            const editId = taskEditId.value;
-            submitTaskBtn.disabled = true;
-
             try {
-                if (editId) {
-                    const docRef = doc(db, `artifacts/${appId}/users/${userId}/tasks`, editId);
-                    await setDoc(docRef, taskData, { merge: true });
-                } else {
-                    taskData.completed = false;
-                    taskData.createdAt = serverTimestamp();
-                    const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/tasks`);
-                    await addDoc(collectionRef, taskData);
-                }
+                await addDoc(collection(db, "tasks"), taskData);
+                // The onSnapshot listener will handle adding the new task to the UI
+                [customerNameInput, phoneInput, addressInput, timeInput, taskInput].forEach(input => input.value = '');
                 taskModalControls.hide();
             } catch (e) {
-                console.error("Lỗi lưu công việc:", e);
-                alert("Đã xảy ra lỗi khi lưu công việc vào đám mây.");
-            } finally {
-                submitTaskBtn.disabled = false;
+                console.error("Error adding document: ", e);
+                alert("Lỗi khi thêm công việc mới. Vui lòng thử lại.");
             }
         }
-        
-        // --- FIREBASE INITIALIZATION ---
-        function initializeFirebase() {
-            if (typeof __firebase_config === 'undefined' || !__firebase_config) {
-                console.error("Lỗi: Cấu hình Firebase không tồn tại.");
-                loadingOverlay.innerHTML = '<p class="text-red-500 text-lg text-center px-4">Lỗi cấu hình máy chủ.<br>Vui lòng đảm bảo ứng dụng được chạy trong môi trường hợp lệ.</p>';
-                return;
-            }
-            try {
-                const firebaseConfig = JSON.parse(__firebase_config);
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                handleAuthentication();
-            } catch (e) {
-                console.error("Lỗi khởi tạo Firebase:", e);
-                loadingOverlay.innerHTML = '<p class="text-red-500 text-lg">Lỗi kết nối đến máy chủ. Vui lòng tải lại trang.</p>';
-            }
-        }
-
-        async function handleAuthentication() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Lỗi đăng nhập:", error);
-                loadingOverlay.innerHTML = '<p class="text-red-500 text-lg">Lỗi xác thực người dùng.</p>';
-            }
-
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    userId = user.uid;
-                    userIdDisplay.textContent = userId;
-                    userInfo.classList.remove('hidden');
-                    
-                    if (tasksUnsubscribe) {
-                        tasksUnsubscribe();
-                    }
-                    listenToTasks();
-                } else {
-                    userId = null;
-                    if (tasksUnsubscribe) {
-                        tasksUnsubscribe();
-                    }
-                    allTasks = [];
-                    renderAllTasks();
-                    loadingOverlay.classList.remove('hidden');
-                }
-            });
-        }
-
-        function listenToTasks() {
-            const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/tasks`);
-            const q = query(collectionRef, orderBy("createdAt", "desc"));
-
-            tasksUnsubscribe = onSnapshot(q, (querySnapshot) => {
-                allTasks = [];
-                querySnapshot.forEach((doc) => {
-                    allTasks.push({ id: doc.id, ...doc.data() });
-                });
-                renderAllTasks();
-                loadingOverlay.classList.add('hidden');
-            }, (error) => {
-                console.error("Lỗi lắng nghe dữ liệu:", error);
-                loadingOverlay.innerHTML = '<p class="text-red-500 text-lg">Lỗi tải dữ liệu công việc.</p>';
-            });
-        }
-
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
+             if (!db) {
+                // If Firebase init failed, don't add listeners that depend on it
+                return;
+            }
+            // Setup Admin Listeners
             loginBtn.addEventListener('click', handleAdminLogin);
             passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAdminLogin(); });
             logoutBtn.addEventListener('click', handleAdminLogout);
@@ -614,14 +600,15 @@
             restoreBtn.addEventListener('click', () => restoreFileInput.click());
             restoreFileInput.addEventListener('change', handleFileRestore);
 
+            // Setup Task Listeners
             taskList.addEventListener('click', handleTaskListClick);
             hideCompletedToggle.addEventListener('change', updateCompletedTasksVisibility);
-            submitTaskBtn.addEventListener('click', handleSubmitTask);
-            taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmitTask(); }});
-            
-            hideCompletedToggle.checked = false;
-            
-            initializeFirebase();
+            addTaskBtn.addEventListener('click', handleAddTask);
+            taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddTask(); }});
+
+            // Load initial UI state
+            const savedHideState = JSON.parse(localStorage.getItem('hideCompletedState'));
+            hideCompletedToggle.checked = savedHideState !== false; 
         });
     </script>
 </body>
