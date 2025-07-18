@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot với Gemini (Bảng quản trị API)</title>
+    <title>Công Ty Thiết Kế In Ấn Hội An Chatbot</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -21,15 +21,15 @@
         .key-status-testing { background-color: #3b82f6; } /* blue-500 */
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-center h-screen">
+<body class="bg-gray-100 dark:bg-gray-900">
 
     <!-- Main Chat UI -->
-    <div class="w-full max-w-2xl h-full md:h-[90vh] flex flex-col bg-white dark:bg-gray-800 shadow-2xl rounded-lg">
+    <div class="w-screen h-screen flex flex-col bg-white dark:bg-gray-800">
         <!-- Header -->
-        <div class="p-4 border-b dark:border-gray-700 flex items-center justify-between bg-blue-600 text-white rounded-t-lg">
+        <div class="p-4 border-b dark:border-gray-700 flex items-center justify-between bg-blue-600 text-white">
             <div class="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
-                <h1 class="text-xl font-bold">Gemini Chatbot</h1>
+                <h1 class="text-xl font-bold">Công Ty Thiết Kế In Ấn Hội An Chatbot</h1>
             </div>
             <button id="open-admin-panel-btn" class="p-2 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -40,7 +40,7 @@
         <div id="chat-container" class="flex-1 p-6 overflow-y-auto"></div>
 
         <!-- Input Area -->
-        <div class="p-4 border-t dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
+        <div class="p-4 border-t dark:border-gray-700 bg-white dark:bg-gray-800">
             <div id="image-preview-container" class="mb-2 flex flex-wrap gap-2"></div>
             <div id="image-info" class="text-xs text-gray-500 dark:text-gray-400 mb-2 h-4"></div>
             <form id="chat-form" class="flex items-center gap-3">
@@ -346,7 +346,7 @@
         
         // --- Initialization ---
         const initializeAppUI = () => {
-            appendMessage({ text: "Xin chào! Hãy hỏi tôi bất cứ điều gì, hoặc gửi kèm hình ảnh để tôi phân tích." }, 'bot');
+            appendMessage({ text: "Xin chào! Bạn Cứ Hỏi Đi Đừng Sợ Tôi Sẽ Giúp Bạn Tất Cả." }, 'bot');
         };
 
         const main = async () => {
