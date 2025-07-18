@@ -438,12 +438,33 @@
         };
 
         // --- Helper functions ---
-        document.getElementById('image-upload-button').addEventListener('click', () => imageInput.click());
-        imageInput.addEventListener('change', (e) => { const files = e.target.files; if (!files) return; imageInfo.classList.remove('text-red-500'); if (uploadedImages.length + files.length > MAX_IMAGES) { imageInfo.textContent = `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`; imageInfo.classList.add('text-red-500'); imageInput.value = ''; return; } for (const file of files) { const reader = new FileReader(); reader.onload = (event) => { const base64Data = event.target.result.split(',')[1]; uploadedImages.push({ data: base64Data, mimeType: file.type, file: file }); createImagePreview(event.target.result, file); updateImageCount(); }; reader.readAsDataURL(file); } imageInput.value = ''; });
+        // **FIX**: Removed redundant click handler. Relying on <label for="..."> is more robust.
+        imageInput.addEventListener('change', (e) => { 
+            const files = e.target.files; 
+            if (!files) return; 
+            imageInfo.classList.remove('text-red-500'); 
+            if (uploadedImages.length + files.length > MAX_IMAGES) { 
+                imageInfo.textContent = `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`; 
+                imageInfo.classList.add('text-red-500'); 
+                imageInput.value = ''; 
+                return; 
+            } 
+            for (const file of files) { 
+                const reader = new FileReader(); 
+                reader.onload = (event) => { 
+                    const base64Data = event.target.result.split(',')[1]; 
+                    uploadedImages.push({ data: base64Data, mimeType: file.type, file: file }); 
+                    createImagePreview(event.target.result, file); 
+                    updateImageCount(); 
+                }; 
+                reader.readAsDataURL(file); 
+            } 
+            imageInput.value = ''; 
+        });
+
         function createImagePreview(dataUrl, file) { const previewWrapper = document.createElement('div'); previewWrapper.className = 'relative'; const img = document.createElement('img'); img.src = dataUrl; img.className = 'h-16 w-16 object-cover rounded-md'; previewWrapper.appendChild(img); const removeBtn = document.createElement('button'); removeBtn.innerHTML = '&times;'; removeBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs'; removeBtn.onclick = () => { uploadedImages = uploadedImages.filter(img => img.file !== file); previewWrapper.remove(); updateImageCount(); }; previewWrapper.appendChild(removeBtn); imagePreviewContainer.appendChild(previewWrapper); }
         function updateImageCount() { imageInfo.classList.remove('text-red-500'); if (uploadedImages.length > 0) imageInfo.textContent = `Đã tải lên ${uploadedImages.length}/${MAX_IMAGES} ảnh.`; else imageInfo.textContent = ''; }
         function appendMessage(data, sender, isError = false) { const { text, images } = data; const messageWrapper = document.createElement('div'); messageWrapper.className = `flex items-start gap-3 mb-4 ${sender === 'user' ? 'justify-end' : ''}`; const messageContent = document.createElement('div'); messageContent.className = `p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-xl ${sender === 'user' ? 'bg-blue-600 text-white' : isError ? 'bg-red-100 dark:bg-red-900' : 'bg-gray-200 dark:bg-gray-700'}`; if (images && images.length > 0) { const imageGrid = document.createElement('div'); imageGrid.className = 'grid grid-cols-3 gap-1 mt-2'; images.forEach(file => { const img = document.createElement('img'); img.src = URL.createObjectURL(file); img.className = 'w-full h-auto object-cover rounded'; img.onload = () => URL.revokeObjectURL(img.src); imageGrid.appendChild(img); }); messageContent.appendChild(imageGrid); } if(text) { const textElement = document.createElement('p'); textElement.className = `text-sm ${sender === 'bot' ? 'text-gray-800 dark:text-gray-200' : ''} ${(images && images.length > 0) ? ' mt-2' : ''}`; textElement.innerHTML = text.replace(/\n/g, '<br>'); messageContent.appendChild(textElement); } const avatar = document.createElement('div'); avatar.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center font-bold'; if (sender === 'user') { avatar.className += ' bg-gray-300'; avatar.textContent = 'U'; messageWrapper.appendChild(messageContent); messageWrapper.appendChild(avatar); } else { avatar.className += ' bg-blue-500 text-white'; avatar.textContent = 'B'; messageWrapper.appendChild(avatar); messageWrapper.appendChild(messageContent); } 
-            // Append to the correct chat container (the visible one)
             const mainChatContainer = document.querySelector('.chat-container');
             mainChatContainer.appendChild(messageWrapper); 
             mainChatContainer.scrollTop = mainChatContainer.scrollHeight; 
