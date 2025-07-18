@@ -35,6 +35,9 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
         </div>
+        
+        <!-- Device Info Display -->
+        <div id="device-info" class="text-center text-xs text-white bg-blue-700 py-1"></div>
 
         <!-- Chat Messages -->
         <div id="chat-container" class="flex-1 p-6 overflow-y-auto"></div>
@@ -347,6 +350,7 @@
         // --- Initialization ---
         const initializeAppUI = () => {
             appendMessage({ text: "Xin chào! Bạn Cứ Hỏi Đi Đừng Sợ Tôi Sẽ Giúp Bạn Tất Cả." }, 'bot');
+            detectDevice(); // Call device detection on UI init
         };
 
         const main = async () => {
@@ -386,13 +390,25 @@
             }
         };
 
-        // --- Helper functions (unchanged) ---
+        // --- Helper functions ---
         document.getElementById('image-upload-button').addEventListener('click', () => imageInput.click());
         imageInput.addEventListener('change', (e) => { const files = e.target.files; if (!files) return; imageInfo.classList.remove('text-red-500'); if (uploadedImages.length + files.length > MAX_IMAGES) { imageInfo.textContent = `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`; imageInfo.classList.add('text-red-500'); imageInput.value = ''; return; } for (const file of files) { const reader = new FileReader(); reader.onload = (event) => { const base64Data = event.target.result.split(',')[1]; uploadedImages.push({ data: base64Data, mimeType: file.type, file: file }); createImagePreview(event.target.result, file); updateImageCount(); }; reader.readAsDataURL(file); } imageInput.value = ''; });
         function createImagePreview(dataUrl, file) { const previewWrapper = document.createElement('div'); previewWrapper.className = 'relative'; const img = document.createElement('img'); img.src = dataUrl; img.className = 'h-16 w-16 object-cover rounded-md'; previewWrapper.appendChild(img); const removeBtn = document.createElement('button'); removeBtn.innerHTML = '&times;'; removeBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs'; removeBtn.onclick = () => { uploadedImages = uploadedImages.filter(img => img.file !== file); previewWrapper.remove(); updateImageCount(); }; previewWrapper.appendChild(removeBtn); imagePreviewContainer.appendChild(previewWrapper); }
         function updateImageCount() { imageInfo.classList.remove('text-red-500'); if (uploadedImages.length > 0) imageInfo.textContent = `Đã tải lên ${uploadedImages.length}/${MAX_IMAGES} ảnh.`; else imageInfo.textContent = ''; }
         function appendMessage(data, sender, isError = false) { const { text, images } = data; const messageWrapper = document.createElement('div'); messageWrapper.className = `flex items-start gap-3 mb-4 ${sender === 'user' ? 'justify-end' : ''}`; const messageContent = document.createElement('div'); messageContent.className = `p-3 rounded-lg max-w-xs md:max-w-md ${sender === 'user' ? 'bg-blue-600 text-white' : isError ? 'bg-red-100 dark:bg-red-900' : 'bg-gray-200 dark:bg-gray-700'}`; if (images && images.length > 0) { const imageGrid = document.createElement('div'); imageGrid.className = 'grid grid-cols-3 gap-1 mt-2'; images.forEach(file => { const img = document.createElement('img'); img.src = URL.createObjectURL(file); img.className = 'w-full h-auto object-cover rounded'; img.onload = () => URL.revokeObjectURL(img.src); imageGrid.appendChild(img); }); messageContent.appendChild(imageGrid); } if(text) { const textElement = document.createElement('p'); textElement.className = `text-sm ${sender === 'bot' ? 'text-gray-800 dark:text-gray-200' : ''} ${(images && images.length > 0) ? ' mt-2' : ''}`; textElement.innerHTML = text.replace(/\n/g, '<br>'); messageContent.appendChild(textElement); } const avatar = document.createElement('div'); avatar.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center font-bold'; if (sender === 'user') { avatar.className += ' bg-gray-300'; avatar.textContent = 'U'; messageWrapper.appendChild(messageContent); messageWrapper.appendChild(avatar); } else { avatar.className += ' bg-blue-500 text-white'; avatar.textContent = 'B'; messageWrapper.appendChild(avatar); messageWrapper.appendChild(messageContent); } chatContainer.appendChild(messageWrapper); chatContainer.scrollTop = chatContainer.scrollHeight; }
         function toggleLoading(isLoading) { sendButton.disabled = isLoading; userInput.disabled = isLoading; document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; sendText.classList.toggle('hidden', isLoading); loadingSpinner.classList.toggle('hidden', !isLoading); if (!isLoading) userInput.focus(); }
+        
+        /**
+         * Detects if the user is on a mobile or desktop device and updates the UI.
+         */
+        const detectDevice = () => {
+            const deviceInfoEl = document.getElementById('device-info');
+            if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+                deviceInfoEl.textContent = 'Thiết bị được nhận dạng: Di động';
+            } else {
+                deviceInfoEl.textContent = 'Thiết bị được nhận dạng: Máy tính';
+            }
+        };
 
         // Start the application
         main();
