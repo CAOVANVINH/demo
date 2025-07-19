@@ -33,11 +33,6 @@
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 
     <div class="flex h-screen">
-        <!-- Sidebar for Admin Panel (Desktop View) - This is now permanently hidden from the layout -->
-        <aside class="hidden flex-col w-96 bg-white dark:bg-gray-800 border-r dark:border-gray-700">
-            <!-- Admin panel content is now managed via the modal -->
-        </aside>
-
         <!-- Main Chat UI -->
         <main class="flex-1 flex flex-col">
             <!-- Header -->
@@ -46,7 +41,6 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     <h1 class="text-lg md:text-xl font-bold">Công Ty Thiết Kế In Ấn Hội An Chatbot</h1>
                 </div>
-                <!-- Admin button is now always visible -->
                 <button id="open-admin-panel-btn" class="p-2 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 </button>
@@ -94,7 +88,7 @@
         </div>
     </div>
 
-    <!-- Admin Panel Modal (Mobile View) -->
+    <!-- Admin Panel Modal -->
     <div id="admin-panel-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg p-6 m-4 overflow-y-auto max-h-full">
             <div class="flex justify-between items-center border-b pb-3 dark:border-gray-600">
@@ -138,10 +132,10 @@
     </div>
 
     <script type="module">
-        // Import Firebase SDKs
+        // NOTE: Firebase is still used for anonymous authentication to provide a unique user ID,
+        // but it is NO LONGER used for storing API keys or admin credentials.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
         // DOM Elements
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
@@ -161,21 +155,28 @@
 
         // State
         const MAX_IMAGES = 50;
-        let chatHistory = [], uploadedImages = [], apiKeys = [];
+        let chatHistory = [], uploadedImages = [];
         let currentApiKeyIndex = -1, isAdminLoggedIn = false;
-        let adminCredentials = { username: 'admin', password: 'admin' }; // Default credentials
         
-        // Firebase State
-        let db, auth, userId;
-        // Use environment variables provided by the platform
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'data-chung-a62ee';
-        let unsubscribeFromApiKeys;
-        let isAuthReady = false;
+        // --- DATA STORED IN CODE ---
+        // Admin credentials are now stored in-memory and reset on page load.
+        let adminCredentials = { username: 'admin', password: 'admin' }; 
+
+        // API keys are now stored directly in the code.
+        // THAY THẾ CÁC KEY MẪU DƯỚI ĐÂY BẰNG API KEY THẬT CỦA BẠN
+        let apiKeys = [
+            { key: "AIzaSyCg4gg9GLf6SPzhYCNLmvTZyIuuQZPRw04", status: 'active', usage: 0 },
+            { key: "AIzaSyDOfRZnSkMqUAddDF1jZqqzCDZzn68hUyE", status: 'inactive', usage: 0 }
+        ];
+
+        // Firebase State (Auth only)
+        let auth, userId;
 
         // --- Core Functions ---
         const getGeminiResponse = async (retryCount = 0) => {
             if (currentApiKeyIndex === -1 || apiKeys.length === 0) throw new Error("Không có API key hợp lệ. Vui lòng thêm key trong bảng quản trị.");
             if (retryCount >= apiKeys.length) throw new Error("Tất cả API key đều không hoạt động. Vui lòng kiểm tra lại trong bảng quản trị.");
+            
             const apiKeyData = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKeyData.key}`;
             
@@ -199,7 +200,7 @@
                 const result = await response.json();
                 if (result.candidates && result.candidates.length > 0) {
                     apiKeys[currentApiKeyIndex].usage = (apiKeys[currentApiKeyIndex].usage || 0) + 1;
-                    saveApiKeysToFirestore();
+                    renderApiKeys(); // Re-render to show usage count change
                     return result.candidates[0].content.parts[0].text;
                 }
                 if (result.promptFeedback && result.promptFeedback.blockReason) return `Yêu cầu của bạn đã bị chặn vì: ${result.promptFeedback.blockReason}.`;
@@ -215,9 +216,10 @@
         const switchToNextApiKey = () => {
             const totalKeys = apiKeys.length;
             if (totalKeys === 0) { currentApiKeyIndex = -1; updateAdminStatusMessage(); return; }
+            
             for (let i = 1; i <= totalKeys; i++) {
                 const nextIndex = (currentApiKeyIndex + i) % totalKeys;
-                if (apiKeys[nextIndex] && apiKeys[nextIndex].status === 'inactive') {
+                if (apiKeys[nextIndex] && apiKeys[nextIndex].status !== 'failed') {
                     currentApiKeyIndex = nextIndex;
                     updateApiKeyStatus(currentApiKeyIndex, 'active');
                     return;
@@ -232,15 +234,23 @@
             e.preventDefault();
             const message = userInput.value.trim();
             if (!message && uploadedImages.length === 0) return;
+
             if (apiKeys.length === 0) { appendMessage({ text: "Lỗi: Vui lòng thêm một API key trong bảng quản trị." }, 'bot', true); return; }
             if (currentApiKeyIndex === -1) { appendMessage({ text: "Lỗi: Tất cả API key đều không hoạt động." }, 'bot', true); return; }
+
             const userMessageData = { text: message, images: uploadedImages.map(img => img.file) };
             appendMessage(userMessageData, 'user');
+            
             const userParts = [];
             if (message) userParts.push({ text: message });
             uploadedImages.forEach(img => userParts.push({ inlineData: { mimeType: img.mimeType, data: img.data } }));
             chatHistory.push({ role: "user", parts: userParts });
-            userInput.value = ''; imagePreviewContainer.innerHTML = ''; uploadedImages = []; updateImageCount();
+
+            userInput.value = ''; 
+            imagePreviewContainer.innerHTML = ''; 
+            uploadedImages = []; 
+            updateImageCount();
+            
             toggleLoading(true);
             try {
                 const botResponse = await getGeminiResponse();
@@ -260,7 +270,7 @@
              adminLoginPanel.style.display = 'none';
              adminLoginForm.reset();
              loginErrorMessage.textContent = '';
-             adminPanelModal.style.display = 'flex'; // Directly show the panel after login
+             adminPanelModal.style.display = 'flex';
         }
 
         const handleLogout = () => {
@@ -285,16 +295,20 @@
             e.preventDefault();
             const username = e.target.username.value;
             const password = e.target.password.value;
-            // Compare with credentials fetched from Firestore
             if (username === adminCredentials.username && password === adminCredentials.password) {
                 handleLogin();
             } else {
                 loginErrorMessage.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
             }
         });
+        
+        adminLoginForm.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                loginErrorMessage.textContent = '';
+            });
+        });
 
         logoutBtnModal.addEventListener('click', handleLogout);
-
         closeAdminPanelModalBtn.addEventListener('click', () => adminPanelModal.style.display = 'none');
         
         addApiKeyForms.forEach(form => {
@@ -303,13 +317,13 @@
                 const newKeyInput = form.querySelector('input[name="new-api-key"]');
                 const newKey = newKeyInput.value.trim();
                 if (newKey && !apiKeys.some(k => k.key === newKey)) {
-                    const newApiKeys = [...apiKeys, { key: newKey, status: 'inactive', usage: 0 }];
-                    if (newApiKeys.filter(k => k.status === 'active').length === 0) {
-                        const firstInactive = newApiKeys.findIndex(k => k.status === 'inactive');
-                        if (firstInactive !== -1) newApiKeys[firstInactive].status = 'active';
+                    apiKeys.push({ key: newKey, status: 'inactive', usage: 0 });
+                    if (apiKeys.filter(k => k.status === 'active').length === 0) {
+                        const firstInactive = apiKeys.findIndex(k => k.status === 'inactive');
+                        if (firstInactive !== -1) apiKeys[firstInactive].status = 'active';
                     }
-                    apiKeys = newApiKeys;
-                    saveApiKeysToFirestore();
+                    renderApiKeys();
+                    updateAdminStatusMessage();
                 }
                 newKeyInput.value = '';
             });
@@ -354,13 +368,11 @@
             if (apiKeys[indexToSet].status === 'active') return;
 
             apiKeys.forEach((key, index) => {
-                if (index === indexToSet) {
-                    key.status = 'active';
-                } else if (key.status === 'active') {
-                    key.status = 'inactive';
-                }
+                if (index === indexToSet) key.status = 'active';
+                else if (key.status === 'active') key.status = 'inactive';
             });
-            saveApiKeysToFirestore();
+            renderApiKeys();
+            updateAdminStatusMessage();
         };
 
         const handleRemoveKey = (e) => {
@@ -369,17 +381,21 @@
             apiKeys.splice(indexToRemove, 1);
             if (wasActive && apiKeys.length > 0) {
                  const newActiveIndex = apiKeys.findIndex(k => k.status !== 'failed');
-                 if (newActiveIndex !== -1) {
-                    apiKeys[newActiveIndex].status = 'active';
-                 }
+                 if (newActiveIndex !== -1) apiKeys[newActiveIndex].status = 'active';
             }
-            saveApiKeysToFirestore();
+            renderApiKeys();
+            updateAdminStatusMessage();
         };
 
         const handleTestKey = async (e) => {
             const indexToTest = parseInt(e.target.dataset.index);
             const apiKeyData = apiKeys[indexToTest];
             const originalStatus = apiKeyData.status;
+            
+            if(apiKeyData.status === 'failed' && !confirm("Khóa này đã được đánh dấu là không hợp lệ. Bạn có muốn kiểm tra lại không?")){
+                return;
+            }
+
             updateApiKeyStatus(indexToTest, 'testing');
             try {
                 const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKeyData.key}`;
@@ -397,7 +413,8 @@
                 if (status === 'active') {
                     apiKeys.forEach((key, i) => { if (i !== index && apiKeys[i].status === 'active') apiKeys[i].status = 'inactive'; });
                 }
-                saveApiKeysToFirestore();
+                renderApiKeys();
+                updateAdminStatusMessage();
             }
         };
 
@@ -417,58 +434,7 @@
             });
         };
 
-        // --- Firebase Persistence ---
-        const saveApiKeysToFirestore = async () => {
-            if (!db || !isAuthReady) return;
-            try {
-                const apiKeyDocRef = doc(db, `artifacts/${appId}/public/data/api_keys`, 'config');
-                await setDoc(apiKeyDocRef, { keys: apiKeys });
-            } catch (error) {
-                console.error("Lỗi khi lưu API keys vào Firestore:", error);
-                appendMessage({ text: "Lỗi: Không thể lưu cài đặt API." }, 'bot', true);
-            }
-        };
-
-        const listenForApiKeyChanges = () => {
-            if (!db || !isAuthReady) return;
-            const apiKeyDocRef = doc(db, `artifacts/${appId}/public/data/api_keys`, 'config');
-            if (unsubscribeFromApiKeys) unsubscribeFromApiKeys();
-            
-            unsubscribeFromApiKeys = onSnapshot(apiKeyDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    apiKeys = (data.keys || []).map(k => ({ ...k, usage: k.usage || 0 }));
-                    apiKeys.forEach(k => { if(k.status === 'testing') k.status = 'inactive' });
-                } else {
-                    apiKeys = [];
-                }
-                renderApiKeys();
-                updateAdminStatusMessage();
-            }, (error) => {
-                console.error("Lỗi khi lắng nghe thay đổi API keys:", error);
-                appendMessage({ text: "Lỗi: Không thể tải cấu hình API từ server." }, 'bot', true);
-            });
-        };
-
-        // --- Admin Credentials Logic ---
-        const getAdminCredentialsRef = () => {
-            // NOTE: Storing credentials in a public path is NOT secure.
-            return doc(db, `artifacts/${appId}/public/data/admin_credentials`, 'config');
-        }
-
-        const loadAdminCredentials = async () => {
-            if (!db || !isAuthReady) return;
-            const docRef = getAdminCredentialsRef();
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                adminCredentials = docSnap.data();
-            } else {
-                console.log("Creating default admin credentials.");
-                await setDoc(docRef, adminCredentials);
-            }
-        };
-
+        // --- Admin Credentials Logic (In-Memory) ---
         changePasswordForms.forEach(form => {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -477,39 +443,35 @@
                 const confirmPassword = form.querySelector('input[name="confirm-password"]').value;
                 const messageEl = form.querySelector('.change-password-message');
 
-                messageEl.textContent = ''; // Clear previous message
+                messageEl.textContent = '';
 
                 if (currentPassword !== adminCredentials.password) {
                     messageEl.textContent = 'Mật khẩu hiện tại không đúng.';
                     messageEl.className = 'change-password-message text-sm h-4 text-red-500';
                     return;
                 }
-
                 if (!newPassword || newPassword.length < 6) {
                     messageEl.textContent = 'Mật khẩu mới phải có ít nhất 6 ký tự.';
                     messageEl.className = 'change-password-message text-sm h-4 text-red-500';
                     return;
                 }
-
                 if (newPassword !== confirmPassword) {
                     messageEl.textContent = 'Mật khẩu mới không khớp.';
                     messageEl.className = 'change-password-message text-sm h-4 text-red-500';
                     return;
                 }
 
-                try {
-                    const newCredentials = { ...adminCredentials, password: newPassword };
-                    const docRef = getAdminCredentialsRef();
-                    await setDoc(docRef, newCredentials);
-                    adminCredentials = newCredentials; // Update local state
-                    messageEl.textContent = 'Đổi mật khẩu thành công!';
-                    messageEl.className = 'change-password-message text-sm h-4 text-green-500';
-                    form.reset();
-                } catch (error) {
-                    console.error("Lỗi khi đổi mật khẩu:", error);
-                    messageEl.textContent = 'Lỗi: Không thể đổi mật khẩu.';
-                    messageEl.className = 'change-password-message text-sm h-4 text-red-500';
-                }
+                // Update credentials in-memory for the current session
+                adminCredentials.password = newPassword; 
+                messageEl.textContent = 'Đổi mật khẩu thành công! (chỉ cho phiên này)';
+                messageEl.className = 'change-password-message text-sm h-4 text-green-500';
+                form.reset();
+            });
+
+            form.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', () => {
+                    form.querySelector('.change-password-message').textContent = '';
+                });
             });
         });
         
@@ -517,41 +479,30 @@
         const initializeAppUI = () => {
             appendMessage({ text: "Xin chào! Tôi là trợ lý ảo của Công ty Thiết kế & In Ấn Hội An. Tôi có thể giúp gì cho bạn?" }, 'bot');
             new VanillaTelex(userInput);
+            renderApiKeys();
+            updateAdminStatusMessage();
         };
 
         const main = async () => {
+            initializeAppUI();
             try {
-                // Use the firebase config provided by the environment
+                // Firebase is now only used for auth to get a user ID.
                 const firebaseConfig = typeof __firebase_config !== 'undefined' 
                     ? JSON.parse(__firebase_config)
-                    : { /* A default/fallback config if needed */ };
+                    : { apiKey: "YOUR_FALLBACK_API_KEY", authDomain: "YOUR_FALLBACK_AUTH_DOMAIN", projectId: "YOUR_FALLBACK_PROJECT_ID" };
                 
                 const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
                 auth = getAuth(app);
                 
-                let isInitialized = false;
-
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
-                        isAuthReady = true;
                         console.log("Đã xác thực với User ID:", userId);
-                        
-                        // Ensure initialization runs only once
-                        if (!isInitialized) {
-                            isInitialized = true;
-                            await loadAdminCredentials();
-                            listenForApiKeyChanges();
-                            initializeAppUI();
-                        }
                     } else {
-                        isAuthReady = false;
                         console.log("Người dùng chưa đăng nhập.");
                     }
                 });
 
-                // Use the initial auth token if available, otherwise sign in anonymously
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
@@ -559,30 +510,25 @@
                 }
 
             } catch (error) {
-                console.error("Lỗi khởi tạo Firebase:", error);
-                appendMessage({ text: "Lỗi nghiêm trọng: Không thể kết nối đến dịch vụ backend. Vui lòng tải lại trang." }, 'bot', true);
+                console.error("Lỗi khởi tạo Firebase Auth:", error);
+                appendMessage({ text: "Lỗi: Không thể khởi tạo dịch vụ xác thực." }, 'bot', true);
             }
         };
 
         // --- Helper functions ---
-        
         function processFiles(files) {
             if (!files || files.length === 0) return;
             imageInfo.classList.remove('text-red-500');
-
             const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
             if (imageFiles.length === 0) return;
-
             if (uploadedImages.length + imageFiles.length > MAX_IMAGES) {
                 imageInfo.textContent = `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`;
                 imageInfo.classList.add('text-red-500');
                 return;
             }
-
             for (const file of imageFiles) {
                 const isDuplicate = uploadedImages.some(img => img.file.name === file.name && img.file.size === file.size && img.file.lastModified === file.lastModified);
                 if (isDuplicate) continue;
-                
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const base64Data = event.target.result.split(',')[1];
@@ -593,55 +539,16 @@
                 reader.readAsDataURL(file);
             }
         }
-
-        imageInput.addEventListener('change', (e) => {
-            processFiles(e.target.files);
-            e.target.value = '';
-        });
-
-        userInput.addEventListener('paste', (e) => {
-            const files = e.clipboardData?.files;
-            if (files && files.length > 0) {
-                e.preventDefault();
-                processFiles(files);
-            }
-        });
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            inputArea.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-            });
-        });
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            inputArea.addEventListener(eventName, () => {
-                inputArea.classList.add('drag-over');
-            });
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            inputArea.addEventListener(eventName, () => {
-                inputArea.classList.remove('drag-over');
-            });
-        });
-
-        inputArea.addEventListener('drop', (e) => {
-            const files = e.dataTransfer?.files;
-            if (files) {
-                processFiles(files);
-            }
-        });
-
-
-        function createImagePreview(dataUrl, file) { const previewWrapper = document.createElement('div'); previewWrapper.className = 'relative'; const img = document.createElement('img'); img.src = dataUrl; img.className = 'h-16 w-16 object-cover rounded-md'; previewWrapper.appendChild(img); const removeBtn = document.createElement('button'); removeBtn.innerHTML = '&times;'; removeBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs'; removeBtn.onclick = () => { uploadedImages = uploadedImages.filter(img => img.file !== file); previewWrapper.remove(); updateImageCount(); }; previewWrapper.appendChild(removeBtn); imagePreviewContainer.appendChild(previewWrapper); }
-        function updateImageCount() { imageInfo.classList.remove('text-red-500'); if (uploadedImages.length > 0) imageInfo.textContent = `Đã tải lên ${uploadedImages.length}/${MAX_IMAGES} ảnh.`; else imageInfo.textContent = ''; }
-        function appendMessage(data, sender, isError = false) { const { text, images } = data; const messageWrapper = document.createElement('div'); messageWrapper.className = `flex items-start gap-3 mb-4 ${sender === 'user' ? 'justify-end' : ''}`; const messageContent = document.createElement('div'); messageContent.className = `p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-xl ${sender === 'user' ? 'bg-blue-600 text-white' : isError ? 'bg-red-100 dark:bg-red-900' : 'bg-gray-200 dark:bg-gray-700'}`; if (images && images.length > 0) { const imageGrid = document.createElement('div'); imageGrid.className = 'grid grid-cols-3 gap-1 mt-2'; images.forEach(file => { const img = document.createElement('img'); img.src = URL.createObjectURL(file); img.className = 'w-full h-auto object-cover rounded'; img.onload = () => URL.revokeObjectURL(img.src); imageGrid.appendChild(img); }); messageContent.appendChild(imageGrid); } if(text) { const textElement = document.createElement('p'); textElement.className = `text-sm ${sender === 'bot' ? 'text-gray-800 dark:text-gray-200' : ''} ${(images && images.length > 0) ? ' mt-2' : ''}`; textElement.innerHTML = text.replace(/\n/g, '<br>'); messageContent.appendChild(textElement); } const avatar = document.createElement('div'); avatar.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center font-bold'; if (sender === 'user') { avatar.className += ' bg-gray-300'; avatar.textContent = 'U'; messageWrapper.appendChild(messageContent); messageWrapper.appendChild(avatar); } else { avatar.className += ' bg-blue-500 text-white'; avatar.textContent = 'B'; messageWrapper.appendChild(avatar); messageWrapper.appendChild(messageContent); } 
-            const mainChatContainer = document.querySelector('.chat-container');
-            mainChatContainer.appendChild(messageWrapper); 
-            mainChatContainer.scrollTop = mainChatContainer.scrollHeight; 
-        }
-        function toggleLoading(isLoading) { sendButton.disabled = isLoading; userInput.disabled = isLoading; document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; sendText.classList.toggle('hidden', isLoading); loadingSpinner.classList.toggle('hidden', !isLoading); if (!isLoading) userInput.focus(); }
+        imageInput.addEventListener('change', (e) => { processFiles(e.target.files); e.target.value = ''; });
+        userInput.addEventListener('paste', (e) => { const files = e.clipboardData?.files; if (files && files.length > 0) { e.preventDefault(); processFiles(files); } });
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { inputArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }); });
+        ['dragenter', 'dragover'].forEach(eventName => { inputArea.addEventListener(eventName, () => inputArea.classList.add('drag-over')); });
+        ['dragleave', 'drop'].forEach(eventName => { inputArea.addEventListener(eventName, () => inputArea.classList.remove('drag-over')); });
+        inputArea.addEventListener('drop', (e) => { const files = e.dataTransfer?.files; if (files) { processFiles(files); } });
+        function createImagePreview(dataUrl, file) { const previewWrapper = document.createElement('div'); previewWrapper.className = 'relative'; const img = document.createElement('img'); img.src = dataUrl; img.className = 'h-16 w-16 object-cover rounded-md'; previewWrapper.appendChild(img); const removeBtn = document.createElement('button'); removeBtn.innerHTML = '&times;'; removeBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs leading-none'; removeBtn.onclick = () => { uploadedImages = uploadedImages.filter(img => img.file !== file); previewWrapper.remove(); updateImageCount(); }; previewWrapper.appendChild(removeBtn); imagePreviewContainer.appendChild(previewWrapper); }
+        function updateImageCount() { imageInfo.classList.remove('text-red-500'); if (uploadedImages.length > 0) { imageInfo.textContent = `Đã tải lên ${uploadedImages.length}/${MAX_IMAGES} ảnh.`; } else { imageInfo.textContent = ''; } }
+        function appendMessage(data, sender, isError = false) { const { text, images } = data; const messageWrapper = document.createElement('div'); messageWrapper.className = `flex items-start gap-3 mb-4 ${sender === 'user' ? 'justify-end' : ''}`; const messageContent = document.createElement('div'); messageContent.className = `p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-xl ${sender === 'user' ? 'bg-blue-600 text-white' : isError ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : 'bg-gray-200 dark:bg-gray-700'}`; if (images && images.length > 0) { const imageGrid = document.createElement('div'); imageGrid.className = 'grid grid-cols-3 gap-1'; images.forEach(file => { const img = document.createElement('img'); img.src = URL.createObjectURL(file); img.className = 'w-full h-auto object-cover rounded'; img.onload = () => URL.revokeObjectURL(img.src); imageGrid.appendChild(img); }); messageContent.appendChild(imageGrid); } if (text) { const textElement = document.createElement('p'); textElement.className = `text-sm ${sender === 'bot' && !isError ? 'text-gray-800 dark:text-gray-200' : ''} ${(images && images.length > 0) ? 'mt-2' : ''}`; textElement.innerHTML = text.replace(/\n/g, '<br>'); messageContent.appendChild(textElement); } const avatar = document.createElement('div'); avatar.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center font-bold text-white'; if (sender === 'user') { avatar.className += ' bg-gray-500'; avatar.textContent = 'U'; messageWrapper.appendChild(messageContent); messageWrapper.appendChild(avatar); } else { avatar.className += isError ? ' bg-red-500' : ' bg-blue-500'; avatar.textContent = 'B'; messageWrapper.appendChild(avatar); messageWrapper.appendChild(messageContent); } const mainChatContainer = document.querySelector('.chat-container'); mainChatContainer.appendChild(messageWrapper); mainChatContainer.scrollTop = mainChatContainer.scrollHeight; }
+        function toggleLoading(isLoading) { sendButton.disabled = isLoading; userInput.disabled = isLoading; document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; sendText.classList.toggle('hidden', isLoading); loadingSpinner.classList.toggle('hidden', !isLoading); if (!isLoading) { userInput.focus(); } }
 
         // Start the application
         main();
