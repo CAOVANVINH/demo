@@ -6,6 +6,8 @@
     <title>Công Ty Thiết Kế In Ấn Hội An Chatbot</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Vietnamese IME Library -->
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-telex@1/vanilla-telex.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -19,27 +21,56 @@
         .key-status-inactive { background-color: #6b7280; } /* gray-500 */
         .key-status-failed { background-color: #ef4444; } /* red-500 */
         .key-status-testing { background-color: #3b82f6; } /* blue-500 */
+        .drag-over {
+            background-color: #e0f2fe !important; /* light-blue */
+            border: 2px dashed #3b82f6; /* blue-500 */
+        }
+        .dark .drag-over {
+            background-color: #1e3a8a !important; /* dark-blue */
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 
     <div class="flex h-screen">
         <!-- Sidebar for Admin Panel (Desktop View) -->
-        <aside class="hidden md:flex flex-col w-80 bg-white dark:bg-gray-800 border-r dark:border-gray-700">
+        <aside class="hidden md:flex flex-col w-96 bg-white dark:bg-gray-800 border-r dark:border-gray-700">
             <div class="p-4 border-b dark:border-gray-700">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white">Bảng quản trị</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Quản lý API Keys của bạn</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Quản lý API Keys & Tài khoản</p>
             </div>
-            <div id="admin-sidebar-content" class="flex-1 p-4 overflow-y-auto">
-                <form class="add-api-key-form flex gap-2 mb-4">
-                    <input type="password" name="new-api-key" placeholder="Thêm API Key mới" class="flex-1 p-2 border rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700">Thêm</button>
-                </form>
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Danh sách API Keys</h3>
+            <div id="admin-sidebar-content" class="flex-1 p-4 overflow-y-auto space-y-6">
+                <!-- API Key Management -->
+                <section>
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Quản lý API Key</h3>
+                    <form class="add-api-key-form flex gap-2 my-2">
+                        <input type="password" name="new-api-key" placeholder="Thêm API Key mới" class="flex-1 p-2 border rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700">Thêm</button>
+                    </form>
                     <p class="admin-status-message text-sm text-gray-600 dark:text-gray-400 mt-1 mb-2 h-5"></p>
                     <div class="api-key-list mt-2 space-y-2"></div>
-                </div>
+                </section>
+                
+                <!-- Change Password Section -->
+                <section>
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Đổi mật khẩu Admin</h3>
+                    <form class="change-password-form mt-2 space-y-3">
+                        <div>
+                            <label for="current-password-sidebar" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu hiện tại</label>
+                            <input type="password" name="current-password" id="current-password-sidebar" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="new-password-sidebar" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu mới</label>
+                            <input type="password" name="new-password" id="new-password-sidebar" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="confirm-password-sidebar" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Xác nhận mật khẩu mới</label>
+                            <input type="password" name="confirm-password" id="confirm-password-sidebar" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        </div>
+                        <p class="change-password-message text-sm h-4"></p>
+                        <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Đổi mật khẩu</button>
+                    </form>
+                </section>
             </div>
              <div class="p-4 border-t dark:border-gray-700">
                 <button id="logout-btn-sidebar" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold">Đăng xuất</button>
@@ -54,17 +85,14 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     <h1 class="text-lg md:text-xl font-bold">Công Ty Thiết Kế In Ấn Hội An Chatbot</h1>
                 </div>
-                <!-- Admin button for mobile -->
                 <button id="open-admin-panel-btn" class="p-2 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white md:hidden">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 </button>
             </header>
 
-            <!-- Chat Messages -->
             <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900"></div>
 
-            <!-- Input Area -->
-            <div class="p-4 border-t dark:border-gray-700 bg-white dark:bg-gray-800">
+            <div id="input-area" class="p-4 border-t dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
                 <div id="image-preview-container" class="mb-2 flex flex-wrap gap-2"></div>
                 <div id="image-info" class="text-xs text-gray-500 dark:text-gray-400 mb-2 h-4"></div>
                 <form id="chat-form" class="flex items-center gap-3">
@@ -72,7 +100,7 @@
                     <label for="image-input" id="image-upload-button" class="cursor-pointer p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 dark:text-gray-400"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                     </label>
-                    <input type="text" id="user-input" placeholder="Nhập tin nhắn hoặc tải ảnh lên..." class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white" autocomplete="off">
+                    <input type="text" id="user-input" placeholder="Nhập tin nhắn, dán hoặc kéo thả ảnh..." class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white" autocomplete="off">
                     <button type="submit" id="send-button" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center">
                         <span id="send-text">Gửi</span>
                         <svg id="loading-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -106,24 +134,43 @@
 
     <!-- Admin Panel Modal (Mobile View) -->
     <div id="admin-panel-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg p-6 m-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg p-6 m-4 overflow-y-auto max-h-full">
             <div class="flex justify-between items-center border-b pb-3 dark:border-gray-600">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Bảng quản trị API Key</h2>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Bảng quản trị</h2>
                 <div>
                     <button id="logout-btn-modal" class="text-sm bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg mr-2">Đăng xuất</button>
                     <button id="close-admin-panel-modal" class="text-2xl font-light p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 leading-none">&times;</button>
                 </div>
             </div>
-            <div class="mt-4">
-                <form class="add-api-key-form flex gap-2">
-                    <input type="password" name="new-api-key" placeholder="Thêm API Key mới" class="flex-1 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Thêm</button>
-                </form>
-            </div>
-            <div class="mt-4">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Danh sách API Keys</h3>
-                <p class="admin-status-message text-sm text-gray-600 dark:text-gray-400 mt-1 mb-2 h-5"></p>
-                <div class="api-key-list mt-2 space-y-2 max-h-60 overflow-y-auto"></div>
+            <div class="mt-4 space-y-6">
+                 <section>
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Quản lý API Key</h3>
+                    <form class="add-api-key-form flex gap-2 my-2">
+                        <input type="password" name="new-api-key" placeholder="Thêm API Key mới" class="flex-1 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Thêm</button>
+                    </form>
+                    <p class="admin-status-message text-sm text-gray-600 dark:text-gray-400 mt-1 mb-2 h-5"></p>
+                    <div class="api-key-list mt-2 space-y-2 max-h-60 overflow-y-auto"></div>
+                </section>
+                <section>
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Đổi mật khẩu Admin</h3>
+                    <form class="change-password-form mt-2 space-y-3">
+                        <div>
+                            <label for="current-password-modal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu hiện tại</label>
+                            <input type="password" name="current-password" id="current-password-modal" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="new-password-modal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu mới</label>
+                            <input type="password" name="new-password" id="new-password-modal" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="confirm-password-modal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Xác nhận mật khẩu mới</label>
+                            <input type="password" name="confirm-password" id="confirm-password-modal" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        </div>
+                        <p class="change-password-message text-sm h-4"></p>
+                        <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Đổi mật khẩu</button>
+                    </form>
+                </section>
             </div>
         </div>
     </div>
@@ -132,32 +179,29 @@
         // Import Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // DOM Elements
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
-              chatContainers = document.querySelectorAll('.chat-container'), sendButton = document.getElementById('send-button'),
-              sendText = document.getElementById('send-text'), loadingSpinner = document.getElementById('loading-spinner'),
-              imageInput = document.getElementById('image-input'), imagePreviewContainer = document.getElementById('image-preview-container'),
-              imageInfo = document.getElementById('image-info'),
-              adminPanelModal = document.getElementById('admin-panel-modal'),
-              openAdminPanelBtn = document.getElementById('open-admin-panel-btn'),
+              sendButton = document.getElementById('send-button'), sendText = document.getElementById('send-text'), 
+              loadingSpinner = document.getElementById('loading-spinner'), imageInput = document.getElementById('image-input'), 
+              imagePreviewContainer = document.getElementById('image-preview-container'), imageInfo = document.getElementById('image-info'),
+              adminPanelModal = document.getElementById('admin-panel-modal'), openAdminPanelBtn = document.getElementById('open-admin-panel-btn'),
               closeAdminPanelModalBtn = document.getElementById('close-admin-panel-modal'),
               addApiKeyForms = document.querySelectorAll('.add-api-key-form'),
               apiKeyListContainers = document.querySelectorAll('.api-key-list'),
               adminStatusMessages = document.querySelectorAll('.admin-status-message'),
-              adminLoginPanel = document.getElementById('admin-login-panel'),
-              adminLoginForm = document.getElementById('admin-login-form'),
-              closeLoginPanelBtn = document.getElementById('close-login-panel'),
-              loginErrorMessage = document.getElementById('login-error-message'),
-              logoutBtnSidebar = document.getElementById('logout-btn-sidebar'),
-              logoutBtnModal = document.getElementById('logout-btn-modal'),
-              adminSidebar = document.querySelector('aside');
+              adminLoginPanel = document.getElementById('admin-login-panel'), adminLoginForm = document.getElementById('admin-login-form'),
+              closeLoginPanelBtn = document.getElementById('close-login-panel'), loginErrorMessage = document.getElementById('login-error-message'),
+              logoutBtnSidebar = document.getElementById('logout-btn-sidebar'), logoutBtnModal = document.getElementById('logout-btn-modal'),
+              adminSidebar = document.querySelector('aside'), inputArea = document.getElementById('input-area'),
+              changePasswordForms = document.querySelectorAll('.change-password-form');
 
         // State
         const MAX_IMAGES = 50;
         let chatHistory = [], uploadedImages = [], apiKeys = [];
         let currentApiKeyIndex = -1, isAdminLoggedIn = false;
+        let adminCredentials = { username: 'admin', password: 'admin' }; // Default credentials
         
         // Firebase State
         let db, auth, userId;
@@ -170,7 +214,17 @@
             if (retryCount >= apiKeys.length) throw new Error("Tất cả API key đều không hoạt động. Vui lòng kiểm tra lại trong bảng quản trị.");
             const apiKeyData = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKeyData.key}`;
-            const payload = { contents: chatHistory, generationConfig: { temperature: 0.7, topP: 1, topK: 1, maxOutputTokens: 2048 } };
+            
+            const payload = {
+                contents: chatHistory,
+                systemInstruction: {
+                    parts: [{
+                        text: "Bạn là một trợ lý AI cho một công ty thiết kế và in ấn ở Hội An, Việt Nam. Bạn phải luôn luôn trả lời bằng tiếng Việt. Hãy thân thiện và hữu ích."
+                    }]
+                },
+                generationConfig: { temperature: 0.7, topP: 1, topK: 1, maxOutputTokens: 2048 }
+            };
+
             try {
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) {
@@ -179,7 +233,11 @@
                     throw new Error(`Lỗi API: ${errorBody.error.message}`);
                 }
                 const result = await response.json();
-                if (result.candidates && result.candidates.length > 0) return result.candidates[0].content.parts[0].text;
+                if (result.candidates && result.candidates.length > 0) {
+                    apiKeys[currentApiKeyIndex].usage = (apiKeys[currentApiKeyIndex].usage || 0) + 1;
+                    saveApiKeysToFirestore();
+                    return result.candidates[0].content.parts[0].text;
+                }
                 if (result.promptFeedback && result.promptFeedback.blockReason) return `Yêu cầu của bạn đã bị chặn vì: ${result.promptFeedback.blockReason}.`;
                 throw new Error("Không nhận được phản hồi hợp lệ từ API.");
             } catch (error) {
@@ -263,7 +321,8 @@
             e.preventDefault();
             const username = e.target.username.value;
             const password = e.target.password.value;
-            if (username === 'admin' && password === 'admin') {
+            // Compare with credentials fetched from Firestore
+            if (username === adminCredentials.username && password === adminCredentials.password) {
                 handleLogin();
             } else {
                 loginErrorMessage.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
@@ -281,7 +340,7 @@
                 const newKeyInput = form.querySelector('input[name="new-api-key"]');
                 const newKey = newKeyInput.value.trim();
                 if (newKey && !apiKeys.some(k => k.key === newKey)) {
-                    const newApiKeys = [...apiKeys, { key: newKey, status: 'inactive' }];
+                    const newApiKeys = [...apiKeys, { key: newKey, status: 'inactive', usage: 0 }];
                     if (newApiKeys.filter(k => k.status === 'active').length === 0) {
                         const firstInactive = newApiKeys.findIndex(k => k.status === 'inactive');
                         if (firstInactive !== -1) newApiKeys[firstInactive].status = 'active';
@@ -302,17 +361,45 @@
                 }
                 apiKeys.forEach((apiKey, index) => {
                     const keyItem = document.createElement('div');
-                    keyItem.className = 'flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-2 rounded-lg';
+                    keyItem.className = 'flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-2 rounded-lg gap-2';
                     const statusColor = apiKey.status === 'active' ? 'key-status-active' : apiKey.status === 'failed' ? 'key-status-failed' : apiKey.status === 'testing' ? 'key-status-testing' : 'key-status-inactive';
-                    keyItem.innerHTML = `<div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full ${statusColor}"></span><span class="font-mono text-sm text-gray-700 dark:text-gray-300">...${apiKey.key.slice(-6)}</span><span class="text-xs font-semibold capitalize text-gray-600 dark:text-gray-400">${apiKey.status}</span></div><div class="flex gap-2"><button data-index="${index}" class="test-key-btn bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 rounded-md">Kiểm tra</button><button data-index="${index}" class="remove-key-btn bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded-md">Xóa</button></div>`;
+                    const isDefault = apiKey.status === 'active';
+                    
+                    keyItem.innerHTML = `
+                        <div class="flex items-center gap-3 flex-wrap flex-1 min-w-0">
+                            <span class="w-3 h-3 rounded-full ${statusColor} flex-shrink-0"></span>
+                            <span class="font-mono text-sm text-gray-700 dark:text-gray-300 truncate">...${apiKey.key.slice(-6)}</span>
+                            <span class="text-xs font-semibold capitalize text-gray-600 dark:text-gray-400">${apiKey.status}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">(Dùng: ${apiKey.usage || 0})</span>
+                        </div>
+                        <div class="flex gap-2 flex-shrink-0">
+                            <button data-index="${index}" class="set-default-btn ${isDefault ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'} text-white text-xs px-2 py-1 rounded-md" ${isDefault ? 'disabled' : ''}>Mặc định</button>
+                            <button data-index="${index}" class="test-key-btn bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 rounded-md">Kiểm tra</button>
+                            <button data-index="${index}" class="remove-key-btn bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded-md">Xóa</button>
+                        </div>`;
                     container.appendChild(keyItem);
                 });
             });
             
+            document.querySelectorAll('.set-default-btn').forEach(btn => btn.addEventListener('click', handleSetDefaultKey));
             document.querySelectorAll('.remove-key-btn').forEach(btn => btn.addEventListener('click', handleRemoveKey));
             document.querySelectorAll('.test-key-btn').forEach(btn => btn.addEventListener('click', handleTestKey));
         };
         
+        const handleSetDefaultKey = (e) => {
+            const indexToSet = parseInt(e.target.dataset.index);
+            if (apiKeys[indexToSet].status === 'active') return;
+
+            apiKeys.forEach((key, index) => {
+                if (index === indexToSet) {
+                    key.status = 'active';
+                } else if (key.status === 'active') {
+                    key.status = 'inactive';
+                }
+            });
+            saveApiKeysToFirestore();
+        };
+
         const handleRemoveKey = (e) => {
             const indexToRemove = parseInt(e.target.dataset.index);
             apiKeys.splice(indexToRemove, 1);
@@ -384,7 +471,7 @@
             unsubscribeFromApiKeys = onSnapshot(apiKeyDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    apiKeys = data.keys || [];
+                    apiKeys = (data.keys || []).map(k => ({ ...k, usage: k.usage || 0 }));
                     apiKeys.forEach(k => { if(k.status === 'testing') k.status = 'inactive' });
                 } else {
                     apiKeys = [];
@@ -396,10 +483,77 @@
                 appendMessage({ text: "Lỗi: Không thể tải cấu hình API từ server." }, 'bot', true);
             });
         };
+
+        // --- Admin Credentials Logic ---
+        const getAdminCredentialsRef = () => {
+            // NOTE: Storing credentials in a public path is NOT secure.
+            // This is a simplification for the demo environment.
+            // In a real app, this should be handled by a secure backend with proper authentication.
+            return doc(db, `artifacts/${appId}/public/data/admin_credentials`, 'config');
+        }
+
+        const loadAdminCredentials = async () => {
+            if (!db) return;
+            const docRef = getAdminCredentialsRef();
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                adminCredentials = docSnap.data();
+            } else {
+                // First time setup: create default credentials
+                console.log("Creating default admin credentials.");
+                await setDoc(docRef, adminCredentials);
+            }
+        };
+
+        changePasswordForms.forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const currentPassword = form.querySelector('input[name="current-password"]').value;
+                const newPassword = form.querySelector('input[name="new-password"]').value;
+                const confirmPassword = form.querySelector('input[name="confirm-password"]').value;
+                const messageEl = form.querySelector('.change-password-message');
+
+                messageEl.textContent = ''; // Clear previous message
+
+                if (currentPassword !== adminCredentials.password) {
+                    messageEl.textContent = 'Mật khẩu hiện tại không đúng.';
+                    messageEl.className = 'change-password-message text-sm h-4 text-red-500';
+                    return;
+                }
+
+                if (!newPassword || newPassword.length < 6) {
+                    messageEl.textContent = 'Mật khẩu mới phải có ít nhất 6 ký tự.';
+                    messageEl.className = 'change-password-message text-sm h-4 text-red-500';
+                    return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    messageEl.textContent = 'Mật khẩu mới không khớp.';
+                    messageEl.className = 'change-password-message text-sm h-4 text-red-500';
+                    return;
+                }
+
+                try {
+                    const newCredentials = { ...adminCredentials, password: newPassword };
+                    const docRef = getAdminCredentialsRef();
+                    await setDoc(docRef, newCredentials);
+                    adminCredentials = newCredentials; // Update local state
+                    messageEl.textContent = 'Đổi mật khẩu thành công!';
+                    messageEl.className = 'change-password-message text-sm h-4 text-green-500';
+                    form.reset();
+                } catch (error) {
+                    console.error("Lỗi khi đổi mật khẩu:", error);
+                    messageEl.textContent = 'Lỗi: Không thể đổi mật khẩu.';
+                    messageEl.className = 'change-password-message text-sm h-4 text-red-500';
+                }
+            });
+        });
         
         // --- Initialization ---
         const initializeAppUI = () => {
-            appendMessage({ text: "Xin chào! Bạn Cứ Hỏi Đi Đừng Sợ Tôi Sẽ Giúp Bạn Tất Cả." }, 'bot');
+            appendMessage({ text: "Xin chào! Tôi là trợ lý ảo của Công ty Thiết kế & In ấn Hội An. Tôi có thể giúp gì cho bạn?" }, 'bot');
+            new VanillaTelex(userInput);
         };
 
         const main = async () => {
@@ -417,6 +571,8 @@
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
+                
+                await loadAdminCredentials();
 
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
@@ -438,29 +594,74 @@
         };
 
         // --- Helper functions ---
-        // **FIX**: Removed redundant click handler. Relying on <label for="..."> is more robust.
-        imageInput.addEventListener('change', (e) => { 
-            const files = e.target.files; 
-            if (!files) return; 
-            imageInfo.classList.remove('text-red-500'); 
-            if (uploadedImages.length + files.length > MAX_IMAGES) { 
-                imageInfo.textContent = `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`; 
-                imageInfo.classList.add('text-red-500'); 
-                imageInput.value = ''; 
-                return; 
-            } 
-            for (const file of files) { 
-                const reader = new FileReader(); 
-                reader.onload = (event) => { 
-                    const base64Data = event.target.result.split(',')[1]; 
-                    uploadedImages.push({ data: base64Data, mimeType: file.type, file: file }); 
-                    createImagePreview(event.target.result, file); 
-                    updateImageCount(); 
-                }; 
-                reader.readAsDataURL(file); 
-            } 
-            imageInput.value = ''; 
+        
+        function processFiles(files) {
+            if (!files || files.length === 0) return;
+            imageInfo.classList.remove('text-red-500');
+
+            const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+            if (imageFiles.length === 0) return;
+
+            if (uploadedImages.length + imageFiles.length > MAX_IMAGES) {
+                imageInfo.textContent = `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`;
+                imageInfo.classList.add('text-red-500');
+                return;
+            }
+
+            for (const file of imageFiles) {
+                const isDuplicate = uploadedImages.some(img => img.file.name === file.name && img.file.size === file.size && img.file.lastModified === file.lastModified);
+                if (isDuplicate) continue;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const base64Data = event.target.result.split(',')[1];
+                    uploadedImages.push({ data: base64Data, mimeType: file.type, file: file });
+                    createImagePreview(event.target.result, file);
+                    updateImageCount();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        imageInput.addEventListener('change', (e) => {
+            processFiles(e.target.files);
+            e.target.value = '';
         });
+
+        userInput.addEventListener('paste', (e) => {
+            const files = e.clipboardData?.files;
+            if (files && files.length > 0) {
+                e.preventDefault();
+                processFiles(files);
+            }
+        });
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            inputArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            inputArea.addEventListener(eventName, () => {
+                inputArea.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            inputArea.addEventListener(eventName, () => {
+                inputArea.classList.remove('drag-over');
+            });
+        });
+
+        inputArea.addEventListener('drop', (e) => {
+            const files = e.dataTransfer?.files;
+            if (files) {
+                processFiles(files);
+            }
+        });
+
 
         function createImagePreview(dataUrl, file) { const previewWrapper = document.createElement('div'); previewWrapper.className = 'relative'; const img = document.createElement('img'); img.src = dataUrl; img.className = 'h-16 w-16 object-cover rounded-md'; previewWrapper.appendChild(img); const removeBtn = document.createElement('button'); removeBtn.innerHTML = '&times;'; removeBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs'; removeBtn.onclick = () => { uploadedImages = uploadedImages.filter(img => img.file !== file); previewWrapper.remove(); updateImageCount(); }; previewWrapper.appendChild(removeBtn); imagePreviewContainer.appendChild(previewWrapper); }
         function updateImageCount() { imageInfo.classList.remove('text-red-500'); if (uploadedImages.length > 0) imageInfo.textContent = `Đã tải lên ${uploadedImages.length}/${MAX_IMAGES} ảnh.`; else imageInfo.textContent = ''; }
