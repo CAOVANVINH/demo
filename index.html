@@ -35,46 +35,7 @@
     <div class="flex h-screen">
         <!-- Sidebar for Admin Panel (Desktop View) - This is now permanently hidden from the layout -->
         <aside class="hidden flex-col w-96 bg-white dark:bg-gray-800 border-r dark:border-gray-700">
-            <div class="p-4 border-b dark:border-gray-700">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Bảng quản trị</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Quản lý API Keys & Tài khoản</p>
-            </div>
-            <div id="admin-sidebar-content" class="flex-1 p-4 overflow-y-auto space-y-6">
-                <!-- API Key Management -->
-                <section>
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Quản lý API Key</h3>
-                    <form class="add-api-key-form flex gap-2 my-2">
-                        <input type="password" name="new-api-key" placeholder="Thêm API Key mới" class="flex-1 p-2 border rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700">Thêm</button>
-                    </form>
-                    <p class="admin-status-message text-sm text-gray-600 dark:text-gray-400 mt-1 mb-2 h-5"></p>
-                    <div class="api-key-list mt-2 space-y-2"></div>
-                </section>
-                
-                <!-- Change Password Section -->
-                <section>
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Đổi mật khẩu Admin</h3>
-                    <form class="change-password-form mt-2 space-y-3">
-                        <div>
-                            <label for="current-password-sidebar" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu hiện tại</label>
-                            <input type="password" name="current-password" id="current-password-sidebar" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        </div>
-                        <div>
-                            <label for="new-password-sidebar" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu mới</label>
-                            <input type="password" name="new-password" id="new-password-sidebar" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        </div>
-                        <div>
-                            <label for="confirm-password-sidebar" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Xác nhận mật khẩu mới</label>
-                            <input type="password" name="confirm-password" id="confirm-password-sidebar" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        </div>
-                        <p class="change-password-message text-sm h-4"></p>
-                        <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Đổi mật khẩu</button>
-                    </form>
-                </section>
-            </div>
-             <div class="p-4 border-t dark:border-gray-700">
-                <button id="logout-btn-sidebar" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold">Đăng xuất</button>
-            </div>
+            <!-- Admin panel content is now managed via the modal -->
         </aside>
 
         <!-- Main Chat UI -->
@@ -178,9 +139,9 @@
 
     <script type="module">
         // Import Firebase SDKs
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
         // DOM Elements
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
@@ -194,8 +155,8 @@
               adminStatusMessages = document.querySelectorAll('.admin-status-message'),
               adminLoginPanel = document.getElementById('admin-login-panel'), adminLoginForm = document.getElementById('admin-login-form'),
               closeLoginPanelBtn = document.getElementById('close-login-panel'), loginErrorMessage = document.getElementById('login-error-message'),
-              logoutBtnSidebar = document.getElementById('logout-btn-sidebar'), logoutBtnModal = document.getElementById('logout-btn-modal'),
-              adminSidebar = document.querySelector('aside'), inputArea = document.getElementById('input-area'),
+              logoutBtnModal = document.getElementById('logout-btn-modal'),
+              inputArea = document.getElementById('input-area'),
               changePasswordForms = document.querySelectorAll('.change-password-form');
 
         // State
@@ -206,8 +167,10 @@
         
         // Firebase State
         let db, auth, userId;
-        const appId = 'data-chung-a62ee';
+        // Use environment variables provided by the platform
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'data-chung-a62ee';
         let unsubscribeFromApiKeys;
+        let isAuthReady = false;
 
         // --- Core Functions ---
         const getGeminiResponse = async (retryCount = 0) => {
@@ -297,6 +260,7 @@
              adminLoginPanel.style.display = 'none';
              adminLoginForm.reset();
              loginErrorMessage.textContent = '';
+             adminPanelModal.style.display = 'flex'; // Directly show the panel after login
         }
 
         const handleLogout = () => {
@@ -329,7 +293,6 @@
             }
         });
 
-        logoutBtnSidebar.addEventListener('click', handleLogout);
         logoutBtnModal.addEventListener('click', handleLogout);
 
         closeAdminPanelModalBtn.addEventListener('click', () => adminPanelModal.style.display = 'none');
@@ -402,10 +365,13 @@
 
         const handleRemoveKey = (e) => {
             const indexToRemove = parseInt(e.target.dataset.index);
+            const wasActive = apiKeys[indexToRemove]?.status === 'active';
             apiKeys.splice(indexToRemove, 1);
-            if (indexToRemove === currentApiKeyIndex) {
-                const newActiveIndex = apiKeys.findIndex(k => k.status !== 'failed');
-                if (newActiveIndex !== -1) apiKeys[newActiveIndex].status = 'active';
+            if (wasActive && apiKeys.length > 0) {
+                 const newActiveIndex = apiKeys.findIndex(k => k.status !== 'failed');
+                 if (newActiveIndex !== -1) {
+                    apiKeys[newActiveIndex].status = 'active';
+                 }
             }
             saveApiKeysToFirestore();
         };
@@ -453,7 +419,7 @@
 
         // --- Firebase Persistence ---
         const saveApiKeysToFirestore = async () => {
-            if (!db) return;
+            if (!db || !isAuthReady) return;
             try {
                 const apiKeyDocRef = doc(db, `artifacts/${appId}/public/data/api_keys`, 'config');
                 await setDoc(apiKeyDocRef, { keys: apiKeys });
@@ -464,7 +430,7 @@
         };
 
         const listenForApiKeyChanges = () => {
-            if (!db) return;
+            if (!db || !isAuthReady) return;
             const apiKeyDocRef = doc(db, `artifacts/${appId}/public/data/api_keys`, 'config');
             if (unsubscribeFromApiKeys) unsubscribeFromApiKeys();
             
@@ -487,20 +453,17 @@
         // --- Admin Credentials Logic ---
         const getAdminCredentialsRef = () => {
             // NOTE: Storing credentials in a public path is NOT secure.
-            // This is a simplification for the demo environment.
-            // In a real app, this should be handled by a secure backend with proper authentication.
             return doc(db, `artifacts/${appId}/public/data/admin_credentials`, 'config');
         }
 
         const loadAdminCredentials = async () => {
-            if (!db) return;
+            if (!db || !isAuthReady) return;
             const docRef = getAdminCredentialsRef();
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
                 adminCredentials = docSnap.data();
             } else {
-                // First time setup: create default credentials
                 console.log("Creating default admin credentials.");
                 await setDoc(docRef, adminCredentials);
             }
@@ -558,34 +521,42 @@
 
         const main = async () => {
             try {
-                const firebaseConfig = {
-                  apiKey: "AIzaSyDJBY6U0LUtmnk4PrfNeA7UE7qq1FZ84X8",
-                  authDomain: "data-chung-a62ee.firebaseapp.com",
-                  projectId: "data-chung-a62ee",
-                  storageBucket: "data-chung-a62ee.appspot.com",
-                  messagingSenderId: "453115303161",
-                  appId: "1:453115303161:web:c885f876f4914829863e28",
-                  measurementId: "G-QB6WP4SP09"
-                };
-
+                // Use the firebase config provided by the environment
+                const firebaseConfig = typeof __firebase_config !== 'undefined' 
+                    ? JSON.parse(__firebase_config)
+                    : { /* A default/fallback config if needed */ };
+                
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
                 
-                await loadAdminCredentials();
+                let isInitialized = false;
 
-                onAuthStateChanged(auth, (user) => {
+                onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
+                        isAuthReady = true;
                         console.log("Đã xác thực với User ID:", userId);
-                        listenForApiKeyChanges();
-                        initializeAppUI();
+                        
+                        // Ensure initialization runs only once
+                        if (!isInitialized) {
+                            isInitialized = true;
+                            await loadAdminCredentials();
+                            listenForApiKeyChanges();
+                            initializeAppUI();
+                        }
                     } else {
+                        isAuthReady = false;
                         console.log("Người dùng chưa đăng nhập.");
                     }
                 });
 
-                await signInAnonymously(auth);
+                // Use the initial auth token if available, otherwise sign in anonymously
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
 
             } catch (error) {
                 console.error("Lỗi khởi tạo Firebase:", error);
