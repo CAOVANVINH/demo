@@ -12,15 +12,11 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        #image-input, #admin-login-panel, #admin-panel-modal { display: none; }
+        #image-input { display: none; }
         .chat-container::-webkit-scrollbar { width: 8px; }
         .chat-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
         .chat-container::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
         .chat-container::-webkit-scrollbar-thumb:hover { background: #555; }
-        .key-status-active { background-color: #22c55e; } /* green-500 */
-        .key-status-inactive { background-color: #6b7280; } /* gray-500 */
-        .key-status-failed { background-color: #ef4444; } /* red-500 */
-        .key-status-testing { background-color: #3b82f6; } /* blue-500 */
         .drag-over {
             background-color: #e0f2fe !important; /* light-blue */
             border: 2px dashed #3b82f6; /* blue-500 */
@@ -41,9 +37,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     <h1 class="text-lg md:text-xl font-bold">Công Ty Thiết Kế In Ấn Hội An Chatbot</h1>
                 </div>
-                <button id="open-admin-panel-btn" class="p-2 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                </button>
+                <!-- Nút Admin đã được loại bỏ -->
             </header>
 
             <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900"></div>
@@ -66,74 +60,10 @@
         </main>
     </div>
 
-    <!-- Admin Login Panel Modal -->
-    <div id="admin-login-panel" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6 m-4">
-            <div class="flex justify-between items-center border-b pb-3 dark:border-gray-600">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Đăng nhập Admin</h2>
-                <button id="close-login-panel" class="text-2xl font-light p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 leading-none">&times;</button>
-            </div>
-            <form id="admin-login-form" class="mt-4 space-y-4">
-                <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tên đăng nhập</label>
-                    <input type="text" id="username" name="username" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu</label>
-                    <input type="password" id="password" name="password" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                </div>
-                <p id="login-error-message" class="text-sm text-red-500 h-4"></p>
-                <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Đăng nhập</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Admin Panel Modal -->
-    <div id="admin-panel-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg p-6 m-4 overflow-y-auto max-h-full">
-            <div class="flex justify-between items-center border-b pb-3 dark:border-gray-600">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Bảng quản trị</h2>
-                <div>
-                    <button id="logout-btn-modal" class="text-sm bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg mr-2">Đăng xuất</button>
-                    <button id="close-admin-panel-modal" class="text-2xl font-light p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 leading-none">&times;</button>
-                </div>
-            </div>
-            <div class="mt-4 space-y-6">
-                 <section>
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Quản lý API Key</h3>
-                    <form class="add-api-key-form flex gap-2 my-2">
-                        <input type="password" name="new-api-key" placeholder="Thêm API Key mới" class="flex-1 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Thêm</button>
-                    </form>
-                    <p class="admin-status-message text-sm text-gray-600 dark:text-gray-400 mt-1 mb-2 h-5"></p>
-                    <div class="api-key-list mt-2 space-y-2 max-h-60 overflow-y-auto"></div>
-                </section>
-                <section>
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Đổi mật khẩu Admin</h3>
-                    <form class="change-password-form mt-2 space-y-3">
-                        <div>
-                            <label for="current-password-modal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu hiện tại</label>
-                            <input type="password" name="current-password" id="current-password-modal" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        </div>
-                        <div>
-                            <label for="new-password-modal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Mật khẩu mới</label>
-                            <input type="password" name="new-password" id="new-password-modal" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        </div>
-                        <div>
-                            <label for="confirm-password-modal" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Xác nhận mật khẩu mới</label>
-                            <input type="password" name="confirm-password" id="confirm-password-modal" required class="mt-1 block w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        </div>
-                        <p class="change-password-message text-sm h-4"></p>
-                        <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Đổi mật khẩu</button>
-                    </form>
-                </section>
-            </div>
-        </div>
-    </div>
+    <!-- Các Modal Admin đã được loại bỏ -->
 
     <script type="module">
-        // NOTE: Firebase is still used for anonymous authentication to provide a unique user ID,
-        // but it is NO LONGER used for storing API keys or admin credentials.
+        // Firebase is only used for anonymous auth to provide a unique user ID.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
@@ -142,31 +72,22 @@
               sendButton = document.getElementById('send-button'), sendText = document.getElementById('send-text'), 
               loadingSpinner = document.getElementById('loading-spinner'), imageInput = document.getElementById('image-input'), 
               imagePreviewContainer = document.getElementById('image-preview-container'), imageInfo = document.getElementById('image-info'),
-              adminPanelModal = document.getElementById('admin-panel-modal'), openAdminPanelBtn = document.getElementById('open-admin-panel-btn'),
-              closeAdminPanelModalBtn = document.getElementById('close-admin-panel-modal'),
-              addApiKeyForms = document.querySelectorAll('.add-api-key-form'),
-              apiKeyListContainers = document.querySelectorAll('.api-key-list'),
-              adminStatusMessages = document.querySelectorAll('.admin-status-message'),
-              adminLoginPanel = document.getElementById('admin-login-panel'), adminLoginForm = document.getElementById('admin-login-form'),
-              closeLoginPanelBtn = document.getElementById('close-login-panel'), loginErrorMessage = document.getElementById('login-error-message'),
-              logoutBtnModal = document.getElementById('logout-btn-modal'),
-              inputArea = document.getElementById('input-area'),
-              changePasswordForms = document.querySelectorAll('.change-password-form');
+              inputArea = document.getElementById('input-area');
 
         // State
         const MAX_IMAGES = 50;
         let chatHistory = [], uploadedImages = [];
-        let currentApiKeyIndex = -1, isAdminLoggedIn = false;
+        let currentApiKeyIndex = 0; // Bắt đầu với key đầu tiên
         
-        // --- DATA STORED IN CODE ---
-        // Admin credentials are now stored in-memory and reset on page load.
-        let adminCredentials = { username: 'admin', password: 'admin' }; 
-
-        // API keys are now stored directly in the code.
-        // THAY THẾ CÁC KEY MẪU DƯỚI ĐÂY BẰNG API KEY THẬT CỦA BẠN
-        let apiKeys = [
-            { key: "AIzaSyCg4gg9GLf6SPzhYCNLmvTZyIuuQZPRw04", status: 'active', usage: 0 },
-            { key: "AIzaSyDOfRZnSkMqUAddDF1jZqqzCDZzn68hUyE", status: 'active', usage: 0 }
+        // ===================================================================================
+        // !!! CẤU HÌNH DUY NHẤT TẠI ĐÂY !!!
+        // THAY THẾ CÁC KEY MẪU BẰNG API KEY THẬT CỦA BẠN.
+        // CẢNH BÁO: KHÔNG ĐĂNG TẢI FILE NÀY LÊN INTERNET CÔNG CỘNG VÌ SẼ LÀM LỘ KEY.
+        // ===================================================================================
+        const apiKeys = [
+            "YOUR_API_KEY_HERE_1",
+            "YOUR_API_KEY_HERE_2",
+            // Thêm các key khác vào đây, mỗi key là một chuỗi trong mảng.
         ];
 
         // Firebase State (Auth only)
@@ -174,11 +95,15 @@
 
         // --- Core Functions ---
         const getGeminiResponse = async (retryCount = 0) => {
-            if (currentApiKeyIndex === -1 || apiKeys.length === 0) throw new Error("Không có API key hợp lệ. Vui lòng thêm key trong bảng quản trị.");
-            if (retryCount >= apiKeys.length) throw new Error("Tất cả API key đều không hoạt động. Vui lòng kiểm tra lại trong bảng quản trị.");
+            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) {
+                throw new Error("Vui lòng cấu hình ít nhất một API key thật trong mã nguồn.");
+            }
+            if (retryCount >= apiKeys.length) {
+                throw new Error("Tất cả API key đều không hoạt động. Vui lòng kiểm tra lại.");
+            }
             
-            const apiKeyData = apiKeys[currentApiKeyIndex];
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKeyData.key}`;
+            const apiKey = apiKeys[currentApiKeyIndex];
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
             const payload = {
                 contents: chatHistory,
@@ -194,39 +119,24 @@
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) {
                     const errorBody = await response.json();
-                    if (response.status === 400 || response.status === 403 || (errorBody.error && errorBody.error.message.includes("API key not valid"))) throw new Error(`API Key không hợp lệ hoặc hết hạn (status ${response.status})`);
                     throw new Error(`Lỗi API: ${errorBody.error.message}`);
                 }
                 const result = await response.json();
                 if (result.candidates && result.candidates.length > 0) {
-                    apiKeys[currentApiKeyIndex].usage = (apiKeys[currentApiKeyIndex].usage || 0) + 1;
-                    renderApiKeys(); // Re-render to show usage count change
                     return result.candidates[0].content.parts[0].text;
                 }
-                if (result.promptFeedback && result.promptFeedback.blockReason) return `Yêu cầu của bạn đã bị chặn vì: ${result.promptFeedback.blockReason}.`;
+                if (result.promptFeedback && result.promptFeedback.blockReason) {
+                    return `Yêu cầu của bạn đã bị chặn vì: ${result.promptFeedback.blockReason}.`;
+                }
                 throw new Error("Không nhận được phản hồi hợp lệ từ API.");
             } catch (error) {
                 console.error(`API key tại vị trí ${currentApiKeyIndex} thất bại:`, error.message);
-                updateApiKeyStatus(currentApiKeyIndex, 'failed');
-                switchToNextApiKey();
+                // Chuyển sang key tiếp theo
+                currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+                console.log(`Chuyển sang API key tại vị trí ${currentApiKeyIndex}`);
+                // Thử lại với key mới
                 return getGeminiResponse(retryCount + 1);
             }
-        };
-
-        const switchToNextApiKey = () => {
-            const totalKeys = apiKeys.length;
-            if (totalKeys === 0) { currentApiKeyIndex = -1; updateAdminStatusMessage(); return; }
-            
-            for (let i = 1; i <= totalKeys; i++) {
-                const nextIndex = (currentApiKeyIndex + i) % totalKeys;
-                if (apiKeys[nextIndex] && apiKeys[nextIndex].status !== 'failed') {
-                    currentApiKeyIndex = nextIndex;
-                    updateApiKeyStatus(currentApiKeyIndex, 'active');
-                    return;
-                }
-            }
-            currentApiKeyIndex = -1;
-            updateAdminStatusMessage();
         };
 
         // --- UI & Event Handlers ---
@@ -235,8 +145,10 @@
             const message = userInput.value.trim();
             if (!message && uploadedImages.length === 0) return;
 
-            if (apiKeys.length === 0) { appendMessage({ text: "Lỗi: Vui lòng thêm một API key trong bảng quản trị." }, 'bot', true); return; }
-            if (currentApiKeyIndex === -1) { appendMessage({ text: "Lỗi: Tất cả API key đều không hoạt động." }, 'bot', true); return; }
+            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) { 
+                appendMessage({ text: "Lỗi: Vui lòng cấu hình API key trong mã nguồn của file HTML." }, 'bot', true); 
+                return; 
+            }
 
             const userMessageData = { text: message, images: uploadedImages.map(img => img.file) };
             appendMessage(userMessageData, 'user');
@@ -264,229 +176,17 @@
             }
         });
         
-        // --- Admin & Login Panel Logic ---
-        const handleLogin = () => {
-             isAdminLoggedIn = true;
-             adminLoginPanel.style.display = 'none';
-             adminLoginForm.reset();
-             loginErrorMessage.textContent = '';
-             adminPanelModal.style.display = 'flex';
-        }
-
-        const handleLogout = () => {
-            isAdminLoggedIn = false;
-            adminPanelModal.style.display = 'none';
-        }
-
-        openAdminPanelBtn.addEventListener('click', () => {
-            if (isAdminLoggedIn) {
-                adminPanelModal.style.display = 'flex';
-            } else {
-                adminLoginPanel.style.display = 'flex';
-            }
-        });
-
-        closeLoginPanelBtn.addEventListener('click', () => {
-            adminLoginPanel.style.display = 'none';
-            loginErrorMessage.textContent = '';
-        });
-
-        adminLoginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = e.target.username.value;
-            const password = e.target.password.value;
-            if (username === adminCredentials.username && password === adminCredentials.password) {
-                handleLogin();
-            } else {
-                loginErrorMessage.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
-            }
-        });
-        
-        adminLoginForm.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', () => {
-                loginErrorMessage.textContent = '';
-            });
-        });
-
-        logoutBtnModal.addEventListener('click', handleLogout);
-        closeAdminPanelModalBtn.addEventListener('click', () => adminPanelModal.style.display = 'none');
-        
-        addApiKeyForms.forEach(form => {
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const newKeyInput = form.querySelector('input[name="new-api-key"]');
-                const newKey = newKeyInput.value.trim();
-                if (newKey && !apiKeys.some(k => k.key === newKey)) {
-                    apiKeys.push({ key: newKey, status: 'inactive', usage: 0 });
-                    if (apiKeys.filter(k => k.status === 'active').length === 0) {
-                        const firstInactive = apiKeys.findIndex(k => k.status === 'inactive');
-                        if (firstInactive !== -1) apiKeys[firstInactive].status = 'active';
-                    }
-                    renderApiKeys();
-                    updateAdminStatusMessage();
-                }
-                newKeyInput.value = '';
-            });
-        });
-
-        const renderApiKeys = () => {
-            apiKeyListContainers.forEach(container => {
-                container.innerHTML = '';
-                if (apiKeys.length === 0) {
-                    container.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Chưa có API key nào.</p>';
-                    return;
-                }
-                apiKeys.forEach((apiKey, index) => {
-                    const keyItem = document.createElement('div');
-                    keyItem.className = 'flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-2 rounded-lg gap-2';
-                    const statusColor = apiKey.status === 'active' ? 'key-status-active' : apiKey.status === 'failed' ? 'key-status-failed' : apiKey.status === 'testing' ? 'key-status-testing' : 'key-status-inactive';
-                    const isDefault = apiKey.status === 'active';
-                    
-                    keyItem.innerHTML = `
-                        <div class="flex items-center gap-3 flex-wrap flex-1 min-w-0">
-                            <span class="w-3 h-3 rounded-full ${statusColor} flex-shrink-0"></span>
-                            <span class="font-mono text-sm text-gray-700 dark:text-gray-300 truncate">...${apiKey.key.slice(-6)}</span>
-                            <span class="text-xs font-semibold capitalize text-gray-600 dark:text-gray-400">${apiKey.status}</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">(Dùng: ${apiKey.usage || 0})</span>
-                        </div>
-                        <div class="flex gap-2 flex-shrink-0">
-                            <button data-index="${index}" class="set-default-btn ${isDefault ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'} text-white text-xs px-2 py-1 rounded-md" ${isDefault ? 'disabled' : ''}>Mặc định</button>
-                            <button data-index="${index}" class="test-key-btn bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 rounded-md">Kiểm tra</button>
-                            <button data-index="${index}" class="remove-key-btn bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded-md">Xóa</button>
-                        </div>`;
-                    container.appendChild(keyItem);
-                });
-            });
-            
-            document.querySelectorAll('.set-default-btn').forEach(btn => btn.addEventListener('click', handleSetDefaultKey));
-            document.querySelectorAll('.remove-key-btn').forEach(btn => btn.addEventListener('click', handleRemoveKey));
-            document.querySelectorAll('.test-key-btn').forEach(btn => btn.addEventListener('click', handleTestKey));
-        };
-        
-        const handleSetDefaultKey = (e) => {
-            const indexToSet = parseInt(e.target.dataset.index);
-            if (apiKeys[indexToSet].status === 'active') return;
-
-            apiKeys.forEach((key, index) => {
-                if (index === indexToSet) key.status = 'active';
-                else if (key.status === 'active') key.status = 'inactive';
-            });
-            renderApiKeys();
-            updateAdminStatusMessage();
-        };
-
-        const handleRemoveKey = (e) => {
-            const indexToRemove = parseInt(e.target.dataset.index);
-            const wasActive = apiKeys[indexToRemove]?.status === 'active';
-            apiKeys.splice(indexToRemove, 1);
-            if (wasActive && apiKeys.length > 0) {
-                 const newActiveIndex = apiKeys.findIndex(k => k.status !== 'failed');
-                 if (newActiveIndex !== -1) apiKeys[newActiveIndex].status = 'active';
-            }
-            renderApiKeys();
-            updateAdminStatusMessage();
-        };
-
-        const handleTestKey = async (e) => {
-            const indexToTest = parseInt(e.target.dataset.index);
-            const apiKeyData = apiKeys[indexToTest];
-            const originalStatus = apiKeyData.status;
-            
-            if(apiKeyData.status === 'failed' && !confirm("Khóa này đã được đánh dấu là không hợp lệ. Bạn có muốn kiểm tra lại không?")){
-                return;
-            }
-
-            updateApiKeyStatus(indexToTest, 'testing');
-            try {
-                const testUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKeyData.key}`;
-                const response = await fetch(testUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: "hello" }] }] }) });
-                if (!response.ok) throw new Error('Key không hợp lệ');
-                updateApiKeyStatus(indexToTest, originalStatus === 'active' ? 'active' : 'inactive');
-            } catch (error) {
-                updateApiKeyStatus(indexToTest, 'failed');
-            }
-        };
-
-        const updateApiKeyStatus = (index, status) => {
-            if (apiKeys[index]) {
-                apiKeys[index].status = status;
-                if (status === 'active') {
-                    apiKeys.forEach((key, i) => { if (i !== index && apiKeys[i].status === 'active') apiKeys[i].status = 'inactive'; });
-                }
-                renderApiKeys();
-                updateAdminStatusMessage();
-            }
-        };
-
-        const updateAdminStatusMessage = () => {
-            currentApiKeyIndex = apiKeys.findIndex(k => k.status === 'active');
-            adminStatusMessages.forEach(msgEl => {
-                if (currentApiKeyIndex !== -1 && apiKeys[currentApiKeyIndex]) {
-                    msgEl.textContent = `Đang sử dụng API key ...${apiKeys[currentApiKeyIndex].key.slice(-6)}`;
-                    msgEl.className = 'admin-status-message text-sm text-green-600 dark:text-green-400 mt-1 mb-2 h-5';
-                } else if (apiKeys.length > 0) {
-                    msgEl.textContent = 'Tất cả API key đều không hoạt động!';
-                    msgEl.className = 'admin-status-message text-sm text-red-600 dark:text-red-400 mt-1 mb-2 h-5';
-                } else {
-                    msgEl.textContent = 'Vui lòng thêm một API key để bắt đầu.';
-                    msgEl.className = 'admin-status-message text-sm text-gray-600 dark:text-gray-400 mt-1 mb-2 h-5';
-                }
-            });
-        };
-
-        // --- Admin Credentials Logic (In-Memory) ---
-        changePasswordForms.forEach(form => {
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const currentPassword = form.querySelector('input[name="current-password"]').value;
-                const newPassword = form.querySelector('input[name="new-password"]').value;
-                const confirmPassword = form.querySelector('input[name="confirm-password"]').value;
-                const messageEl = form.querySelector('.change-password-message');
-
-                messageEl.textContent = '';
-
-                if (currentPassword !== adminCredentials.password) {
-                    messageEl.textContent = 'Mật khẩu hiện tại không đúng.';
-                    messageEl.className = 'change-password-message text-sm h-4 text-red-500';
-                    return;
-                }
-                if (!newPassword || newPassword.length < 6) {
-                    messageEl.textContent = 'Mật khẩu mới phải có ít nhất 6 ký tự.';
-                    messageEl.className = 'change-password-message text-sm h-4 text-red-500';
-                    return;
-                }
-                if (newPassword !== confirmPassword) {
-                    messageEl.textContent = 'Mật khẩu mới không khớp.';
-                    messageEl.className = 'change-password-message text-sm h-4 text-red-500';
-                    return;
-                }
-
-                // Update credentials in-memory for the current session
-                adminCredentials.password = newPassword; 
-                messageEl.textContent = 'Đổi mật khẩu thành công! (chỉ cho phiên này)';
-                messageEl.className = 'change-password-message text-sm h-4 text-green-500';
-                form.reset();
-            });
-
-            form.querySelectorAll('input').forEach(input => {
-                input.addEventListener('input', () => {
-                    form.querySelector('.change-password-message').textContent = '';
-                });
-            });
-        });
-        
         // --- Initialization ---
         const initializeAppUI = () => {
             appendMessage({ text: "Xin chào! Tôi là trợ lý ảo của Công ty Thiết kế & In Ấn Hội An. Tôi có thể giúp gì cho bạn?" }, 'bot');
             new VanillaTelex(userInput);
-            renderApiKeys();
-            updateAdminStatusMessage();
         };
 
         const main = async () => {
             initializeAppUI();
             try {
-                // Firebase is now only used for auth to get a user ID.
+                // Firebase vẫn được dùng để xác thực ẩn danh, cung cấp một User ID duy nhất
+                // cho mỗi người dùng, hữu ích cho việc theo dõi phiên làm việc.
                 const firebaseConfig = typeof __firebase_config !== 'undefined' 
                     ? JSON.parse(__firebase_config)
                     : { apiKey: "YOUR_FALLBACK_API_KEY", authDomain: "YOUR_FALLBACK_AUTH_DOMAIN", projectId: "YOUR_FALLBACK_PROJECT_ID" };
@@ -516,29 +216,7 @@
         };
 
         // --- Helper functions ---
-        function processFiles(files) {
-            if (!files || files.length === 0) return;
-            imageInfo.classList.remove('text-red-500');
-            const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
-            if (imageFiles.length === 0) return;
-            if (uploadedImages.length + imageFiles.length > MAX_IMAGES) {
-                imageInfo.textContent = `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`;
-                imageInfo.classList.add('text-red-500');
-                return;
-            }
-            for (const file of imageFiles) {
-                const isDuplicate = uploadedImages.some(img => img.file.name === file.name && img.file.size === file.size && img.file.lastModified === file.lastModified);
-                if (isDuplicate) continue;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const base64Data = event.target.result.split(',')[1];
-                    uploadedImages.push({ data: base64Data, mimeType: file.type, file: file });
-                    createImagePreview(event.target.result, file);
-                    updateImageCount();
-                };
-                reader.readAsDataURL(file);
-            }
-        }
+        function processFiles(files) { if (!files || files.length === 0) return; imageInfo.classList.remove('text-red-500'); const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/')); if (imageFiles.length === 0) return; if (uploadedImages.length + imageFiles.length > MAX_IMAGES) { imageInfo.textContent = `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`; imageInfo.classList.add('text-red-500'); return; } for (const file of imageFiles) { const isDuplicate = uploadedImages.some(img => img.file.name === file.name && img.file.size === file.size && img.file.lastModified === file.lastModified); if (isDuplicate) continue; const reader = new FileReader(); reader.onload = (event) => { const base64Data = event.target.result.split(',')[1]; uploadedImages.push({ data: base64Data, mimeType: file.type, file: file }); createImagePreview(event.target.result, file); updateImageCount(); }; reader.readAsDataURL(file); } }
         imageInput.addEventListener('change', (e) => { processFiles(e.target.files); e.target.value = ''; });
         userInput.addEventListener('paste', (e) => { const files = e.clipboardData?.files; if (files && files.length > 0) { e.preventDefault(); processFiles(files); } });
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { inputArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }); });
