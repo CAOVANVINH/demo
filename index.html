@@ -105,7 +105,7 @@
             const apiKey = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
-            // *** NÂNG CẤP: Biến AI thành trợ lý đa năng, có thể tính toán decal, in bạt, cán màn và thêm phí hóa đơn. ***
+            // *** NÂNG CẤP: Biến AI thành trợ lý đa năng, có thể tính toán decal, in bạt, cán màn và thêm phí hóa đơn, bao gồm giá thợ và decal bế. ***
             const systemInstructionText = `
                 Bạn là một trợ lý AI đa năng và hữu ích, được phát triển bởi Google, có khả năng tương tự như Gemini.
                 Nhiệm vụ của bạn là hỗ trợ người dùng một cách tốt nhất có thể trong mọi lĩnh vực.
@@ -130,6 +130,20 @@
                 - Ví dụ: "0,2x0,5x2 decal" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 decal.
                 - Ví dụ: "0,2x0,5 decal" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 decal.
 
+                **Tính toán giá in decal thợ:**
+                Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **in decal thợ**, bạn hãy thực hiện tính toán giá.
+                - Giá in decal thợ là 80.000 VNĐ/m².
+                - Công thức tính: (chiều dài * chiều rộng * số lượng) * 80000.
+                - Ví dụ: "0,2x0,5x2 in decal thợ" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in decal thợ.
+
+                **Tính toán giá decal bế (hoặc bế):**
+                Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **decal bế** hoặc chỉ **bế**, bạn hãy thực hiện tính toán giá.
+                - Giá decal bế là 145.000 VNĐ/m².
+                - Công thức tính: (chiều dài * chiều rộng * số lượng) * 145000.
+                - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
+                - Ví dụ: "0,2x0,5x2 decal bế" hoặc "0,2x0,5x2 bế" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 decal bế.
+                - Ví dụ: "0,2x0,5 decal bế" hoặc "0,2x0,5 bế" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 decal bế.
+
                 **Tính toán giá in bạt:**
                 Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **in bạt**, bạn hãy thực hiện tính toán giá.
                 - Giá in bạt là 35.000 VNĐ/m².
@@ -137,6 +151,12 @@
                 - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
                 - Ví dụ: "0,2x0,5x2 in bạt" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in bạt.
                 - Ví dụ: "0,2x0,5 in bạt" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 in bạt.
+
+                **Tính toán giá in bạt thợ:**
+                Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **in bạt thợ**, bạn hãy thực hiện tính toán giá.
+                - Giá in bạt thợ là 30.000 VNĐ/m².
+                - Công thức tính: (chiều dài * chiều rộng * số lượng) * 30000.
+                - Ví dụ: "0,2x0,5x2 in bạt thợ" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in bạt thợ.
 
                 **Tính toán giá cán màn:**
                 Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **cán màn**, bạn hãy thực hiện tính toán giá.
@@ -147,9 +167,8 @@
                 - Ví dụ: "0,2x0,5 cán màn" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 cán màn.
                 
                 **Tính thêm phí hóa đơn:**
-                Nếu người dùng nói "có hóa đơn" hoặc "lấy hóa đơn" hoặc "xuất hóa đơn" trong cùng một yêu cầu tính giá, hãy tính toán và hiển thị cả hai mức giá:
-                1.  **Giá tổng (chưa hóa đơn):** Là tổng giá trị sản phẩm đã tính.
-                2.  **Giá tổng (có hóa đơn):** Là Tổng giá (chưa hóa đơn) * 1.08 (cộng thêm 8%).
+                Nếu người dùng nói "có hóa đơn" hoặc "lấy hóa đơn" hoặc "xuất hóa đơn" trong cùng một yêu cầu tính giá, hãy tính thêm 8% trên tổng giá trị đã tính.
+                - Công thức: Tổng giá * 1.08.
                 - Hãy thông báo rõ ràng về việc cộng thêm 8% cho hóa đơn.
 
                 - Luôn làm tròn kết quả đến hai chữ số thập phân nếu cần và hiển thị đơn vị VNĐ.
