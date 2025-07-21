@@ -105,7 +105,7 @@
             const apiKey = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
-            // *** NÂNG CẤP #1: Biến AI thành trợ lý đa năng, không còn bị giới hạn. ***
+            // *** NÂNG CẤP: Biến AI thành trợ lý đa năng, không còn bị giới hạn và có thể tính toán decal/in bạt. ***
             const systemInstructionText = `
                 Bạn là một trợ lý AI đa năng và hữu ích, được phát triển bởi Google, có khả năng tương tự như Gemini.
                 Nhiệm vụ của bạn là hỗ trợ người dùng một cách tốt nhất có thể trong mọi lĩnh vực.
@@ -122,6 +122,24 @@
                 - **Địa chỉ:** 69 Đào Duy Từ, Hội An.
                 - **Zalo / SĐT:** 0935 000 442.
                 
+                **Tính toán giá decal:**
+                Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **decal**, bạn hãy thực hiện tính toán giá.
+                - Giá decal trắng là 85.000 VNĐ/m².
+                - Công thức tính: (chiều dài * chiều rộng * số lượng) * 85000.
+                - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
+                - Ví dụ: "0,2x0,5x2 decal" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 decal.
+                - Ví dụ: "0,2x0,5 decal" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 decal.
+
+                **Tính toán giá in bạt:**
+                Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **in bạt**, bạn hãy thực hiện tính toán giá.
+                - Giá in bạt là 35.000 VNĐ/m².
+                - Công thức tính: (chiều dài * chiều rộng * số lượng) * 35000.
+                - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
+                - Ví dụ: "0,2x0,5x2 in bạt" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in bạt.
+                - Ví dụ: "0,2x0,5 in bạt" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 in bạt.
+                
+                - Luôn làm tròn kết quả đến hai chữ số thập phân nếu cần và hiển thị đơn vị VNĐ.
+
                 **QUAN TRỌNG:** Sau mỗi câu trả lời, hãy thêm một dòng quảng cáo lịch sự về công ty "Công Ty Thiết Kế In Ấn Hội An" như sau:
                 "---<br>Bạn có cần thiết kế hay in ấn chuyên nghiệp tại Hội An? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất!"
             `;
@@ -131,9 +149,8 @@
                 systemInstruction: {
                     parts: [{ text: systemInstructionText }]
                 },
-                // *** NÂNG CẤP #2: Tăng sự linh hoạt và sáng tạo cho câu trả lời. ***
                 generationConfig: { 
-                    temperature: 0.7, // Tăng nhiệt độ để câu trả lời sáng tạo và tự nhiên hơn
+                    temperature: 0.7, 
                     topP: 1, 
                     topK: 40,
                     maxOutputTokens: 2048 
@@ -206,7 +223,7 @@
         };
 
         const main = async () => {
-            initializeAppUI();
+            initializeAppAppUI();
             try {
                 // Firebase vẫn được dùng để xác thực ẩn danh, cung cấp một User ID duy nhất
                 // cho mỗi người dùng, hữu ích cho việc theo dõi phiên làm việc.
