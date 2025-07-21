@@ -105,7 +105,7 @@
             const apiKey = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
-            // *** NÂNG CẤP: Biến AI thành trợ lý đa năng, không còn bị giới hạn và có thể tính toán decal/in bạt. ***
+            // *** NÂNG CẤP: Biến AI thành trợ lý đa năng, có thể tính toán decal, in bạt, cán màn và thêm phí hóa đơn. ***
             const systemInstructionText = `
                 Bạn là một trợ lý AI đa năng và hữu ích, được phát triển bởi Google, có khả năng tương tự như Gemini.
                 Nhiệm vụ của bạn là hỗ trợ người dùng một cách tốt nhất có thể trong mọi lĩnh vực.
@@ -137,8 +137,23 @@
                 - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
                 - Ví dụ: "0,2x0,5x2 in bạt" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in bạt.
                 - Ví dụ: "0,2x0,5 in bạt" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 in bạt.
+
+                **Tính toán giá cán màn:**
+                Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **cán màn**, bạn hãy thực hiện tính toán giá.
+                - Giá cán màn là 100.000 VNĐ/m².
+                - Công thức tính: (chiều dài * chiều rộng * số lượng) * 100000.
+                - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
+                - Ví dụ: "0,2x0,5x2 cán màn" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 cán màn.
+                - Ví dụ: "0,2x0,5 cán màn" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 cán màn.
                 
+                **Tính thêm phí hóa đơn:**
+                Nếu người dùng nói "có hóa đơn" hoặc "lấy hóa đơn" hoặc "xuất hóa đơn" trong cùng một yêu cầu tính giá, hãy tính toán và hiển thị cả hai mức giá:
+                1.  **Giá tổng (chưa hóa đơn):** Là tổng giá trị sản phẩm đã tính.
+                2.  **Giá tổng (có hóa đơn):** Là Tổng giá (chưa hóa đơn) * 1.08 (cộng thêm 8%).
+                - Hãy thông báo rõ ràng về việc cộng thêm 8% cho hóa đơn.
+
                 - Luôn làm tròn kết quả đến hai chữ số thập phân nếu cần và hiển thị đơn vị VNĐ.
+                - **QUAN TRỌNG:** Khi hiển thị kết quả giá tiền, hãy định dạng số theo kiểu "000,000,000 VNĐ" (ví dụ: 123,456,789 VNĐ).
 
                 **QUAN TRỌNG:** Sau mỗi câu trả lời, hãy thêm một dòng quảng cáo lịch sự về công ty "Công Ty Thiết Kế In Ấn Hội An" như sau:
                 "---<br>Bạn có cần thiết kế hay in ấn chuyên nghiệp tại Hội An? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất!"
@@ -223,7 +238,7 @@
         };
 
         const main = async () => {
-            initializeAppAppUI();
+            initializeAppUI();
             try {
                 // Firebase vẫn được dùng để xác thực ẩn danh, cung cấp một User ID duy nhất
                 // cho mỗi người dùng, hữu ích cho việc theo dõi phiên làm việc.
