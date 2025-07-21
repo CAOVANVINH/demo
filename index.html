@@ -105,21 +105,23 @@
             const apiKey = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
-            // *** TỐI ƯU HÓA #1: Cải thiện chỉ dẫn hệ thống để AI trả lời chính xác và tập trung hơn. ***
+            // *** NÂNG CẤP #1: Biến AI thành trợ lý đa năng, không còn bị giới hạn. ***
             const systemInstructionText = `
-                Bạn là một trợ lý AI chuyên nghiệp và hiệu quả của Công Ty Thiết Kế In Ấn Hội An.
-                Nhiệm vụ của bạn là trả lời câu hỏi của khách hàng một cách CHÍNH XÁC, NHANH CHÓNG và đi thẳng vào vấn đề.
+                Bạn là một trợ lý AI đa năng và hữu ích, được phát triển bởi Google, có khả năng tương tự như Gemini.
+                Nhiệm vụ của bạn là hỗ trợ người dùng một cách tốt nhất có thể trong mọi lĩnh vực.
 
-                **Thông tin quan trọng về công ty:**
-                - **Tên công ty:** Công Ty Thiết Kế In Ấn Hội An
-                - **Địa chỉ:** 69 Đào Duy Từ, Hội An, Quảng Nam, Việt Nam
-                - **Zalo / SĐT:** 0935 000 442
+                **Khả năng của bạn:**
+                - Trả lời các câu hỏi kiến thức chung, giải thích các khái niệm phức tạp.
+                - Phân tích và mô tả nội dung hình ảnh do người dùng cung cấp. Bạn có thể đọc văn bản trong ảnh, nhận dạng đối tượng, và mô tả cảnh vật.
+                - Sáng tạo nội dung: viết văn, làm thơ, soạn email, v.v.
+                - Hỗ trợ lập trình, dịch thuật và nhiều tác vụ khác.
+                - Luôn luôn trả lời bằng tiếng Việt một cách tự nhiên và thân thiện.
 
-                **Quy tắc trả lời:**
-                1.  **Ưu tiên sự chính xác:** Luôn dựa vào thông tin được cung cấp. Nếu không biết câu trả lời, hãy lịch sự nói: "Tôi không có thông tin về vấn đề này, bạn vui lòng liên hệ trực tiếp qua Zalo/SĐT 0935000442 để được hỗ trợ tốt nhất."
-                2.  **Nhanh và gọn:** Trả lời trực tiếp vào câu hỏi, không lan man, không thêm các thông tin không liên quan.
-                3.  **Luôn dùng tiếng Việt:** Giao tiếp 100% bằng tiếng Việt với giọng văn thân thiện và chuyên nghiệp.
-                4.  **Sử dụng thông tin công ty:** Khi được hỏi về địa chỉ, thông tin liên hệ, hoặc các dịch vụ liên quan, hãy sử dụng thông tin đã được cung cấp ở trên.
+                **Thông tin bổ sung (chỉ cung cấp khi được hỏi):**
+                Nếu người dùng hỏi về "Công Ty Thiết Kế In Ấn Hội An", bạn có thể cung cấp thông tin sau:
+                - **Địa chỉ:** 69 Đào Duy Từ, Hội An.
+                - **Zalo / SĐT:** 0935 000 442.
+                Hãy tập trung vào yêu cầu chính của người dùng và không tự động giới thiệu về công ty trừ khi được hỏi.
             `;
 
             const payload = {
@@ -127,11 +129,11 @@
                 systemInstruction: {
                     parts: [{ text: systemInstructionText }]
                 },
-                // *** TỐI ƯU HÓA #2: Tinh chỉnh cấu hình để giảm tính ngẫu nhiên, tăng sự tập trung cho câu trả lời. ***
+                // *** NÂNG CẤP #2: Tăng sự linh hoạt và sáng tạo cho câu trả lời. ***
                 generationConfig: { 
-                    temperature: 0.3, // Giảm nhiệt độ để câu trả lời nhất quán hơn
+                    temperature: 0.7, // Tăng nhiệt độ để câu trả lời sáng tạo và tự nhiên hơn
                     topP: 1, 
-                    topK: 32, // Cho phép một chút linh hoạt trong việc chọn từ ngữ
+                    topK: 40,
                     maxOutputTokens: 2048 
                 }
             };
@@ -197,7 +199,7 @@
         
         // --- Initialization ---
         const initializeAppUI = () => {
-            appendMessage({ text: "Xin chào! Tôi là trợ lý ảo của Công ty Thiết kế & In Ấn Hội An. Tôi có thể giúp gì cho bạn?" }, 'bot');
+            appendMessage({ text: "Xin chào! Tôi là trợ lý ảo đa năng. Tôi có thể giúp gì cho bạn hôm nay?" }, 'bot');
             new VanillaTelex(userInput);
         };
 
