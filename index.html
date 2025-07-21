@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Công Ty Thiết Kế In Ấn Hội An </title>
+    <title>Công Ty Thiết Kế In Ấn Hội An</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Vietnamese IME Library -->
@@ -37,7 +37,6 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     <h1 class="text-lg md:text-xl font-bold">(Trợ Lý Ảo) Công Ty Thiết Kế In Ấn Hội An </h1>
                 </div>
-                <!-- Nút Admin đã được loại bỏ -->
             </header>
 
             <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900"></div>
@@ -60,8 +59,6 @@
         </main>
     </div>
 
-    <!-- Các Modal Admin đã được loại bỏ -->
-
     <script type="module">
         // Firebase is only used for anonymous auth to provide a unique user ID.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
@@ -77,7 +74,7 @@
         // State
         const MAX_IMAGES = 50;
         let chatHistory = [], uploadedImages = [];
-        let currentApiKeyIndex = 0; // Bắt đầu với key đầu tiên
+        let currentApiKeyIndex = 0; 
         
         // ===================================================================================
         // !!! CẤU HÌNH DUY NHẤT TẠI ĐÂY !!!
@@ -108,14 +105,35 @@
             const apiKey = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
+            // *** TỐI ƯU HÓA #1: Cải thiện chỉ dẫn hệ thống để AI trả lời chính xác và tập trung hơn. ***
+            const systemInstructionText = `
+                Bạn là một trợ lý AI chuyên nghiệp và hiệu quả của Công Ty Thiết Kế In Ấn Hội An.
+                Nhiệm vụ của bạn là trả lời câu hỏi của khách hàng một cách CHÍNH XÁC, NHANH CHÓNG và đi thẳng vào vấn đề.
+
+                **Thông tin quan trọng về công ty:**
+                - **Tên công ty:** Công Ty Thiết Kế In Ấn Hội An
+                - **Địa chỉ:** 69 Đào Duy Từ, Hội An, Quảng Nam, Việt Nam
+                - **Zalo / SĐT:** 0935 000 442
+
+                **Quy tắc trả lời:**
+                1.  **Ưu tiên sự chính xác:** Luôn dựa vào thông tin được cung cấp. Nếu không biết câu trả lời, hãy lịch sự nói: "Tôi không có thông tin về vấn đề này, bạn vui lòng liên hệ trực tiếp qua Zalo/SĐT 0935000442 để được hỗ trợ tốt nhất."
+                2.  **Nhanh và gọn:** Trả lời trực tiếp vào câu hỏi, không lan man, không thêm các thông tin không liên quan.
+                3.  **Luôn dùng tiếng Việt:** Giao tiếp 100% bằng tiếng Việt với giọng văn thân thiện và chuyên nghiệp.
+                4.  **Sử dụng thông tin công ty:** Khi được hỏi về địa chỉ, thông tin liên hệ, hoặc các dịch vụ liên quan, hãy sử dụng thông tin đã được cung cấp ở trên.
+            `;
+
             const payload = {
                 contents: chatHistory,
                 systemInstruction: {
-                    parts: [{
-                        text: "Bạn là một trợ lý AI cho một Công Ty Thiết Kế In Ấn Hội AN Địa chỉ : 69 Đào Duy Từ Hội An  zalo/sđt : 0935000442. Bạn phải luôn luôn trả lời bằng tiếng Việt. Hãy thân thiện và hữu ích."
-                    }]
+                    parts: [{ text: systemInstructionText }]
                 },
-                generationConfig: { temperature: 0.7, topP: 1, topK: 1, maxOutputTokens: 2048 }
+                // *** TỐI ƯU HÓA #2: Tinh chỉnh cấu hình để giảm tính ngẫu nhiên, tăng sự tập trung cho câu trả lời. ***
+                generationConfig: { 
+                    temperature: 0.3, // Giảm nhiệt độ để câu trả lời nhất quán hơn
+                    topP: 1, 
+                    topK: 32, // Cho phép một chút linh hoạt trong việc chọn từ ngữ
+                    maxOutputTokens: 2048 
+                }
             };
 
             try {
@@ -125,7 +143,7 @@
                     throw new Error(`Lỗi API: ${errorBody.error.message}`);
                 }
                 const result = await response.json();
-                if (result.candidates && result.candidates.length > 0) {
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts) {
                     return result.candidates[0].content.parts[0].text;
                 }
                 if (result.promptFeedback && result.promptFeedback.blockReason) {
@@ -134,10 +152,8 @@
                 throw new Error("Không nhận được phản hồi hợp lệ từ API.");
             } catch (error) {
                 console.error(`API key tại vị trí ${currentApiKeyIndex} thất bại:`, error.message);
-                // Chuyển sang key tiếp theo
                 currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
                 console.log(`Chuyển sang API key tại vị trí ${currentApiKeyIndex}`);
-                // Thử lại với key mới
                 return getGeminiResponse(retryCount + 1);
             }
         };
