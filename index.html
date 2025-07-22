@@ -34,7 +34,7 @@
             <!-- Header -->
             <header class="p-4 border-b dark:border-gray-700 flex items-center justify-between bg-blue-600 text-white">
                 <div class="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     <h1 class="text-lg md:text-xl font-bold">(Trợ Lý Ảo) Công Ty Thiết Kế In Ấn Hội An </h1>
                 </div>
                 <!-- User ID Display -->
@@ -155,7 +155,7 @@
         // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, query, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // DOM Elements
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
@@ -185,7 +185,7 @@
               priceListBody = document.getElementById('price-list-body'),
               priceFormError = document.getElementById('price-form-error'),
               closePriceManagementButton = document.getElementById('close-price-management');
-
+        
         const customMessageModal = document.getElementById('custom-message-modal');
         const customMessageText = document.getElementById('custom-message-text');
         const customMessageOkButton = document.getElementById('custom-message-ok');
@@ -276,7 +276,7 @@
                                 if (userKeyword.startsWith('be ')) userKeyword = 'bế ' + userKeyword.substring(3);
                                 if (userKeyword.startsWith('can ')) userKeyword = 'cán ' + userKeyword.substring(4);
                             }
-                            priceRules += `    - ${userKeyword}: ${formattedPrice} VNĐ/m².\n`;
+                            priceRules += `   - ${userKeyword}: ${formattedPrice} VNĐ/m².\n`;
                         }
                     }
                     priceRules += `\n`; // Add a newline after each customer's price list
@@ -800,14 +800,14 @@
             try {
                 // MANDATORY: Use __firebase_config provided by the Canvas environment.
                 // This ensures Firebase is configured correctly for the specific deployment.
-                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-                    apiKey: "YOUR_API_KEY", // Placeholder, replace with actual if not using Canvas environment
-                    authDomain: "your-project-id.firebaseapp.com",
-                    projectId: "your-project-id",
-                    storageBucket: "your-project-id.appspot.com",
-                    messagingSenderId: "your-sender-id",
-                    appId: "your-app-id",
-                    measurementId: "your-measurement-id"
+                const firebaseConfig = {
+                    apiKey: "AIzaSyBf4f1Uc21wZ7AkRx5oOAD_oCj_ZI_jQ7I",
+                    authDomain: "bot-ai-d1955.firebaseapp.com",
+                    projectId: "bot-ai-d1955",
+                    storageBucket: "bot-ai-d1955.appspot.com",
+                    messagingSenderId: "323490182108",
+                    appId: "1:323490182108:web:ea9195d17ac424bbc01519",
+                    measurementId: "G-7KXDBHRFM3"
                 };
                 console.log("Khởi tạo Firebase...");
                 app = initializeApp(firebaseConfig);
