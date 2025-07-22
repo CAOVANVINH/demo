@@ -282,6 +282,13 @@
                     priceRules += `\n`; // Add a newline after each customer's price list
                 }
             }
+            // Get current time in Hanoi timezone (GMT+7)
+            const now = new Date();
+            const offset = 7 * 60; // GMT+7 in minutes
+            const localTime = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (offset * 60000));
+            const formattedTime = localTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const formattedDate = localTime.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
 
             return `
                 Bạn là một trợ lý AI đa năng và hữu ích, được phát triển bởi Google.
@@ -299,6 +306,7 @@
                 Nếu quý khách hỏi về "Công Ty Thiết Kế In Ấn Hội An", dạ vâng, tôi có thể cung cấp thông tin sau:
                 - **Địa chỉ:** 69 Đào Duy Từ, Hội An.
                 - **Zalo / SĐT:** 0935 000 442.
+                - **Thời gian hiện tại ở Hà Nội:** ${formattedTime} ngày ${formattedDate} (GMT+7).
 
                 ${priceRules}
 
