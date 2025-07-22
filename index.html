@@ -37,6 +37,8 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     <h1 class="text-lg md:text-xl font-bold">(Trợ Lý Ảo) Công Ty Thiết Kế In Ấn Hội An </h1>
                 </div>
+                <!-- User ID Display -->
+                <div id="user-id-display" class="text-sm font-medium mr-4"></div>
                 <!-- Admin Button -->
                 <button id="admin-button" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold text-sm">Quản lý giá</button>
             </header>
@@ -88,6 +90,17 @@
         <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-h-[90vh] overflow-y-auto">
             <h2 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Quản lý Giá Vật tư</h2>
 
+            <!-- Customer Selection -->
+            <div class="mb-6 p-4 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700">
+                <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Chọn Khách hàng</h3>
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                    <input type="text" id="customer-select-input" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-white dark:bg-gray-600" placeholder="Nhập tên khách hàng hoặc 'mặc định'" value="mặc định">
+                    <button type="button" id="load-customer-prices-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Tải giá khách hàng</button>
+                </div>
+                <p id="current-customer-display" class="mt-2 text-sm text-gray-700 dark:text-gray-300">Đang quản lý giá cho: <strong>Mặc định</strong></p>
+                <div id="customer-select-error" class="text-red-500 text-xs italic mt-2 hidden"></div>
+            </div>
+
             <!-- Add New Item Form -->
             <div class="mb-6 p-4 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700">
                 <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Thêm/Chỉnh sửa Vật tư</h3>
@@ -130,10 +143,19 @@
         </div>
     </div>
 
+    <!-- Custom Message Modal -->
+    <div id="custom-message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-[100]">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center">
+            <p id="custom-message-text" class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100"></p>
+            <button id="custom-message-ok" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">OK</button>
+        </div>
+    </div>
+
     <script type="module">
-        // Firebase is only used for anonymous auth to provide a unique user ID.
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // DOM Elements
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
@@ -151,6 +173,10 @@
               adminLoginError = document.getElementById('admin-login-error'),
               adminLoginCancelButton = document.getElementById('admin-login-cancel'),
               priceManagementModal = document.getElementById('price-management-modal'),
+              customerSelectInput = document.getElementById('customer-select-input'),
+              loadCustomerPricesButton = document.getElementById('load-customer-prices-button'),
+              currentCustomerDisplay = document.getElementById('current-customer-display'),
+              customerSelectError = document.getElementById('customer-select-error'),
               addEditPriceForm = document.getElementById('add-edit-price-form'),
               itemNameInput = document.getElementById('item-name'),
               itemPriceInput = document.getElementById('item-price'),
@@ -160,25 +186,30 @@
               priceFormError = document.getElementById('price-form-error'),
               closePriceManagementButton = document.getElementById('close-price-management');
 
+        const customMessageModal = document.getElementById('custom-message-modal');
+        const customMessageText = document.getElementById('custom-message-text');
+        const customMessageOkButton = document.getElementById('custom-message-ok');
+        const userIdDisplay = document.getElementById('user-id-display');
+
 
         // State
         const MAX_IMAGES = 50;
-        let chatHistory = [], uploadedImages = [];
+        let chatHistory = []; // In-memory chat history
+        let uploadedImages = [];
         let currentApiKeyIndex = 0;
         let editingItemName = null; // To track which item is being edited
 
-        // Default prices (can be overridden by localStorage)
-        let prices = {
-            decal: 85000,
-            inDecalTho: 80000,
-            decalBe: 145000,
-            inBat: 35000,
-            inBatTho: 30000,
-            canMan: 100000
-        };
+        // Firebase State
+        let app, db, auth, userId;
+        let isAuthReady = false; // Flag to ensure Firestore operations wait for auth
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Prices will be loaded from Firestore
+        let allCustomerPrices = {}; // { 'default': { displayName: 'Mặc định', items: { decal: 85000, ... } }, 'khach_hang_a': { ... } }
+        let currentManagingCustomerSlug = 'mặc_định'; // Slug for the customer whose prices are currently being managed in admin panel
 
         // ===================================================================================
-        // !!! CẤU HÌNH DUY NHẤT TẠI ĐÂY !!!
+        // !!! CẤU HÌNH DUY NHẤT TẠY ĐÂY !!!
         // THAY THẾ CÁC KEY MẪU BẰNG API KEY THẬT CỦA BẠN.
         // CẢNH BÁO: KHÔNG ĐĂNG TẢI FILE NÀY LÊN INTERNET CÔNG CỘNG VÌ SẼ LÀM LỘ KEY.
         // ===================================================================================
@@ -188,143 +219,102 @@
             "AIzaSyDxr0SL3tbWE2kdp2oBB3Ru4UxpbuimZD0",
             "AIzaSyBR-duVUWZG-lD5usabYD3NS_-tZySMlcA",
             "AIzaSyBNagv3kn8vAJzbyMYlvLLCccNGbFa4ySc",
-            // Thêm các key khác vào đây, mỗi key là một chuỗi trong mảng.
+            // Add other keys here, each key is a string in the array.
         ];
-
-        // Firebase State (Auth only)
-        let auth, userId;
 
         // --- Core Functions ---
 
-        // Generates the system instruction text for the AI, including dynamic pricing rules.
-        const generateSystemInstruction = (currentPrices) => {
-            let priceRules = '';
-            for (const key in currentPrices) {
-                if (currentPrices.hasOwnProperty(key)) {
-                    const price = currentPrices[key];
-                    const formattedPrice = price.toLocaleString('vi-VN'); // Format price for display in instruction
-                    let userKeyword = '';
-                    let calculationFormula = '';
+        // Helper to convert Vietnamese string to a URL-friendly slug
+        const slugify = (text) => {
+            return text
+                .toString()
+                .normalize('NFD') // Split accented characters into base character and diacritic
+                .replace(/[\u0300-\u036f]/g, '') // Remove diacritic marks
+                .toLowerCase() // Convert to lowercase
+                .trim() // Trim leading/trailing whitespace
+                .replace(/\s+/g, '_') // Replace spaces with underscores
+                .replace(/[^\w-]+/g, '') // Remove all non-word characters (except dashes)
+                .replace(/--+/g, '_'); // Replace multiple dashes with a single underscore
+        };
 
-                    // Map keys to Vietnamese keywords and formulas for AI instruction
-                    if (key === 'decal') {
-                        userKeyword = 'decal trắng';
-                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
-                        priceRules += `
-                        **Tính toán giá ${userKeyword}:**
-                        Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **decal**, bạn hãy thực hiện tính toán giá.
-                        - Giá decal trắng là ${formattedPrice} VNĐ/m².
-                        - Công thức tính: ${calculationFormula}.
-                        - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
-                        - Ví dụ: "0,2x0,5x2 decal" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 decal.
-                        - Ví dụ: "0,2x0,5 decal" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 decal.
-                        `;
-                    } else if (key === 'inDecalTho') {
-                        userKeyword = 'in decal thợ';
-                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
-                        priceRules += `
-                        **Tính toán giá ${userKeyword}:**
-                        Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **in decal thợ**, bạn hãy thực hiện tính toán giá.
-                        - Giá in decal thợ là ${formattedPrice} VNĐ/m².
-                        - Công thức tính: ${calculationFormula}.
-                        - Ví dụ: "0,2x0,5x2 in decal thợ" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in decal thợ.
-                        `;
-                    } else if (key === 'decalBe') {
-                        userKeyword = 'decal bế (hoặc bế)';
-                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
-                        priceRules += `
-                        **Tính toán giá ${userKeyword}:**
-                        Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **decal bế** hoặc chỉ **bế**, bạn hãy thực hiện tính toán giá.
-                        - Giá decal bế là ${formattedPrice} VNĐ/m².
-                        - Công thức tính: ${calculationFormula}.
-                        - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
-                        - Ví dụ: "0,2x0,5x2 decal bế" hoặc "0,2x0,5x2 bế" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 decal bế.
-                        - Ví dụ: "0,2x0,5 decal bế" hoặc "0,2x0,5 bế" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 decal bế.
-                        `;
-                    } else if (key === 'inBat') {
-                        userKeyword = 'in bạt';
-                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
-                        priceRules += `
-                        **Tính toán giá ${userKeyword}:**
-                        Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **in bạt**, bạn hãy thực hiện tính toán giá.
-                        - Giá in bạt là ${formattedPrice} VNĐ/m².
-                        - Công thức tính: ${calculationFormula}.
-                        - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
-                        - Ví dụ: "0,2x0,5x2 in bạt" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in bạt.
-                        - Ví dụ: "0,2x0,5 in bạt" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 in bạt.
-                        `;
-                    } else if (key === 'inBatTho') {
-                        userKeyword = 'in bạt thợ';
-                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
-                        priceRules += `
-                        **Tính toán giá ${userKeyword}:**
-                        Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **in bạt thợ**, bạn hãy thực hiện tính toán giá.
-                        - Giá in bạt thợ là ${formattedPrice} VNĐ/m².
-                        - Công thức tính: ${calculationFormula}.
-                        - Ví dụ: "0,2x0,5x2 in bạt thợ" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in bạt thợ.
-                        `;
-                    } else if (key === 'canMan') {
-                        userKeyword = 'cán màn';
-                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
-                        priceRules += `
-                        **Tính toán giá ${userKeyword}:**
-                        Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **cán màn**, bạn hãy thực hiện tính toán giá.
-                        - Giá cán màn là ${formattedPrice} VNĐ/m².
-                        - Công thức tính: ${calculationFormula}.
-                        - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
-                        - Ví dụ: "0,2x0,5x2 cán màn" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 cán màn.
-                        - Ví dụ: "0,2x0,5 cán màn" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 cán màn.
-                        `;
-                    } else {
-                        // For custom added items, convert camelCase to readable Vietnamese
-                        userKeyword = key.replace(/([A-Z])/g, ' $1').toLowerCase();
-                        // Attempt to translate common prefixes
-                        if (userKeyword.startsWith('in ')) userKeyword = 'in ' + userKeyword.substring(3);
-                        if (userKeyword.startsWith('decal ')) userKeyword = 'decal ' + userKeyword.substring(6);
-                        if (userKeyword.startsWith('bế ')) userKeyword = 'bế ' + userKeyword.substring(2);
-                        if (userKeyword.startsWith('cán ')) userKeyword = 'cán ' + userKeyword.substring(4);
-                        
-                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
-                        priceRules += `
-                        **Tính toán giá ${userKeyword}:**
-                        Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **${userKeyword}**, bạn hãy thực hiện tính toán giá.
-                        - Giá ${userKeyword} là ${formattedPrice} VNĐ/m².
-                        - Công thức tính: ${calculationFormula}.
-                        - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
-                        - Ví dụ: "0,2x0,5x2 ${userKeyword}" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 ${userKeyword}.
-                        `;
+        // Generates the system instruction text for the AI, including dynamic pricing rules.
+        const generateSystemInstruction = (allPrices) => {
+            let priceRules = '';
+            priceRules += `
+                **Thông tin giá vật tư theo khách hàng:**
+            `;
+
+            for (const customerSlug in allPrices) {
+                if (allPrices.hasOwnProperty(customerSlug)) {
+                    const customerData = allPrices[customerSlug];
+                    const customerDisplayName = customerData.displayName;
+                    const items = customerData.items;
+
+                    priceRules += `- **Giá cho ${customerDisplayName} (tên khách hàng: "${customerDisplayName}"):**\n`;
+                    for (const itemName in items) {
+                        if (items.hasOwnProperty(itemName)) {
+                            const price = items[itemName];
+                            const formattedPrice = price.toLocaleString('vi-VN');
+                            let userKeyword = itemName; // Default to key
+
+                            // Map keys to Vietnamese keywords for AI instruction (same as before)
+                            if (itemName === 'decal') userKeyword = 'decal trắng';
+                            else if (itemName === 'inDecalTho') userKeyword = 'in decal thợ';
+                            else if (itemName === 'decalBe') userKeyword = 'decal bế (hoặc bế)';
+                            else if (itemName === 'inBat') userKeyword = 'in bạt';
+                            else if (itemName === 'inBatTho') userKeyword = 'in bạt thợ';
+                            else if (itemName === 'canMan') userKeyword = 'cán màn';
+                            else {
+                                userKeyword = itemName.replace(/([A-Z])/g, ' $1').toLowerCase();
+                                if (userKeyword.startsWith('in ')) userKeyword = 'in ' + userKeyword.substring(3);
+                                if (userKeyword.startsWith('decal ')) userKeyword = 'decal ' + userKeyword.substring(6);
+                                if (userKeyword.startsWith('be ')) userKeyword = 'bế ' + userKeyword.substring(3);
+                                if (userKeyword.startsWith('can ')) userKeyword = 'cán ' + userKeyword.substring(4);
+                            }
+                            priceRules += `    - ${userKeyword}: ${formattedPrice} VNĐ/m².\n`;
+                        }
                     }
+                    priceRules += `\n`; // Add a newline after each customer's price list
                 }
             }
 
             return `
-                Bạn là một trợ lý AI đa năng và hữu ích, được phát triển bởi Google, có khả năng tương tự như Gemini.
-                Nhiệm vụ của bạn là hỗ trợ người dùng một cách tốt nhất có thể trong mọi lĩnh vực.
+                Bạn là một trợ lý AI đa năng và hữu ích, được phát triển bởi Google.
+                Nhiệm vụ của bạn là hỗ trợ người dùng một cách tốt nhất có thể trong mọi lĩnh vực, đặc biệt là tư vấn về thiết kế và in ấn.
+                **Hãy luôn nói chuyện nhẹ nhàng, lịch sự, tôn trọng khách hàng hết mức và thường xuyên sử dụng "dạ vâng" trong các câu trả lời.**
 
                 **Khả năng của bạn:**
-                - Trả lời các câu hỏi kiến thức chung, giải thích các khái niệm phức tạp.
-                - Phân tích và mô tả nội dung hình ảnh do người dùng cung cấp. Bạn có thể đọc văn bản trong ảnh, nhận dạng đối tượng, và mô tả cảnh vật.
-                - Sáng tạo nội dung: viết văn, làm thơ, soạn email, v.v.
-                - Hỗ trợ lập trình, dịch thuật và nhiều tác vụ khác.
-                - Luôn luôn trả lời bằng tiếng Việt một cách tự nhiên và thân thiện.
+                - Dạ vâng, tôi có thể trả lời các câu hỏi kiến thức chung, giải thích các khái niệm phức tạp một cách rõ ràng.
+                - Dạ vâng, tôi có thể phân tích và mô tả nội dung hình ảnh do quý khách cung cấp. Tôi có thể đọc văn bản trong ảnh, nhận dạng đối tượng, và mô tả cảnh vật.
+                - Dạ vâng, tôi có thể sáng tạo nội dung: viết văn, làm thơ, soạn email, v.v.
+                - Dạ vâng, tôi có thể hỗ trợ lập trình, dịch thuật và nhiều tác vụ khác.
+                - Dạ vâng, tôi luôn luôn trả lời bằng tiếng Việt một cách tự nhiên và thân thiện nhất.
 
                 **Thông tin bổ sung (chỉ cung cấp khi được hỏi):**
-                Nếu người dùng hỏi về "Công Ty Thiết Kế In Ấn Hội An", bạn có thể cung cấp thông tin sau:
+                Nếu quý khách hỏi về "Công Ty Thiết Kế In Ấn Hội An", dạ vâng, tôi có thể cung cấp thông tin sau:
                 - **Địa chỉ:** 69 Đào Duy Từ, Hội An.
                 - **Zalo / SĐT:** 0935 000 442.
 
                 ${priceRules}
 
+                **Quy tắc tính toán giá:**
+                - Dạ vâng, khi quý khách yêu cầu giá, tôi sẽ **luôn ưu tiên sử dụng giá của khách hàng cụ thể nếu tên khách hàng được nhắc đến trong yêu cầu**. Ví dụ: "Dạ vâng, giá decal cho Khách hàng A là bao nhiêu ạ?", "Khách hàng B muốn in bạt thì giá thế nào ạ?".
+                - Nếu không có tên khách hàng nào được nhắc đến, hoặc tên khách hàng được nhắc đến nhưng không có giá riêng, dạ vâng, tôi sẽ **luôn sử dụng "Giá cho Mặc định"**.
+                - Công thức tính: (chiều dài * chiều rộng * số lượng) * giá trên mỗi mét vuông.
+                - Nếu quý khách không cung cấp số lượng, dạ vâng, tôi sẽ mặc định số lượng là 1.
+                - Ví dụ: "Dạ vâng, 0,2x0,5x2 decal cho Khách hàng A sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 decal, và tôi sẽ áp dụng giá của Khách hàng A ạ."
+                - Ví dụ: "Dạ vâng, 0,2x0,5 in bạt sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 in bạt, và tôi sẽ áp dụng giá mặc định ạ."
+
                 **Tính thêm phí hóa đơn:**
-                Nếu người dùng nói "có hóa đơn" hoặc "lấy hóa đơn" hoặc "xuất hóa đơn" trong cùng một yêu cầu tính giá, hãy tính thêm 8% trên tổng tổng giá trị đã tính.
+                Nếu quý khách nói "có hóa đơn" hoặc "lấy hóa đơn" hoặc "xuất hóa đơn" trong cùng một yêu cầu tính giá, dạ vâng, tôi sẽ tính thêm 8% trên tổng tổng giá trị đã tính ạ.
                 - Công thức: Tổng giá * 1.08.
-                - Hãy thông báo rõ ràng về việc cộng thêm 8% cho hóa đơn.
+                - Dạ vâng, tôi sẽ thông báo rõ ràng về việc cộng thêm 8% cho hóa đơn ạ.
 
-                - Luôn làm tròn kết quả đến hai chữ số thập phân nếu cần và hiển thị đơn vị VNĐ.
-                - **QUAN TRỌNG:** Khi hiển thị kết quả giá tiền, hãy định dạng số theo kiểu "000,000,000 VNĐ" (ví dụ: 123,456,789 VNĐ).
+                - Dạ vâng, tôi sẽ luôn làm tròn kết quả đến hai chữ số thập phân nếu cần và hiển thị đơn vị VNĐ.
+                - **QUAN TRỌNG:** Khi hiển thị kết quả giá tiền, dạ vâng, tôi sẽ định dạng số theo kiểu "000,000,000 VNĐ" (ví dụ: 123,456,789 VNĐ).
 
-                **QUAN TRỌNG:** Sau mỗi câu trả lời, hãy thêm một dòng quảng cáo lịch sự về công ty "Công Ty Thiết Kế In Ấn Hội An" như sau:
-                "---<br>Bạn có cần thiết kế hay in ấn chuyên nghiệp tại Hội An? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất!"
+                **QUAN TRỌNG:** Sau mỗi câu trả lời, dạ vâng, tôi sẽ thêm một dòng quảng cáo lịch sự về công ty "Công Ty Thiết Kế In Ấn Hội An" như sau:
+                "---<br>Dạ vâng, quý khách có cần thiết kế hay in ấn chuyên nghiệp tại Hội An không ạ? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất ạ!"
             `;
         };
 
@@ -340,7 +330,7 @@
             const apiKey = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-            const systemInstructionText = generateSystemInstruction(prices); // Use dynamically generated instruction
+            const systemInstructionText = generateSystemInstruction(allCustomerPrices); // Use dynamically generated instruction based on all loaded prices
 
             const payload = {
                 contents: chatHistory,
@@ -388,14 +378,17 @@
                 return;
             }
 
+            // Prepare data for UI display
             const userMessageData = { text: message, images: uploadedImages.map(img => img.file) };
             appendMessage(userMessageData, 'user');
 
+            // Prepare chat history for Gemini API call (in-memory only)
             const userParts = [];
             if (message) userParts.push({ text: message });
             uploadedImages.forEach(img => userParts.push({ inlineData: { mimeType: img.mimeType, data: img.data } }));
             chatHistory.push({ role: "user", parts: userParts });
 
+            // Clear input fields
             userInput.value = '';
             imagePreviewContainer.innerHTML = '';
             uploadedImages = [];
@@ -404,11 +397,16 @@
             toggleLoading(true);
             try {
                 const botResponse = await getGeminiResponse();
+                
+                // Display bot response
                 appendMessage({ text: botResponse }, 'bot');
+                
+                // Update in-memory chat history for next API call
                 chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
+
             } catch (error) {
                 console.error('Lỗi cuối cùng khi gửi tin nhắn:', error);
-                appendMessage({ text: error.message }, 'bot', true);
+                appendMessage({ text: error.message }, 'bot', true); // Display error in UI
             } finally {
                 toggleLoading(false);
             }
@@ -416,38 +414,155 @@
 
         // --- Admin Panel Logic ---
 
-        // Load prices from localStorage or use default
-        const loadPrices = () => {
-            try {
-                const storedPrices = localStorage.getItem('companyPrices');
-                if (storedPrices) {
-                    prices = JSON.parse(storedPrices);
+        // Setup Firestore listener for all customer prices
+        const setupPriceListener = () => {
+            if (!db || !isAuthReady) {
+                console.warn("Firestore hoặc Auth chưa sẵn sàng để thiết lập listener giá.");
+                return;
+            }
+            console.log("Thiết lập lắng nghe tất cả giá khách hàng từ Firestore...");
+            const customerPricesCollectionRef = collection(db, `artifacts/${appId}/public/data/customerPrices`);
+            onSnapshot(customerPricesCollectionRef, (snapshot) => {
+                const newAllCustomerPrices = {};
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.displayName && data.items && typeof data.items === 'object') {
+                        newAllCustomerPrices[doc.id] = {
+                            displayName: data.displayName,
+                            items: data.items
+                        };
+                    }
+                });
+                allCustomerPrices = newAllCustomerPrices; // Update the global prices object
+                console.log("Tất cả giá khách hàng đã được cập nhật từ Firestore:", allCustomerPrices);
+                renderPriceList(currentManagingCustomerSlug); // Re-render the admin price list for the current customer
+                // Ensure 'mặc định' customer exists, create if not
+                if (!allCustomerPrices['mặc_định']) {
+                    saveCustomerPrices('mặc định', {
+                        decal: 85000,
+                        inDecalTho: 80000,
+                        decalBe: 145000,
+                        inBat: 35000,
+                        inBatTho: 30000,
+                        canMan: 100000
+                    });
                 }
+            }, (error) => {
+                console.error("Lỗi khi lắng nghe cập nhật giá từ Firestore:", error);
+                showCustomMessage("Lỗi: Không thể tải giá từ cơ sở dữ liệu. Vui lòng thử lại sau.", 'error');
+            });
+        };
+
+        // Save/Update customer's prices to Firestore
+        const saveCustomerPrices = async (customerDisplayName, itemsData) => {
+            if (!db || !isAuthReady) {
+                customerSelectError.textContent = 'Hệ thống chưa sẵn sàng. Vui lòng đợi hoặc thử lại.';
+                customerSelectError.classList.remove('hidden');
+                return false;
+            }
+            const customerSlug = slugify(customerDisplayName);
+            try {
+                const customerDocRef = doc(db, `artifacts/${appId}/public/data/customerPrices`, customerSlug);
+                await setDoc(customerDocRef, {
+                    displayName: customerDisplayName,
+                    items: itemsData
+                }, { merge: true }); // Use merge to update only the 'items' field
+                console.log(`Giá cho khách hàng "${customerDisplayName}" đã được lưu/cập nhật.`);
+                customerSelectError.classList.add('hidden');
+                return true; // Indicate success
             } catch (e) {
-                console.error("Lỗi khi tải giá từ localStorage:", e);
-                // Fallback to default prices if parsing fails
-                prices = {
-                    decal: 85000,
-                    inDecalTho: 80000,
-                    decalBe: 145000,
-                    inBat: 35000,
-                    inBatTho: 30000,
-                    canMan: 100000
-                };
+                console.error("Lỗi khi lưu giá khách hàng:", e);
+                customerSelectError.textContent = `Lỗi khi lưu giá khách hàng: ${e.message}`;
+                customerSelectError.classList.remove('hidden');
+                return false; // Indicate failure
             }
         };
 
-        // Save prices to localStorage
-        const savePrices = () => {
-            localStorage.setItem('companyPrices', JSON.stringify(prices));
+        // Save/Update a specific item's price for the current managing customer
+        const saveItemPriceForCurrentCustomer = async (itemName, itemPrice) => {
+            if (!db || !isAuthReady) {
+                priceFormError.textContent = 'Hệ thống chưa sẵn sàng. Vui lòng đợi hoặc thử lại.';
+                priceFormError.classList.remove('hidden');
+                return false;
+            }
+            const customerSlug = currentManagingCustomerSlug;
+            const customerDisplayName = allCustomerPrices[customerSlug]?.displayName || customerSelectInput.value.trim();
+
+            if (!customerDisplayName) {
+                priceFormError.textContent = 'Vui lòng chọn hoặc nhập tên khách hàng trước khi lưu vật tư.';
+                priceFormError.classList.remove('hidden');
+                return false;
+            }
+
+            try {
+                const customerDocRef = doc(db, `artifacts/${appId}/public/data/customerPrices`, customerSlug);
+                const updateData = {
+                    displayName: customerDisplayName, // Ensure display name is set
+                    items: {
+                        [itemName]: itemPrice
+                    }
+                };
+                await setDoc(customerDocRef, updateData, { merge: true });
+                console.log(`Vật tư "${itemName}" cho khách hàng "${customerDisplayName}" đã được lưu/cập nhật.`);
+                priceFormError.classList.add('hidden');
+                return true;
+            } catch (e) {
+                console.error("Lỗi khi lưu vật tư cho khách hàng:", e);
+                priceFormError.textContent = `Lỗi khi lưu vật tư: ${e.message}`;
+                priceFormError.classList.remove('hidden');
+                return false;
+            }
         };
 
-        // Render the price list in the admin modal
-        const renderPriceList = () => {
+        // Delete a specific item's price for the current managing customer
+        const deleteItemPriceForCurrentCustomer = async (itemName) => {
+            if (!db || !isAuthReady) {
+                showCustomMessage('Hệ thống chưa sẵn sàng để xóa vật tư. Vui lòng đợi hoặc thử lại.', 'error');
+                return false;
+            }
+            const customerSlug = currentManagingCustomerSlug;
+            const customerDisplayName = allCustomerPrices[customerSlug]?.displayName || customerSelectInput.value.trim();
+
+            if (!customerDisplayName) {
+                showCustomMessage('Vui lòng chọn hoặc nhập tên khách hàng trước khi xóa vật tư.', 'error');
+                return false;
+            }
+
+            try {
+                const customerDocRef = doc(db, `artifacts/${appId}/public/data/customerPrices`, customerSlug);
+                // To delete a field within a map, you need to update the map by setting the field to FieldValue.delete()
+                // However, FieldValue.delete is not directly supported for nested fields in a simple update.
+                // The easiest way is to read the document, remove the item, and then write the updated items map.
+                const customerDocSnap = await getDoc(customerDocRef);
+                if (customerDocSnap.exists()) {
+                    const currentItems = customerDocSnap.data().items || {};
+                    delete currentItems[itemName];
+                    await setDoc(customerDocRef, { items: currentItems }, { merge: true });
+                    console.log(`Vật tư "${itemName}" cho khách hàng "${customerDisplayName}" đã được xóa.`);
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                console.error("Lỗi khi xóa vật tư cho khách hàng:", e);
+                showCustomMessage(`Lỗi khi xóa vật tư: ${e.message}`, 'error');
+                return false;
+            }
+        };
+
+
+        // Render the price list in the admin modal for a specific customer
+        const renderPriceList = (customerSlug) => {
             priceListBody.innerHTML = ''; // Clear existing list
-            for (const key in prices) {
-                if (prices.hasOwnProperty(key)) {
-                    const price = prices[key];
+            const customerData = allCustomerPrices[customerSlug];
+
+            if (!customerData || !customerData.items || Object.keys(customerData.items).length === 0) {
+                priceListBody.innerHTML = `<tr><td colspan="3" class="py-3 px-6 text-center text-gray-500 dark:text-gray-400">Chưa có vật tư nào được định giá cho khách hàng này.</td></tr>`;
+                return;
+            }
+
+            for (const key in customerData.items) {
+                if (customerData.items.hasOwnProperty(key)) {
+                    const price = customerData.items[key];
                     const row = document.createElement('tr');
                     row.className = 'border-b border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600';
                     row.innerHTML = `
@@ -468,7 +583,7 @@
                     const itemName = e.target.dataset.itemName;
                     editingItemName = itemName;
                     itemNameInput.value = itemName;
-                    itemPriceInput.value = prices[itemName];
+                    itemPriceInput.value = allCustomerPrices[customerSlug].items[itemName];
                     itemNameInput.readOnly = true; // Prevent changing name when editing
                     saveItemButton.textContent = 'Cập nhật Vật tư';
                     cancelEditButton.classList.remove('hidden');
@@ -479,18 +594,33 @@
             document.querySelectorAll('.delete-item-button').forEach(button => {
                 button.addEventListener('click', (e) => {
                     const itemName = e.target.dataset.itemName;
-                    // Use a custom modal for confirmation instead of alert/confirm
-                    showCustomConfirm(`Bạn có chắc chắn muốn xóa "${itemName}" không?`, () => {
-                        delete prices[itemName];
-                        savePrices();
-                        renderPriceList();
-                        // Optionally, re-initialize chat history to clear old instructions
-                        chatHistory = [];
-                        appendMessage({ text: "Đã cập nhật giá. Lịch sử trò chuyện đã được làm mới để áp dụng giá mới." }, 'bot');
+                    showCustomConfirm(`Bạn có chắc chắn muốn xóa "${itemName}" cho khách hàng này không?`, async () => {
+                        const success = await deleteItemPriceForCurrentCustomer(itemName);
+                        if (success) {
+                            // No need to clear chat history here, as AI will dynamically adapt
+                            // based on the updated allCustomerPrices.
+                            showCustomMessage(`Đã xóa vật tư "${itemName}" cho khách hàng này.`, 'success');
+                        }
                     });
                 });
             });
         };
+
+        // Load prices for a specific customer in the admin panel
+        loadCustomerPricesButton.addEventListener('click', () => {
+            const customerName = customerSelectInput.value.trim();
+            if (!customerName) {
+                customerSelectError.textContent = 'Vui lòng nhập tên khách hàng.';
+                customerSelectError.classList.remove('hidden');
+                return;
+            }
+            const customerSlug = slugify(customerName);
+            currentManagingCustomerSlug = customerSlug;
+            currentCustomerDisplay.innerHTML = `Đang quản lý giá cho: <strong>${customerName}</strong>`;
+            customerSelectError.classList.add('hidden');
+            renderPriceList(currentManagingCustomerSlug);
+            resetAddEditForm(); // Clear the add/edit form when switching customers
+        });
 
         // Custom confirmation modal (replaces alert/confirm)
         function showCustomConfirm(message, onConfirm) {
@@ -516,6 +646,27 @@
             });
         }
 
+        // Custom message modal
+        function showCustomMessage(message, type = 'info') {
+            customMessageText.textContent = message;
+            let bgColor = 'bg-blue-600';
+            let hoverBgColor = 'hover:bg-blue-700';
+            if (type === 'error') {
+                bgColor = 'bg-red-600';
+                hoverBgColor = 'hover:bg-red-700';
+            } else if (type === 'success') {
+                bgColor = 'bg-green-600';
+                hoverBgColor = 'hover:bg-green-700';
+            }
+            customMessageOkButton.className = `bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg`; // Reset classes
+            customMessageOkButton.classList.add(bgColor, hoverBgColor, 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+            customMessageModal.classList.remove('hidden');
+        }
+
+        customMessageOkButton.addEventListener('click', () => {
+            customMessageModal.classList.add('hidden');
+        });
+
 
         // Admin button click handler
         adminButton.addEventListener('click', () => {
@@ -532,9 +683,8 @@
             if (username === 'admin' && password === 'admin') {
                 adminLoginModal.classList.add('hidden');
                 priceManagementModal.classList.remove('hidden');
-                loadPrices(); // Load prices when admin panel is opened
-                renderPriceList();
-                priceFormError.classList.add('hidden'); // Hide any previous errors
+                customerSelectError.classList.add('hidden'); // Hide any previous errors
+                renderPriceList(currentManagingCustomerSlug); // Render default prices initially
             } else {
                 adminLoginError.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
                 adminLoginError.classList.remove('hidden');
@@ -556,7 +706,7 @@
         });
 
         // Add/Edit price form submission
-        addEditPriceForm.addEventListener('submit', (e) => {
+        addEditPriceForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const itemName = itemNameInput.value.trim();
             const itemPrice = parseFloat(itemPriceInput.value);
@@ -567,35 +717,24 @@
                 return;
             }
 
-            // Convert item name to camelCase for consistent key storage
             const camelCaseItemName = itemName.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
                 return index === 0 ? word.toLowerCase() : word.toUpperCase();
             }).replace(/\s+/g, '');
 
-            if (editingItemName) {
-                // Editing existing item
-                if (editingItemName !== camelCaseItemName) {
-                     // If name was changed, delete old key and add new one
-                    delete prices[editingItemName];
-                }
-                prices[camelCaseItemName] = itemPrice;
-            } else {
-                // Adding new item
-                if (prices.hasOwnProperty(camelCaseItemName)) {
-                    priceFormError.textContent = `Vật tư "${itemName}" đã tồn tại. Vui lòng chỉnh sửa hoặc chọn tên khác.`;
-                    priceFormError.classList.remove('hidden');
-                    return;
-                }
-                prices[camelCaseItemName] = itemPrice;
+            // Check if item already exists for the current customer if not editing
+            if (!editingItemName && allCustomerPrices[currentManagingCustomerSlug]?.items?.hasOwnProperty(camelCaseItemName)) {
+                priceFormError.textContent = `Vật tư "${itemName}" đã tồn tại cho khách hàng này. Vui lòng chỉnh sửa hoặc chọn tên khác.`;
+                priceFormError.classList.remove('hidden');
+                return;
             }
 
-            savePrices();
-            renderPriceList();
-            resetAddEditForm();
-            priceFormError.classList.add('hidden');
-            // Optionally, re-initialize chat history to clear old instructions
-            chatHistory = [];
-            appendMessage({ text: "Đã cập nhật giá. Lịch sử trò chuyện đã được làm mới để áp dụng giá mới." }, 'bot');
+            const success = await saveItemPriceForCurrentCustomer(camelCaseItemName, itemPrice);
+            if (success) {
+                resetAddEditForm();
+                showCustomMessage(`Đã lưu vật tư "${itemName}" cho khách hàng này.`, 'success');
+                // No need to clear chat history here, as AI will dynamically adapt
+                // based on the updated allCustomerPrices.
+            }
         });
 
         // Cancel editing
@@ -616,46 +755,97 @@
 
         // --- Initialization ---
         const initializeAppUI = () => {
+            if (typeof window.VanillaTelex !== 'undefined') {
+                new window.VanillaTelex(userInput);
+            } else {
+                console.warn("VanillaTelex is not defined. Telex input might not work.");
+            }
             appendMessage({ text: "Xin chào! Tôi là trợ lý ảo đa năng. Tôi có thể giúp gì cho bạn hôm nay?" }, 'bot');
-            new VanillaTelex(userInput);
         };
 
         const main = async () => {
-            loadPrices(); // Load prices on app start
             initializeAppUI();
             try {
-                // Firebase vẫn được dùng để xác thực ẩn danh, cung cấp một User ID duy nhất
-                // cho mỗi người dùng, hữu ích cho việc theo dõi phiên làm việc.
-                const firebaseConfig = typeof __firebase_config !== 'undefined'
-                    ? JSON.parse(__firebase_config)
-                    : { apiKey: "YOUR_FALLBACK_API_KEY", authDomain: "YOUR_FALLBACK_AUTH_DOMAIN", projectId: "YOUR_FALLBACK_PROJECT_ID" };
-
-                const app = initializeApp(firebaseConfig);
+                const firebaseConfig = {
+                    apiKey: "AIzaSyCSV5oLXIXh06BrupSwBD9z_gfjxTiCbRs",
+                    authDomain: "hang-order.firebaseapp.com",
+                    projectId: "hang-order",
+                    storageBucket: "hang-order.firebasestorage.app",
+                    messagingSenderId: "963841437618",
+                    appId: "1:963841437618:web:40f43ce2896d2a643c7eab",
+                    measurementId: "G-VRY3HH241B"
+                };
+                console.log("Khởi tạo Firebase...");
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
                 auth = getAuth(app);
+                console.log("Firebase đã được khởi tạo.");
 
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
+                        userIdDisplay.textContent = `User ID: ${userId}`;
                         console.log("Đã xác thực với User ID:", userId);
+                        isAuthReady = true;
+                        // Start listening to prices *after* auth is ready
+                        setupPriceListener(); // This listener will populate allCustomerPrices
                     } else {
                         console.log("Người dùng chưa đăng nhập.");
+                        userId = null;
+                        userIdDisplay.textContent = '';
+                        isAuthReady = false;
+                        // Clear UI if user logs out or is not authenticated
+                        document.querySelector('.chat-container').innerHTML = '';
+                        chatHistory = [];
+                        appendMessage({ text: "Vui lòng đăng nhập hoặc đợi hệ thống khởi tạo." }, 'bot');
                     }
                 });
 
+                console.log("Đang cố gắng đăng nhập Firebase...");
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+                    try {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                        console.log("Đăng nhập bằng Custom Token thành công.");
+                    } catch (customTokenError) {
+                        console.error("Lỗi khi đăng nhập bằng Custom Token, thử đăng nhập ẩn danh:", customTokenError);
+                        await signInAnonymously(auth);
+                        console.log("Đăng nhập ẩn danh thành công sau khi Custom Token thất bại.");
+                    }
                 } else {
                     await signInAnonymously(auth);
+                    console.log("Đăng nhập ẩn danh thành công (không có Custom Token).");
                 }
 
             } catch (error) {
-                console.error("Lỗi khởi tạo Firebase Auth:", error);
-                appendMessage({ text: "Lỗi: Không thể khởi tạo dịch vụ xác thực." }, 'bot', true);
+                console.error("Lỗi khởi tạo Firebase Auth hoặc Firestore:", error);
+                appendMessage({ text: "Lỗi: Không thể khởi tạo dịch vụ xác thực hoặc cơ sở dữ liệu. Vui lòng kiểm tra console để biết chi tiết." }, 'bot', true);
             }
         };
 
         // --- Helper functions ---
-        function processFiles(files) { if (!files || files.length === 0) return; imageInfo.classList.remove('text-red-500'); const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/')); if (imageFiles.length === 0) return; if (uploadedImages.length + imageFiles.length > MAX_IMAGES) { imageInfo.textContent = `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`; imageInfo.classList.add('text-red-500'); return; } for (const file of imageFiles) { const isDuplicate = uploadedImages.some(img => img.file.name === file.name && img.file.size === file.size && img.file.lastModified === file.lastModified); if (isDuplicate) continue; const reader = new FileReader(); reader.onload = (event) => { const base64Data = event.target.result.split(',')[1]; uploadedImages.push({ data: base64Data, mimeType: file.type, file: file }); createImagePreview(event.target.result, file); updateImageCount(); }; reader.readAsDataURL(file); } }
+        function processFiles(files) { 
+            if (!files || files.length === 0) return; 
+            imageInfo.classList.remove('text-red-500'); 
+            const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/')); 
+            if (imageFiles.length === 0) return; 
+            if (uploadedImages.length + imageFiles.length > MAX_IMAGES) { 
+                imageInfo.textContent = `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`; 
+                imageInfo.classList.add('text-red-500'); 
+                return; 
+            } 
+            for (const file of imageFiles) { 
+                const isDuplicate = uploadedImages.some(img => img.file.name === file.name && img.file.size === file.size && img.file.lastModified === file.lastModified); 
+                if (isDuplicate) continue; 
+                const reader = new FileReader(); 
+                reader.onload = (event) => { 
+                    const base64Data = event.target.result.split(',')[1]; 
+                    uploadedImages.push({ data: base64Data, mimeType: file.type, file: file }); 
+                    createImagePreview(event.target.result, file); 
+                    updateImageCount(); 
+                }; 
+                reader.readAsDataURL(file); 
+            } 
+        }
         imageInput.addEventListener('change', (e) => { processFiles(e.target.files); e.target.value = ''; });
         userInput.addEventListener('paste', (e) => { const files = e.clipboardData?.files; if (files && files.length > 0) { e.preventDefault(); processFiles(files); } });
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { inputArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }); });
@@ -664,7 +854,51 @@
         inputArea.addEventListener('drop', (e) => { const files = e.dataTransfer?.files; if (files) { processFiles(files); } });
         function createImagePreview(dataUrl, file) { const previewWrapper = document.createElement('div'); previewWrapper.className = 'relative'; const img = document.createElement('img'); img.src = dataUrl; img.className = 'h-16 w-16 object-cover rounded-md'; previewWrapper.appendChild(img); const removeBtn = document.createElement('button'); removeBtn.innerHTML = '&times;'; removeBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs leading-none'; removeBtn.onclick = () => { uploadedImages = uploadedImages.filter(img => img.file !== file); previewWrapper.remove(); updateImageCount(); }; previewWrapper.appendChild(removeBtn); imagePreviewContainer.appendChild(previewWrapper); }
         function updateImageCount() { imageInfo.classList.remove('text-red-500'); if (uploadedImages.length > 0) { imageInfo.textContent = `Đã tải lên ${uploadedImages.length}/${MAX_IMAGES} ảnh.`; } else { imageInfo.textContent = ''; } }
-        function appendMessage(data, sender, isError = false) { const { text, images } = data; const messageWrapper = document.createElement('div'); messageWrapper.className = `flex items-start gap-3 mb-4 ${sender === 'user' ? 'justify-end' : ''}`; const messageContent = document.createElement('div'); messageContent.className = `p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-xl ${sender === 'user' ? 'bg-blue-600 text-white' : isError ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : 'bg-gray-200 dark:bg-gray-700'}`; if (images && images.length > 0) { const imageGrid = document.createElement('div'); imageGrid.className = 'grid grid-cols-3 gap-1'; images.forEach(file => { const img = document.createElement('img'); img.src = URL.createObjectURL(file); img.className = 'w-full h-auto object-cover rounded'; img.onload = () => URL.revokeObjectURL(img.src); imageGrid.appendChild(img); }); messageContent.appendChild(imageGrid); } if (text) { const textElement = document.createElement('p'); textElement.className = `text-sm ${sender === 'bot' && !isError ? 'text-gray-800 dark:text-gray-200' : ''} ${(images && images.length > 0) ? 'mt-2' : ''}`; textElement.innerHTML = text.replace(/\n/g, '<br>'); messageContent.appendChild(textElement); } const avatar = document.createElement('div'); avatar.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center font-bold text-white'; if (sender === 'user') { avatar.className += ' bg-gray-500'; avatar.textContent = 'U'; messageWrapper.appendChild(messageContent); messageWrapper.appendChild(avatar); } else { avatar.className += isError ? ' bg-red-500' : ' bg-blue-500'; avatar.textContent = 'B'; messageWrapper.appendChild(avatar); messageWrapper.appendChild(messageContent); } const mainChatContainer = document.querySelector('.chat-container'); mainChatContainer.appendChild(messageWrapper); mainChatContainer.scrollTop = mainChatContainer.scrollHeight; }
+        function appendMessage(data, sender, isError = false) { 
+            const { text, images } = data; 
+            const messageWrapper = document.createElement('div'); 
+            messageWrapper.className = `flex items-start gap-3 mb-4 ${sender === 'user' ? 'justify-end' : ''}`; 
+            const messageContent = document.createElement('div'); 
+            messageContent.className = `p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-xl ${sender === 'user' ? 'bg-blue-600 text-white' : isError ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : 'bg-gray-200 dark:bg-gray-700'}`; 
+            
+            if (images && images.length > 0) { 
+                const imageGrid = document.createElement('div'); 
+                imageGrid.className = 'grid grid-cols-3 gap-1'; 
+                images.forEach(fileOrBlob => { 
+                    const img = document.createElement('img'); 
+                    // Check if it's a File object or a Blob (from base64 conversion)
+                    img.src = fileOrBlob instanceof File || fileOrBlob instanceof Blob ? URL.createObjectURL(fileOrBlob) : `data:${fileOrBlob.mimeType};base64,${fileOrBlob.data}`;
+                    img.className = 'w-full h-auto object-cover rounded'; 
+                    img.onload = () => URL.revokeObjectURL(img.src); 
+                    imageGrid.appendChild(img); 
+                }); 
+                messageContent.appendChild(imageGrid); 
+            } 
+            
+            if (text) { 
+                const textElement = document.createElement('p'); 
+                textElement.className = `text-sm ${sender === 'bot' && !isError ? 'text-gray-800 dark:text-gray-200' : ''} ${(images && images.length > 0) ? 'mt-2' : ''}`; 
+                textElement.innerHTML = text.replace(/\n/g, '<br>'); 
+                messageContent.appendChild(textElement); 
+            } 
+            
+            const avatar = document.createElement('div'); 
+            avatar.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center font-bold text-white'; 
+            if (sender === 'user') { 
+                avatar.className += ' bg-gray-500'; 
+                avatar.textContent = 'U'; 
+                messageWrapper.appendChild(messageContent); 
+                messageWrapper.appendChild(avatar); 
+            } else { 
+                avatar.className += isError ? ' bg-red-500' : ' bg-blue-500'; 
+                avatar.textContent = 'B'; 
+                messageWrapper.appendChild(avatar); 
+                messageWrapper.appendChild(messageContent); 
+            } 
+            const mainChatContainer = document.querySelector('.chat-container'); 
+            mainChatContainer.appendChild(messageWrapper); 
+            mainChatContainer.scrollTop = mainChatContainer.scrollHeight; 
+        }
         function toggleLoading(isLoading) { sendButton.disabled = isLoading; userInput.disabled = isLoading; document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; sendText.classList.toggle('hidden', isLoading); loadingSpinner.classList.toggle('hidden', !isLoading); if (!isLoading) { userInput.focus(); } }
 
         // Start the application
