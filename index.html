@@ -34,11 +34,11 @@
             <!-- Header -->
             <header class="p-4 border-b dark:border-gray-700 flex items-center justify-between bg-blue-600 text-white">
                 <div class="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     <h1 class="text-lg md:text-xl font-bold">(Trợ Lý Ảo) Công Ty Thiết Kế In Ấn Hội An </h1>
                 </div>
-                <!-- User ID Display - Hidden on mobile (screens smaller than md breakpoint) -->
-                <div id="user-id-display" class="hidden md:block text-sm font-medium mr-4"></div>
+                <!-- User ID Display - Hidden as requested -->
+                <div id="user-id-display" class="text-sm font-medium mr-4 hidden"></div>
                 <!-- Admin Button -->
                 <button id="admin-button" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold text-sm">Quản lý giá</button>
             </header>
@@ -155,7 +155,7 @@
         // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, query, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // DOM Elements
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
@@ -185,7 +185,7 @@
               priceListBody = document.getElementById('price-list-body'),
               priceFormError = document.getElementById('price-form-error'),
               closePriceManagementButton = document.getElementById('close-price-management');
-        
+
         const customMessageModal = document.getElementById('custom-message-modal');
         const customMessageText = document.getElementById('custom-message-text');
         const customMessageOkButton = document.getElementById('custom-message-ok');
@@ -276,7 +276,7 @@
                                 if (userKeyword.startsWith('be ')) userKeyword = 'bế ' + userKeyword.substring(3);
                                 if (userKeyword.startsWith('can ')) userKeyword = 'cán ' + userKeyword.substring(4);
                             }
-                            priceRules += `   - ${userKeyword}: ${formattedPrice} VNĐ/m².\n`;
+                            priceRules += `    - ${userKeyword}: ${formattedPrice} VNĐ/m².\n`;
                         }
                     }
                     priceRules += `\n`; // Add a newline after each customer's price list
@@ -304,11 +304,14 @@
 
                 **Quy tắc tính toán giá:**
                 - Dạ vâng, khi quý khách yêu cầu giá, tôi sẽ **luôn ưu tiên sử dụng giá của khách hàng cụ thể nếu tên khách hàng được nhắc đến trong yêu cầu**. Ví dụ: "Dạ vâng, giá decal cho Khách hàng A là bao nhiêu ạ?", "Khách hàng B muốn in bạt thì giá thế nào ạ?".
-                - Nếu không có tên khách hàng nào được nhắc đến, hoặc tên khách hàng được nhắc đến nhưng không có giá riêng, dạ vâng, tôi sẽ **luôn sử dụng "Giá cho Mặc định"**.
+                - **Nếu trong lịch sử chat có chứa cụm từ đặc biệt "[SỬ DỤNG GIÁ MẶC ĐỊNH]", dạ vâng, tôi sẽ bỏ qua mọi tên khách hàng được nhắc đến trong yêu cầu hiện tại và LUÔN sử dụng "Giá cho Mặc định" để tính toán ạ.**
+                - **Nếu không có tên khách hàng nào được nhắc đến rõ ràng trong yêu cầu (ví dụ: chỉ có kích thước và vật tư như "1x1 cán màn"), dạ vâng, tôi sẽ LUÔN sử dụng "Giá cho Mặc định" để tính toán ạ.**
                 - Công thức tính: (chiều dài * chiều rộng * số lượng) * giá trên mỗi mét vuông.
                 - Nếu quý khách không cung cấp số lượng, dạ vâng, tôi sẽ mặc định số lượng là 1.
                 - Ví dụ: "Dạ vâng, 0,2x0,5x2 decal cho Khách hàng A sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 decal, và tôi sẽ áp dụng giá của Khách hàng A ạ."
                 - Ví dụ: "Dạ vâng, 0,2x0,5 in bạt sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 in bạt, và tôi sẽ áp dụng giá mặc định ạ."
+                - **Ví dụ mới:** "Dạ vâng, 1x1 cán màn cán fon 5 sẽ được hiểu là dài 1m, rộng 1m, số lượng 1 cán màn cán fon 5, và tôi sẽ áp dụng giá mặc định ạ."
+                - **Ví dụ mới:** "Dạ vâng, 1x1 in decal cán màn :tho sẽ được hiểu là dài 1m, rộng 1m, số lượng 1 in decal cán màn, và tôi sẽ áp dụng giá của khách hàng 'tho' (nếu có trong danh sách giá khách hàng) ạ. Nếu không tìm thấy khách hàng 'tho', tôi sẽ dùng giá mặc định sau khi quý khách xác nhận ạ."
 
                 **Tính thêm phí hóa đơn:**
                 Nếu quý khách nói "có hóa đơn" hoặc "lấy hóa đơn" hoặc "xuất hóa đơn" trong cùng một yêu cầu tính giá, dạ vâng, tôi sẽ tính thêm 8% trên tổng tổng giá trị đã tính ạ.
@@ -384,6 +387,23 @@
             }
         };
 
+        // Function to extract customer name from user input
+        function getCustomerNameFromInput(text) {
+            // Look for words preceded by ':'
+            const colonMatch = text.match(/:(\w+)/);
+            if (colonMatch && colonMatch[1]) {
+                return colonMatch[1]; // Return the word after the colon
+            }
+
+            // Look for "khách hàng " followed by a word
+            const customerPhraseMatch = text.match(/khách hàng\s+([^\s]+)/i);
+            if (customerPhraseMatch && customerPhraseMatch[1]) {
+                return customerPhraseMatch[1]; // Return the word after "khách hàng"
+            }
+
+            return null; // No specific customer name found
+        }
+
         // --- UI & Event Handlers ---
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -400,20 +420,55 @@
             const userMessageData = { text: message, images: uploadedImages.map(img => img.file) };
             appendMessage(userMessageData, 'user');
 
-            // Prepare chat history for Gemini API call (in-memory only)
-            const userParts = [];
-            if (message) userParts.push({ text: message });
-            uploadedImages.forEach(img => userParts.push({ inlineData: { mimeType: img.mimeType, data: img.data } }));
-            chatHistory.push({ role: "user", parts: userParts });
-
-            // Clear input fields
+            // Clear input fields immediately
             userInput.value = '';
             imagePreviewContainer.innerHTML = '';
             uploadedImages = [];
             updateImageCount();
 
-            toggleLoading(true); // Show loading spinner
+            // --- New logic for customer name check ---
+            const potentialCustomerName = getCustomerNameFromInput(message);
+            const customerSlug = potentialCustomerName ? slugify(potentialCustomerName) : null;
+            const customerExists = customerSlug && allCustomerPrices[customerSlug];
+
+            if (potentialCustomerName && !customerExists) {
+                // Customer name mentioned but not found
+                showCustomConfirm(`Dạ vâng, tôi sẽ áp dụng giá khách lẻ vì khách hàng "${potentialCustomerName}" không có trên hệ thống. Nếu đồng ý, bấm 'có' để tôi tính theo giá mặc định ạ.`, async () => {
+                    // User confirmed to use default price
+                    toggleLoading(true);
+                    try {
+                        // Add a special instruction to chatHistory for AI to use default price
+                        const userParts = [];
+                        if (message) userParts.push({ text: message });
+                        uploadedImages.forEach(img => userParts.push({ inlineData: { mimeType: img.mimeType, data: img.data } }));
+                        userParts.push({ text: "[SỬ DỤNG GIÁ MẶC ĐỊNH]" }); // Special instruction for AI
+                        chatHistory.push({ role: "user", parts: userParts });
+
+                        const botResponse = await getGeminiResponse();
+                        appendMessage({ text: botResponse }, 'bot');
+                        chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
+                    } catch (error) {
+                        console.error('Lỗi khi tính toán giá mặc định:', error);
+                        appendMessage({ text: `Lỗi: ${error.message}` }, 'bot', true);
+                    } finally {
+                        toggleLoading(false);
+                    }
+                }, () => {
+                    // User cancelled, do nothing or provide a message
+                    appendMessage({ text: "Dạ vâng, yêu cầu tính giá đã bị hủy ạ." }, 'bot');
+                });
+                return; // Stop further processing for this submission
+            }
+            // --- End new logic ---
+
+            // Original logic if no customer issue or customer found
+            toggleLoading(true);
             try {
+                const userParts = [];
+                if (message) userParts.push({ text: message });
+                uploadedImages.forEach(img => userParts.push({ inlineData: { mimeType: img.mimeType, data: img.data } }));
+                chatHistory.push({ role: "user", parts: userParts });
+
                 const botResponse = await getGeminiResponse();
                 
                 // Display bot response
@@ -426,7 +481,7 @@
                 console.error('Lỗi cuối cùng khi gửi tin nhắn:', error);
                 appendMessage({ text: error.message }, 'bot', true); // Display error in UI
             } finally {
-                toggleLoading(false); // Hide loading spinner
+                toggleLoading(false);
             }
         });
 
@@ -654,7 +709,7 @@
         });
 
         // Custom confirmation modal (replaces alert/confirm)
-        function showCustomConfirm(message, onConfirm) {
+        function showCustomConfirm(message, onConfirm, onCancel) {
             const modal = document.createElement('div');
             modal.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[100]';
             modal.innerHTML = `
@@ -673,6 +728,7 @@
                 modal.remove();
             });
             document.getElementById('confirm-no').addEventListener('click', () => {
+                if (onCancel) onCancel();
                 modal.remove();
             });
         }
@@ -792,7 +848,7 @@
                 console.warn("VanillaTelex is not defined. Telex input might not work.");
             }
             // Display initial greeting message.
-            appendMessage({ text: "Dạ, Công ty Thiết kế & In ấn Hội An xin kính chào quý khách. Em là trợ lý ảo, em có thể giúp gì cho anh/chị ạ?" }, 'bot');
+            appendMessage({ text: "Xin chào! Tôi là trợ lý ảo đa năng. Tôi có thể giúp gì cho bạn hôm nay?" }, 'bot');
         };
 
         const main = async () => {
@@ -800,14 +856,14 @@
             try {
                 // MANDATORY: Use __firebase_config provided by the Canvas environment.
                 // This ensures Firebase is configured correctly for the specific deployment.
-                const firebaseConfig = {
-                    apiKey: "AIzaSyBf4f1Uc21wZ7AkRx5oOAD_oCj_ZI_jQ7I",
-                    authDomain: "bot-ai-d1955.firebaseapp.com",
-                    projectId: "bot-ai-d1955",
-                    storageBucket: "bot-ai-d1955.appspot.com",
-                    messagingSenderId: "323490182108",
-                    appId: "1:323490182108:web:ea9195d17ac424bbc01519",
-                    measurementId: "G-7KXDBHRFM3"
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+                    apiKey: "YOUR_API_KEY", // Placeholder, replace with actual if not using Canvas environment
+                    authDomain: "your-project-id.firebaseapp.com",
+                    projectId: "your-project-id",
+                    storageBucket: "your-project-id.appspot.com",
+                    messagingSenderId: "your-sender-id",
+                    appId: "your-app-id",
+                    measurementId: "your-measurement-id"
                 };
                 console.log("Khởi tạo Firebase...");
                 app = initializeApp(firebaseConfig);
@@ -819,7 +875,7 @@
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
-                        userIdDisplay.textContent = `User ID: ${userId}`; // Display user ID
+                        // userIdDisplay.textContent = `User ID: ${userId}`; // Removed to hide User ID
                         console.log("Đã xác thực với User ID:", userId);
                         isAuthReady = true;
                         // Start listening to prices *after* auth is ready.
@@ -827,7 +883,7 @@
                     } else {
                         console.log("Người dùng chưa đăng nhập.");
                         userId = null;
-                        userIdDisplay.textContent = '';
+                        userIdDisplay.textContent = ''; // Ensure it's empty even if somehow visible
                         isAuthReady = false;
                         // Clear UI and chat history if user logs out or is not authenticated.
                         document.querySelector('.chat-container').innerHTML = '';
