@@ -37,8 +37,8 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     <h1 class="text-lg md:text-xl font-bold">(Trợ Lý Ảo) Công Ty Thiết Kế In Ấn Hội An </h1>
                 </div>
-                <!-- User ID Display -->
-                <div id="user-id-display" class="text-sm font-medium mr-4"></div>
+                <!-- User ID Display - Hidden on mobile (screens smaller than md breakpoint) -->
+                <div id="user-id-display" class="hidden md:block text-sm font-medium mr-4"></div>
                 <!-- Admin Button -->
                 <button id="admin-button" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold text-sm">Quản lý giá</button>
             </header>
@@ -792,7 +792,7 @@
                 console.warn("VanillaTelex is not defined. Telex input might not work.");
             }
             // Display initial greeting message.
-            appendMessage({ text: "Xin chào! Tôi là trợ lý ảo đa năng. Tôi có thể giúp gì cho bạn hôm nay?" }, 'bot');
+            appendMessage({ text: "Dạ, Công ty Thiết kế & In ấn Hội An xin kính chào quý khách. Em là trợ lý ảo, em có thể giúp gì cho anh/chị ạ?" }, 'bot');
         };
 
         const main = async () => {
