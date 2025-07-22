@@ -34,7 +34,7 @@
             <!-- Header -->
             <header class="p-4 border-b dark:border-gray-700 flex items-center justify-between bg-blue-600 text-white">
                 <div class="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     <h1 class="text-lg md:text-xl font-bold">(Trợ Lý Ảo) Công Ty Thiết Kế In Ấn Hội An </h1>
                 </div>
                 <!-- User ID Display -->
@@ -155,7 +155,7 @@
         // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // DOM Elements
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
@@ -202,6 +202,7 @@
         // Firebase State
         let app, db, auth, userId;
         let isAuthReady = false; // Flag to ensure Firestore operations wait for auth
+        // MANDATORY: Use __app_id provided by the Canvas environment
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // Prices will be loaded from Firestore
@@ -212,6 +213,9 @@
         // !!! CẤU HÌNH DUY NHẤT TẠY ĐÂY !!!
         // THAY THẾ CÁC KEY MẪU BẰNG API KEY THẬT CỦA BẠN.
         // CẢNH BÁO: KHÔNG ĐĂNG TẢI FILE NÀY LÊN INTERNET CÔNG CỘNG VÌ SẼ LÀM LỘ KEY.
+        // LƯU Ý: Đối với mô hình gemini-2.0-flash, thường không cần cung cấp API key
+        // nếu môi trường Canvas đã được cấu hình sẵn. Để trống chuỗi nếu muốn Canvas tự động cung cấp.
+        // Tuy nhiên, theo mã nguồn ban đầu của quý khách, các API key này đã được cung cấp.
         // ===================================================================================
         const apiKeys = [
             "AIzaSyCg4gg9GLf6SPzhYCNLmvTZyIuuQZPRw04",
@@ -265,6 +269,7 @@
                             else if (itemName === 'inBatTho') userKeyword = 'in bạt thợ';
                             else if (itemName === 'canMan') userKeyword = 'cán màn';
                             else {
+                                // Attempt to convert camelCase to more readable Vietnamese
                                 userKeyword = itemName.replace(/([A-Z])/g, ' $1').toLowerCase();
                                 if (userKeyword.startsWith('in ')) userKeyword = 'in ' + userKeyword.substring(3);
                                 if (userKeyword.startsWith('decal ')) userKeyword = 'decal ' + userKeyword.substring(6);
@@ -320,50 +325,62 @@
 
 
         const getGeminiResponse = async (retryCount = 0) => {
+            // Check if API keys are configured. If not, inform the user.
             if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) {
                 throw new Error("Vui lòng cấu hình ít nhất một API key thật trong mã nguồn.");
             }
+            // If all API keys have been tried and failed, throw an error.
             if (retryCount >= apiKeys.length) {
                 throw new Error("Tất cả API key đều không hoạt động. Vui lòng kiểm tra lại.");
             }
 
+            // Select the current API key based on the index.
             const apiKey = apiKeys[currentApiKeyIndex];
+            // Construct the API URL for Gemini-2.0-flash model.
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-            const systemInstructionText = generateSystemInstruction(allCustomerPrices); // Use dynamically generated instruction based on all loaded prices
+            // Generate the system instruction dynamically based on current customer prices.
+            const systemInstructionText = generateSystemInstruction(allCustomerPrices);
 
+            // Prepare the payload for the API request.
             const payload = {
-                contents: chatHistory,
+                contents: chatHistory, // User's chat history
                 systemInstruction: {
-                    parts: [{ text: systemInstructionText }]
+                    parts: [{ text: systemInstructionText }] // Dynamic system instruction
                 },
                 generationConfig: {
-                    temperature: 0.7,
-                    topP: 1,
-                    topK: 40,
-                    maxOutputTokens: 2048
+                    temperature: 0.7, // Controls randomness of the output
+                    topP: 1,          // Nucleus sampling parameter
+                    topK: 40,         // Top-k sampling parameter
+                    maxOutputTokens: 2048 // Maximum number of tokens in the response
                 }
             };
 
             try {
+                // Send the API request.
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                // Check if the response was successful.
                 if (!response.ok) {
                     const errorBody = await response.json();
                     throw new Error(`Lỗi API: ${errorBody.error.message}`);
                 }
                 const result = await response.json();
+                // Extract the text from the successful response.
                 if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts) {
                     return result.candidates[0].content.parts[0].text;
                 }
+                // Handle cases where the prompt was blocked.
                 if (result.promptFeedback && result.promptFeedback.blockReason) {
                     return `Yêu cầu của bạn đã bị chặn vì: ${result.promptFeedback.blockReason}.`;
                 }
+                // If no valid response or block reason, throw a generic error.
                 throw new Error("Không nhận được phản hồi hợp lệ từ API.");
             } catch (error) {
+                // Log the error and try the next API key if available.
                 console.error(`API key tại vị trí ${currentApiKeyIndex} thất bại:`, error.message);
-                currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+                currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length; // Move to the next key
                 console.log(`Chuyển sang API key tại vị trí ${currentApiKeyIndex}`);
-                return getGeminiResponse(retryCount + 1);
+                return getGeminiResponse(retryCount + 1); // Retry with the next key
             }
         };
 
@@ -373,6 +390,7 @@
             const message = userInput.value.trim();
             if (!message && uploadedImages.length === 0) return;
 
+            // Check if API keys are configured before proceeding.
             if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) {
                 appendMessage({ text: "Lỗi: Vui lòng cấu hình API key trong mã nguồn của file HTML." }, 'bot', true);
                 return;
@@ -394,7 +412,7 @@
             uploadedImages = [];
             updateImageCount();
 
-            toggleLoading(true);
+            toggleLoading(true); // Show loading spinner
             try {
                 const botResponse = await getGeminiResponse();
                 
@@ -408,7 +426,7 @@
                 console.error('Lỗi cuối cùng khi gửi tin nhắn:', error);
                 appendMessage({ text: error.message }, 'bot', true); // Display error in UI
             } finally {
-                toggleLoading(false);
+                toggleLoading(false); // Hide loading spinner
             }
         });
 
@@ -416,16 +434,20 @@
 
         // Setup Firestore listener for all customer prices
         const setupPriceListener = () => {
+            // Ensure Firestore and Auth are ready before setting up the listener.
             if (!db || !isAuthReady) {
                 console.warn("Firestore hoặc Auth chưa sẵn sàng để thiết lập listener giá.");
                 return;
             }
             console.log("Thiết lập lắng nghe tất cả giá khách hàng từ Firestore...");
+            // Reference to the public customerPrices collection.
             const customerPricesCollectionRef = collection(db, `artifacts/${appId}/public/data/customerPrices`);
+            // Listen for real-time updates to the collection.
             onSnapshot(customerPricesCollectionRef, (snapshot) => {
                 const newAllCustomerPrices = {};
                 snapshot.forEach(doc => {
                     const data = doc.data();
+                    // Ensure the document has expected structure before adding to prices.
                     if (data.displayName && data.items && typeof data.items === 'object') {
                         newAllCustomerPrices[doc.id] = {
                             displayName: data.displayName,
@@ -435,8 +457,9 @@
                 });
                 allCustomerPrices = newAllCustomerPrices; // Update the global prices object
                 console.log("Tất cả giá khách hàng đã được cập nhật từ Firestore:", allCustomerPrices);
-                renderPriceList(currentManagingCustomerSlug); // Re-render the admin price list for the current customer
-                // Ensure 'mặc định' customer exists, create if not
+                // Re-render the admin price list for the currently managed customer.
+                renderPriceList(currentManagingCustomerSlug);
+                // Ensure 'mặc định' customer exists, create it if not.
                 if (!allCustomerPrices['mặc_định']) {
                     saveCustomerPrices('mặc định', {
                         decal: 85000,
@@ -455,6 +478,7 @@
 
         // Save/Update customer's prices to Firestore
         const saveCustomerPrices = async (customerDisplayName, itemsData) => {
+            // Ensure Firestore and Auth are ready.
             if (!db || !isAuthReady) {
                 customerSelectError.textContent = 'Hệ thống chưa sẵn sàng. Vui lòng đợi hoặc thử lại.';
                 customerSelectError.classList.remove('hidden');
@@ -462,11 +486,13 @@
             }
             const customerSlug = slugify(customerDisplayName);
             try {
+                // Reference to the specific customer document.
                 const customerDocRef = doc(db, `artifacts/${appId}/public/data/customerPrices`, customerSlug);
+                // Set the document with merge: true to update existing fields or add new ones.
                 await setDoc(customerDocRef, {
                     displayName: customerDisplayName,
                     items: itemsData
-                }, { merge: true }); // Use merge to update only the 'items' field
+                }, { merge: true });
                 console.log(`Giá cho khách hàng "${customerDisplayName}" đã được lưu/cập nhật.`);
                 customerSelectError.classList.add('hidden');
                 return true; // Indicate success
@@ -480,12 +506,14 @@
 
         // Save/Update a specific item's price for the current managing customer
         const saveItemPriceForCurrentCustomer = async (itemName, itemPrice) => {
+            // Ensure Firestore and Auth are ready.
             if (!db || !isAuthReady) {
                 priceFormError.textContent = 'Hệ thống chưa sẵn sàng. Vui lòng đợi hoặc thử lại.';
                 priceFormError.classList.remove('hidden');
                 return false;
             }
             const customerSlug = currentManagingCustomerSlug;
+            // Get the display name from allCustomerPrices or the input field.
             const customerDisplayName = allCustomerPrices[customerSlug]?.displayName || customerSelectInput.value.trim();
 
             if (!customerDisplayName) {
@@ -495,13 +523,16 @@
             }
 
             try {
+                // Reference to the specific customer document.
                 const customerDocRef = doc(db, `artifacts/${appId}/public/data/customerPrices`, customerSlug);
+                // Prepare update data for the nested 'items' field.
                 const updateData = {
-                    displayName: customerDisplayName, // Ensure display name is set
+                    displayName: customerDisplayName,
                     items: {
                         [itemName]: itemPrice
                     }
                 };
+                // Set the document with merge: true to update only the specific item within 'items'.
                 await setDoc(customerDocRef, updateData, { merge: true });
                 console.log(`Vật tư "${itemName}" cho khách hàng "${customerDisplayName}" đã được lưu/cập nhật.`);
                 priceFormError.classList.add('hidden');
@@ -516,6 +547,7 @@
 
         // Delete a specific item's price for the current managing customer
         const deleteItemPriceForCurrentCustomer = async (itemName) => {
+            // Ensure Firestore and Auth are ready.
             if (!db || !isAuthReady) {
                 showCustomMessage('Hệ thống chưa sẵn sàng để xóa vật tư. Vui lòng đợi hoặc thử lại.', 'error');
                 return false;
@@ -529,14 +561,15 @@
             }
 
             try {
+                // Reference to the specific customer document.
                 const customerDocRef = doc(db, `artifacts/${appId}/public/data/customerPrices`, customerSlug);
-                // To delete a field within a map, you need to update the map by setting the field to FieldValue.delete()
-                // However, FieldValue.delete is not directly supported for nested fields in a simple update.
-                // The easiest way is to read the document, remove the item, and then write the updated items map.
+                // Get the current document snapshot.
                 const customerDocSnap = await getDoc(customerDocRef);
                 if (customerDocSnap.exists()) {
+                    // Get current items and delete the specific item.
                     const currentItems = customerDocSnap.data().items || {};
                     delete currentItems[itemName];
+                    // Update the document with the modified items map.
                     await setDoc(customerDocRef, { items: currentItems }, { merge: true });
                     console.log(`Vật tư "${itemName}" cho khách hàng "${customerDisplayName}" đã được xóa.`);
                     return true;
@@ -597,8 +630,6 @@
                     showCustomConfirm(`Bạn có chắc chắn muốn xóa "${itemName}" cho khách hàng này không?`, async () => {
                         const success = await deleteItemPriceForCurrentCustomer(itemName);
                         if (success) {
-                            // No need to clear chat history here, as AI will dynamically adapt
-                            // based on the updated allCustomerPrices.
                             showCustomMessage(`Đã xóa vật tư "${itemName}" cho khách hàng này.`, 'success');
                         }
                     });
@@ -658,8 +689,8 @@
                 bgColor = 'bg-green-600';
                 hoverBgColor = 'hover:bg-green-700';
             }
-            customMessageOkButton.className = `bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg`; // Reset classes
-            customMessageOkButton.classList.add(bgColor, hoverBgColor, 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded-lg');
+            // Reset classes and apply new ones
+            customMessageOkButton.className = `bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center ${bgColor} ${hoverBgColor} text-white font-bold py-2 px-4 rounded-lg`;
             customMessageModal.classList.remove('hidden');
         }
 
@@ -683,7 +714,7 @@
             if (username === 'admin' && password === 'admin') {
                 adminLoginModal.classList.add('hidden');
                 priceManagementModal.classList.remove('hidden');
-                customerSelectError.classList.add('hidden'); // Hide any previous errors
+                adminLoginError.classList.add('hidden'); // Hide any previous errors
                 renderPriceList(currentManagingCustomerSlug); // Render default prices initially
             } else {
                 adminLoginError.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
@@ -717,6 +748,7 @@
                 return;
             }
 
+            // Convert item name to camelCase for consistent storage keys.
             const camelCaseItemName = itemName.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
                 return index === 0 ? word.toLowerCase() : word.toUpperCase();
             }).replace(/\s+/g, '');
@@ -732,8 +764,6 @@
             if (success) {
                 resetAddEditForm();
                 showCustomMessage(`Đã lưu vật tư "${itemName}" cho khách hàng này.`, 'success');
-                // No need to clear chat history here, as AI will dynamically adapt
-                // based on the updated allCustomerPrices.
             }
         });
 
@@ -755,25 +785,29 @@
 
         // --- Initialization ---
         const initializeAppUI = () => {
+            // Initialize Vietnamese IME if available.
             if (typeof window.VanillaTelex !== 'undefined') {
                 new window.VanillaTelex(userInput);
             } else {
                 console.warn("VanillaTelex is not defined. Telex input might not work.");
             }
+            // Display initial greeting message.
             appendMessage({ text: "Xin chào! Tôi là trợ lý ảo đa năng. Tôi có thể giúp gì cho bạn hôm nay?" }, 'bot');
         };
 
         const main = async () => {
             initializeAppUI();
             try {
-                const firebaseConfig = {
-                    apiKey: "AIzaSyCSV5oLXIXh06BrupSwBD9z_gfjxTiCbRs",
-                    authDomain: "hang-order.firebaseapp.com",
-                    projectId: "hang-order",
-                    storageBucket: "hang-order.firebasestorage.app",
-                    messagingSenderId: "963841437618",
-                    appId: "1:963841437618:web:40f43ce2896d2a643c7eab",
-                    measurementId: "G-VRY3HH241B"
+                // MANDATORY: Use __firebase_config provided by the Canvas environment.
+                // This ensures Firebase is configured correctly for the specific deployment.
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+                    apiKey: "YOUR_API_KEY", // Placeholder, replace with actual if not using Canvas environment
+                    authDomain: "your-project-id.firebaseapp.com",
+                    projectId: "your-project-id",
+                    storageBucket: "your-project-id.appspot.com",
+                    messagingSenderId: "your-sender-id",
+                    appId: "your-app-id",
+                    measurementId: "your-measurement-id"
                 };
                 console.log("Khởi tạo Firebase...");
                 app = initializeApp(firebaseConfig);
@@ -781,20 +815,21 @@
                 auth = getAuth(app);
                 console.log("Firebase đã được khởi tạo.");
 
+                // Listen for authentication state changes.
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
-                        userIdDisplay.textContent = `User ID: ${userId}`;
+                        userIdDisplay.textContent = `User ID: ${userId}`; // Display user ID
                         console.log("Đã xác thực với User ID:", userId);
                         isAuthReady = true;
-                        // Start listening to prices *after* auth is ready
+                        // Start listening to prices *after* auth is ready.
                         setupPriceListener(); // This listener will populate allCustomerPrices
                     } else {
                         console.log("Người dùng chưa đăng nhập.");
                         userId = null;
                         userIdDisplay.textContent = '';
                         isAuthReady = false;
-                        // Clear UI if user logs out or is not authenticated
+                        // Clear UI and chat history if user logs out or is not authenticated.
                         document.querySelector('.chat-container').innerHTML = '';
                         chatHistory = [];
                         appendMessage({ text: "Vui lòng đăng nhập hoặc đợi hệ thống khởi tạo." }, 'bot');
@@ -802,17 +837,18 @@
                 });
 
                 console.log("Đang cố gắng đăng nhập Firebase...");
+                // MANDATORY: Use __initial_auth_token for custom token sign-in.
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     try {
                         await signInWithCustomToken(auth, __initial_auth_token);
                         console.log("Đăng nhập bằng Custom Token thành công.");
                     } catch (customTokenError) {
                         console.error("Lỗi khi đăng nhập bằng Custom Token, thử đăng nhập ẩn danh:", customTokenError);
-                        await signInAnonymously(auth);
+                        await signInAnonymously(auth); // Fallback to anonymous sign-in.
                         console.log("Đăng nhập ẩn danh thành công sau khi Custom Token thất bại.");
                     }
                 } else {
-                    await signInAnonymously(auth);
+                    await signInAnonymously(auth); // Sign in anonymously if no custom token is provided.
                     console.log("Đăng nhập ẩn danh thành công (không có Custom Token).");
                 }
 
