@@ -857,13 +857,14 @@
                 // MANDATORY: Use __firebase_config provided by the Canvas environment.
                 // This ensures Firebase is configured correctly for the specific deployment.
                 const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-                    apiKey: "YOUR_API_KEY", // Placeholder, replace with actual if not using Canvas environment
-                    authDomain: "your-project-id.firebaseapp.com",
-                    projectId: "your-project-id",
-                    storageBucket: "your-project-id.appspot.com",
-                    messagingSenderId: "your-sender-id",
-                    appId: "your-app-id",
-                    measurementId: "your-measurement-id"
+                    apiKey: "AIzaSyDJBY6U0LUtmnk4PrfNeA7UE7qq1FZ84X8",
+                    authDomain: "data-chung-a62ee.firebaseapp.com",
+                    databaseURL: "https://data-chung-a62ee-default-rtdb.asia-southeast1.firebasedatabase.app",
+                    projectId: "data-chung-a62ee",
+                    storageBucket: "data-chung-a62ee.firebasestorage.app",
+                    messagingSenderId: "453115303161",
+                    appId: "1:453115303161:web:d40a0ec5a38ab7d4863e28",
+                    measurementId: "G-WNVH78VY1Z"
                 };
                 console.log("Khởi tạo Firebase...");
                 app = initializeApp(firebaseConfig);
