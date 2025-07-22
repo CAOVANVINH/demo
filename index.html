@@ -37,6 +37,8 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     <h1 class="text-lg md:text-xl font-bold">(Trợ Lý Ảo) Công Ty Thiết Kế In Ấn Hội An </h1>
                 </div>
+                <!-- Admin Button -->
+                <button id="admin-button" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold text-sm">Quản lý giá</button>
             </header>
 
             <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900"></div>
@@ -59,6 +61,75 @@
         </main>
     </div>
 
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-96">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Đăng nhập Quản trị</h2>
+            <form id="admin-login-form">
+                <div class="mb-4">
+                    <label for="admin-username" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Tên đăng nhập:</label>
+                    <input type="text" id="admin-username" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-100 dark:bg-gray-700" value="admin">
+                </div>
+                <div class="mb-6">
+                    <label for="admin-password" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Mật khẩu:</label>
+                    <input type="password" id="admin-password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-100 dark:bg-gray-700" value="admin">
+                </div>
+                <div id="admin-login-error" class="text-red-500 text-xs italic mb-4 hidden"></div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Đăng nhập</button>
+                    <button type="button" id="admin-login-cancel" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Price Management Modal -->
+    <div id="price-management-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Quản lý Giá Vật tư</h2>
+
+            <!-- Add New Item Form -->
+            <div class="mb-6 p-4 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700">
+                <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Thêm/Chỉnh sửa Vật tư</h3>
+                <form id="add-edit-price-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="item-name" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Tên Vật tư (ví dụ: decal, in bạt):</label>
+                        <input type="text" id="item-name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-white dark:bg-gray-600" placeholder="Tên vật tư" required>
+                    </div>
+                    <div>
+                        <label for="item-price" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Giá ($/m²):</label>
+                        <input type="number" id="item-price" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-white dark:bg-gray-600" placeholder="Giá trên mỗi mét vuông" step="0.01" required>
+                    </div>
+                    <div class="md:col-span-2 flex justify-end gap-3">
+                        <button type="submit" id="save-item-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Lưu Vật tư</button>
+                        <button type="button" id="cancel-edit-button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline hidden">Hủy chỉnh sửa</button>
+                    </div>
+                </form>
+                <div id="price-form-error" class="text-red-500 text-xs italic mt-2 hidden"></div>
+            </div>
+
+            <!-- Price List Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white dark:bg-gray-700 rounded-lg shadow-md">
+                    <thead>
+                        <tr class="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-left">Tên Vật tư</th>
+                            <th class="py-3 px-6 text-right">Giá ($/m²)</th>
+                            <th class="py-3 px-6 text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="price-list-body" class="text-gray-600 dark:text-gray-300 text-sm font-light">
+                        <!-- Prices will be rendered here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end mt-6">
+                <button type="button" id="close-price-management" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Đóng</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         // Firebase is only used for anonymous auth to provide a unique user ID.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
@@ -66,16 +137,46 @@
 
         // DOM Elements
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
-              sendButton = document.getElementById('send-button'), sendText = document.getElementById('send-text'), 
-              loadingSpinner = document.getElementById('loading-spinner'), imageInput = document.getElementById('image-input'), 
+              sendButton = document.getElementById('send-button'), sendText = document.getElementById('send-text'),
+              loadingSpinner = document.getElementById('loading-spinner'), imageInput = document.getElementById('image-input'),
               imagePreviewContainer = document.getElementById('image-preview-container'), imageInfo = document.getElementById('image-info'),
               inputArea = document.getElementById('input-area');
+
+        // Admin DOM Elements
+        const adminButton = document.getElementById('admin-button'),
+              adminLoginModal = document.getElementById('admin-login-modal'),
+              adminLoginForm = document.getElementById('admin-login-form'),
+              adminUsernameInput = document.getElementById('admin-username'),
+              adminPasswordInput = document.getElementById('admin-password'),
+              adminLoginError = document.getElementById('admin-login-error'),
+              adminLoginCancelButton = document.getElementById('admin-login-cancel'),
+              priceManagementModal = document.getElementById('price-management-modal'),
+              addEditPriceForm = document.getElementById('add-edit-price-form'),
+              itemNameInput = document.getElementById('item-name'),
+              itemPriceInput = document.getElementById('item-price'),
+              saveItemButton = document.getElementById('save-item-button'),
+              cancelEditButton = document.getElementById('cancel-edit-button'),
+              priceListBody = document.getElementById('price-list-body'),
+              priceFormError = document.getElementById('price-form-error'),
+              closePriceManagementButton = document.getElementById('close-price-management');
+
 
         // State
         const MAX_IMAGES = 50;
         let chatHistory = [], uploadedImages = [];
-        let currentApiKeyIndex = 0; 
-        
+        let currentApiKeyIndex = 0;
+        let editingItemName = null; // To track which item is being edited
+
+        // Default prices (can be overridden by localStorage)
+        let prices = {
+            decal: 85000,
+            inDecalTho: 80000,
+            decalBe: 145000,
+            inBat: 35000,
+            inBatTho: 30000,
+            canMan: 100000
+        };
+
         // ===================================================================================
         // !!! CẤU HÌNH DUY NHẤT TẠI ĐÂY !!!
         // THAY THẾ CÁC KEY MẪU BẰNG API KEY THẬT CỦA BẠN.
@@ -94,19 +195,109 @@
         let auth, userId;
 
         // --- Core Functions ---
-        const getGeminiResponse = async (retryCount = 0) => {
-            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) {
-                throw new Error("Vui lòng cấu hình ít nhất một API key thật trong mã nguồn.");
+
+        // Generates the system instruction text for the AI, including dynamic pricing rules.
+        const generateSystemInstruction = (currentPrices) => {
+            let priceRules = '';
+            for (const key in currentPrices) {
+                if (currentPrices.hasOwnProperty(key)) {
+                    const price = currentPrices[key];
+                    const formattedPrice = price.toLocaleString('vi-VN'); // Format price for display in instruction
+                    let userKeyword = '';
+                    let calculationFormula = '';
+
+                    // Map keys to Vietnamese keywords and formulas for AI instruction
+                    if (key === 'decal') {
+                        userKeyword = 'decal trắng';
+                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
+                        priceRules += `
+                        **Tính toán giá ${userKeyword}:**
+                        Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **decal**, bạn hãy thực hiện tính toán giá.
+                        - Giá decal trắng là ${formattedPrice} VNĐ/m².
+                        - Công thức tính: ${calculationFormula}.
+                        - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
+                        - Ví dụ: "0,2x0,5x2 decal" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 decal.
+                        - Ví dụ: "0,2x0,5 decal" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 decal.
+                        `;
+                    } else if (key === 'inDecalTho') {
+                        userKeyword = 'in decal thợ';
+                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
+                        priceRules += `
+                        **Tính toán giá ${userKeyword}:**
+                        Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **in decal thợ**, bạn hãy thực hiện tính toán giá.
+                        - Giá in decal thợ là ${formattedPrice} VNĐ/m².
+                        - Công thức tính: ${calculationFormula}.
+                        - Ví dụ: "0,2x0,5x2 in decal thợ" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in decal thợ.
+                        `;
+                    } else if (key === 'decalBe') {
+                        userKeyword = 'decal bế (hoặc bế)';
+                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
+                        priceRules += `
+                        **Tính toán giá ${userKeyword}:**
+                        Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **decal bế** hoặc chỉ **bế**, bạn hãy thực hiện tính toán giá.
+                        - Giá decal bế là ${formattedPrice} VNĐ/m².
+                        - Công thức tính: ${calculationFormula}.
+                        - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
+                        - Ví dụ: "0,2x0,5x2 decal bế" hoặc "0,2x0,5x2 bế" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 decal bế.
+                        - Ví dụ: "0,2x0,5 decal bế" hoặc "0,2x0,5 bế" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 decal bế.
+                        `;
+                    } else if (key === 'inBat') {
+                        userKeyword = 'in bạt';
+                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
+                        priceRules += `
+                        **Tính toán giá ${userKeyword}:**
+                        Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **in bạt**, bạn hãy thực hiện tính toán giá.
+                        - Giá in bạt là ${formattedPrice} VNĐ/m².
+                        - Công thức tính: ${calculationFormula}.
+                        - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
+                        - Ví dụ: "0,2x0,5x2 in bạt" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in bạt.
+                        - Ví dụ: "0,2x0,5 in bạt" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 in bạt.
+                        `;
+                    } else if (key === 'inBatTho') {
+                        userKeyword = 'in bạt thợ';
+                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
+                        priceRules += `
+                        **Tính toán giá ${userKeyword}:**
+                        Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **in bạt thợ**, bạn hãy thực hiện tính toán giá.
+                        - Giá in bạt thợ là ${formattedPrice} VNĐ/m².
+                        - Công thức tính: ${calculationFormula}.
+                        - Ví dụ: "0,2x0,5x2 in bạt thợ" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in bạt thợ.
+                        `;
+                    } else if (key === 'canMan') {
+                        userKeyword = 'cán màn';
+                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
+                        priceRules += `
+                        **Tính toán giá ${userKeyword}:**
+                        Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **cán màn**, bạn hãy thực hiện tính toán giá.
+                        - Giá cán màn là ${formattedPrice} VNĐ/m².
+                        - Công thức tính: ${calculationFormula}.
+                        - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
+                        - Ví dụ: "0,2x0,5x2 cán màn" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 cán màn.
+                        - Ví dụ: "0,2x0,5 cán màn" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 cán màn.
+                        `;
+                    } else {
+                        // For custom added items, convert camelCase to readable Vietnamese
+                        userKeyword = key.replace(/([A-Z])/g, ' $1').toLowerCase();
+                        // Attempt to translate common prefixes
+                        if (userKeyword.startsWith('in ')) userKeyword = 'in ' + userKeyword.substring(3);
+                        if (userKeyword.startsWith('decal ')) userKeyword = 'decal ' + userKeyword.substring(6);
+                        if (userKeyword.startsWith('bế ')) userKeyword = 'bế ' + userKeyword.substring(2);
+                        if (userKeyword.startsWith('cán ')) userKeyword = 'cán ' + userKeyword.substring(4);
+                        
+                        calculationFormula = `(chiều dài * chiều rộng * số lượng) * ${price}`;
+                        priceRules += `
+                        **Tính toán giá ${userKeyword}:**
+                        Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **${userKeyword}**, bạn hãy thực hiện tính toán giá.
+                        - Giá ${userKeyword} là ${formattedPrice} VNĐ/m².
+                        - Công thức tính: ${calculationFormula}.
+                        - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
+                        - Ví dụ: "0,2x0,5x2 ${userKeyword}" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 ${userKeyword}.
+                        `;
+                    }
+                }
             }
-            if (retryCount >= apiKeys.length) {
-                throw new Error("Tất cả API key đều không hoạt động. Vui lòng kiểm tra lại.");
-            }
-            
-            const apiKey = apiKeys[currentApiKeyIndex];
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-            
-            // *** NÂNG CẤP: Biến AI thành trợ lý đa năng, có thể tính toán decal, in bạt, cán màn và thêm phí hóa đơn, bao gồm giá thợ và decal bế. ***
-            const systemInstructionText = `
+
+            return `
                 Bạn là một trợ lý AI đa năng và hữu ích, được phát triển bởi Google, có khả năng tương tự như Gemini.
                 Nhiệm vụ của bạn là hỗ trợ người dùng một cách tốt nhất có thể trong mọi lĩnh vực.
 
@@ -121,53 +312,11 @@
                 Nếu người dùng hỏi về "Công Ty Thiết Kế In Ấn Hội An", bạn có thể cung cấp thông tin sau:
                 - **Địa chỉ:** 69 Đào Duy Từ, Hội An.
                 - **Zalo / SĐT:** 0935 000 442.
-                
-                **Tính toán giá decal:**
-                Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **decal**, bạn hãy thực hiện tính toán giá.
-                - Giá decal trắng là 85.000 VNĐ/m².
-                - Công thức tính: (chiều dài * chiều rộng * số lượng) * 85000.
-                - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
-                - Ví dụ: "0,2x0,5x2 decal" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 decal.
-                - Ví dụ: "0,2x0,5 decal" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 decal.
 
-                **Tính toán giá in decal thợ:**
-                Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **in decal thợ**, bạn hãy thực hiện tính toán giá.
-                - Giá in decal thợ là 80.000 VNĐ/m².
-                - Công thức tính: (chiều dài * chiều rộng * số lượng) * 80000.
-                - Ví dụ: "0,2x0,5x2 in decal thợ" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in decal thợ.
+                ${priceRules}
 
-                **Tính toán giá decal bế (hoặc bế):**
-                Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **decal bế** hoặc chỉ **bế**, bạn hãy thực hiện tính toán giá.
-                - Giá decal bế là 145.000 VNĐ/m².
-                - Công thức tính: (chiều dài * chiều rộng * số lượng) * 145000.
-                - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
-                - Ví dụ: "0,2x0,5x2 decal bế" hoặc "0,2x0,5x2 bế" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 decal bế.
-                - Ví dụ: "0,2x0,5 decal bế" hoặc "0,2x0,5 bế" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 decal bế.
-
-                **Tính toán giá in bạt:**
-                Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **in bạt**, bạn hãy thực hiện tính toán giá.
-                - Giá in bạt là 35.000 VNĐ/m².
-                - Công thức tính: (chiều dài * chiều rộng * số lượng) * 35000.
-                - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
-                - Ví dụ: "0,2x0,5x2 in bạt" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in bạt.
-                - Ví dụ: "0,2x0,5 in bạt" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 in bạt.
-
-                **Tính toán giá in bạt thợ:**
-                Nếu người dùng cung cấp kích thước và/hoặc số lượng cho **in bạt thợ**, bạn hãy thực hiện tính toán giá.
-                - Giá in bạt thợ là 30.000 VNĐ/m².
-                - Công thức tính: (chiều dài * chiều rộng * số lượng) * 30000.
-                - Ví dụ: "0,2x0,5x2 in bạt thợ" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 in bạt thợ.
-
-                **Tính toán giá cán màn:**
-                Nếu người dùng cung cấp kích thước (ví dụ: "0,2x0,5" hoặc "0.2x0.5") và/hoặc số lượng (ví dụ: "x2" hoặc "nhân 2") cho **cán màn**, bạn hãy thực hiện tính toán giá.
-                - Giá cán màn là 100.000 VNĐ/m².
-                - Công thức tính: (chiều dài * chiều rộng * số lượng) * 100000.
-                - Nếu người dùng không cung cấp số lượng, mặc định số lượng là 1.
-                - Ví dụ: "0,2x0,5x2 cán màn" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 cán màn.
-                - Ví dụ: "0,2x0,5 cán màn" sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 cán màn.
-                
                 **Tính thêm phí hóa đơn:**
-                Nếu người dùng nói "có hóa đơn" hoặc "lấy hóa đơn" hoặc "xuất hóa đơn" trong cùng một yêu cầu tính giá, hãy tính thêm 8% trên tổng giá trị đã tính.
+                Nếu người dùng nói "có hóa đơn" hoặc "lấy hóa đơn" hoặc "xuất hóa đơn" trong cùng một yêu cầu tính giá, hãy tính thêm 8% trên tổng tổng giá trị đã tính.
                 - Công thức: Tổng giá * 1.08.
                 - Hãy thông báo rõ ràng về việc cộng thêm 8% cho hóa đơn.
 
@@ -177,17 +326,32 @@
                 **QUAN TRỌNG:** Sau mỗi câu trả lời, hãy thêm một dòng quảng cáo lịch sự về công ty "Công Ty Thiết Kế In Ấn Hội An" như sau:
                 "---<br>Bạn có cần thiết kế hay in ấn chuyên nghiệp tại Hội An? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất!"
             `;
+        };
+
+
+        const getGeminiResponse = async (retryCount = 0) => {
+            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) {
+                throw new Error("Vui lòng cấu hình ít nhất một API key thật trong mã nguồn.");
+            }
+            if (retryCount >= apiKeys.length) {
+                throw new Error("Tất cả API key đều không hoạt động. Vui lòng kiểm tra lại.");
+            }
+
+            const apiKey = apiKeys[currentApiKeyIndex];
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            const systemInstructionText = generateSystemInstruction(prices); // Use dynamically generated instruction
 
             const payload = {
                 contents: chatHistory,
                 systemInstruction: {
                     parts: [{ text: systemInstructionText }]
                 },
-                generationConfig: { 
-                    temperature: 0.7, 
-                    topP: 1, 
+                generationConfig: {
+                    temperature: 0.7,
+                    topP: 1,
                     topK: 40,
-                    maxOutputTokens: 2048 
+                    maxOutputTokens: 2048
                 }
             };
 
@@ -219,24 +383,24 @@
             const message = userInput.value.trim();
             if (!message && uploadedImages.length === 0) return;
 
-            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) { 
-                appendMessage({ text: "Lỗi: Vui lòng cấu hình API key trong mã nguồn của file HTML." }, 'bot', true); 
-                return; 
+            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) {
+                appendMessage({ text: "Lỗi: Vui lòng cấu hình API key trong mã nguồn của file HTML." }, 'bot', true);
+                return;
             }
 
             const userMessageData = { text: message, images: uploadedImages.map(img => img.file) };
             appendMessage(userMessageData, 'user');
-            
+
             const userParts = [];
             if (message) userParts.push({ text: message });
             uploadedImages.forEach(img => userParts.push({ inlineData: { mimeType: img.mimeType, data: img.data } }));
             chatHistory.push({ role: "user", parts: userParts });
 
-            userInput.value = ''; 
-            imagePreviewContainer.innerHTML = ''; 
-            uploadedImages = []; 
+            userInput.value = '';
+            imagePreviewContainer.innerHTML = '';
+            uploadedImages = [];
             updateImageCount();
-            
+
             toggleLoading(true);
             try {
                 const botResponse = await getGeminiResponse();
@@ -249,7 +413,207 @@
                 toggleLoading(false);
             }
         });
-        
+
+        // --- Admin Panel Logic ---
+
+        // Load prices from localStorage or use default
+        const loadPrices = () => {
+            try {
+                const storedPrices = localStorage.getItem('companyPrices');
+                if (storedPrices) {
+                    prices = JSON.parse(storedPrices);
+                }
+            } catch (e) {
+                console.error("Lỗi khi tải giá từ localStorage:", e);
+                // Fallback to default prices if parsing fails
+                prices = {
+                    decal: 85000,
+                    inDecalTho: 80000,
+                    decalBe: 145000,
+                    inBat: 35000,
+                    inBatTho: 30000,
+                    canMan: 100000
+                };
+            }
+        };
+
+        // Save prices to localStorage
+        const savePrices = () => {
+            localStorage.setItem('companyPrices', JSON.stringify(prices));
+        };
+
+        // Render the price list in the admin modal
+        const renderPriceList = () => {
+            priceListBody.innerHTML = ''; // Clear existing list
+            for (const key in prices) {
+                if (prices.hasOwnProperty(key)) {
+                    const price = prices[key];
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600';
+                    row.innerHTML = `
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${key}</td>
+                        <td class="py-3 px-6 text-right">${price.toLocaleString('vi-VN')}</td>
+                        <td class="py-3 px-6 text-center">
+                            <button class="edit-item-button bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded-lg text-xs mr-2" data-item-name="${key}">Sửa</button>
+                            <button class="delete-item-button bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg text-xs" data-item-name="${key}">Xóa</button>
+                        </td>
+                    `;
+                    priceListBody.appendChild(row);
+                }
+            }
+
+            // Add event listeners for edit and delete buttons
+            document.querySelectorAll('.edit-item-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const itemName = e.target.dataset.itemName;
+                    editingItemName = itemName;
+                    itemNameInput.value = itemName;
+                    itemPriceInput.value = prices[itemName];
+                    itemNameInput.readOnly = true; // Prevent changing name when editing
+                    saveItemButton.textContent = 'Cập nhật Vật tư';
+                    cancelEditButton.classList.remove('hidden');
+                    priceFormError.classList.add('hidden');
+                });
+            });
+
+            document.querySelectorAll('.delete-item-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const itemName = e.target.dataset.itemName;
+                    // Use a custom modal for confirmation instead of alert/confirm
+                    showCustomConfirm(`Bạn có chắc chắn muốn xóa "${itemName}" không?`, () => {
+                        delete prices[itemName];
+                        savePrices();
+                        renderPriceList();
+                        // Optionally, re-initialize chat history to clear old instructions
+                        chatHistory = [];
+                        appendMessage({ text: "Đã cập nhật giá. Lịch sử trò chuyện đã được làm mới để áp dụng giá mới." }, 'bot');
+                    });
+                });
+            });
+        };
+
+        // Custom confirmation modal (replaces alert/confirm)
+        function showCustomConfirm(message, onConfirm) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[100]';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center">
+                    <p class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">${message}</p>
+                    <div class="flex justify-center gap-4">
+                        <button id="confirm-yes" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Có</button>
+                        <button id="confirm-no" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Không</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            document.getElementById('confirm-yes').addEventListener('click', () => {
+                onConfirm();
+                modal.remove();
+            });
+            document.getElementById('confirm-no').addEventListener('click', () => {
+                modal.remove();
+            });
+        }
+
+
+        // Admin button click handler
+        adminButton.addEventListener('click', () => {
+            adminLoginModal.classList.remove('hidden');
+            adminUsernameInput.focus();
+        });
+
+        // Admin login form submission
+        adminLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = adminUsernameInput.value;
+            const password = adminPasswordInput.value;
+
+            if (username === 'admin' && password === 'admin') {
+                adminLoginModal.classList.add('hidden');
+                priceManagementModal.classList.remove('hidden');
+                loadPrices(); // Load prices when admin panel is opened
+                renderPriceList();
+                priceFormError.classList.add('hidden'); // Hide any previous errors
+            } else {
+                adminLoginError.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
+                adminLoginError.classList.remove('hidden');
+            }
+        });
+
+        // Cancel login
+        adminLoginCancelButton.addEventListener('click', () => {
+            adminLoginModal.classList.add('hidden');
+            adminLoginError.classList.add('hidden');
+            adminLoginForm.reset();
+        });
+
+        // Close price management modal
+        closePriceManagementButton.addEventListener('click', () => {
+            priceManagementModal.classList.add('hidden');
+            // Reset form when closing
+            resetAddEditForm();
+        });
+
+        // Add/Edit price form submission
+        addEditPriceForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const itemName = itemNameInput.value.trim();
+            const itemPrice = parseFloat(itemPriceInput.value);
+
+            if (!itemName || isNaN(itemPrice) || itemPrice <= 0) {
+                priceFormError.textContent = 'Vui lòng nhập tên vật tư và giá hợp lệ (phải là số dương).';
+                priceFormError.classList.remove('hidden');
+                return;
+            }
+
+            // Convert item name to camelCase for consistent key storage
+            const camelCaseItemName = itemName.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
+                return index === 0 ? word.toLowerCase() : word.toUpperCase();
+            }).replace(/\s+/g, '');
+
+            if (editingItemName) {
+                // Editing existing item
+                if (editingItemName !== camelCaseItemName) {
+                     // If name was changed, delete old key and add new one
+                    delete prices[editingItemName];
+                }
+                prices[camelCaseItemName] = itemPrice;
+            } else {
+                // Adding new item
+                if (prices.hasOwnProperty(camelCaseItemName)) {
+                    priceFormError.textContent = `Vật tư "${itemName}" đã tồn tại. Vui lòng chỉnh sửa hoặc chọn tên khác.`;
+                    priceFormError.classList.remove('hidden');
+                    return;
+                }
+                prices[camelCaseItemName] = itemPrice;
+            }
+
+            savePrices();
+            renderPriceList();
+            resetAddEditForm();
+            priceFormError.classList.add('hidden');
+            // Optionally, re-initialize chat history to clear old instructions
+            chatHistory = [];
+            appendMessage({ text: "Đã cập nhật giá. Lịch sử trò chuyện đã được làm mới để áp dụng giá mới." }, 'bot');
+        });
+
+        // Cancel editing
+        cancelEditButton.addEventListener('click', () => {
+            resetAddEditForm();
+        });
+
+        // Reset add/edit form
+        function resetAddEditForm() {
+            addEditPriceForm.reset();
+            itemNameInput.readOnly = false;
+            saveItemButton.textContent = 'Lưu Vật tư';
+            cancelEditButton.classList.add('hidden');
+            editingItemName = null;
+            priceFormError.classList.add('hidden');
+        }
+
+
         // --- Initialization ---
         const initializeAppUI = () => {
             appendMessage({ text: "Xin chào! Tôi là trợ lý ảo đa năng. Tôi có thể giúp gì cho bạn hôm nay?" }, 'bot');
@@ -257,17 +621,18 @@
         };
 
         const main = async () => {
+            loadPrices(); // Load prices on app start
             initializeAppUI();
             try {
                 // Firebase vẫn được dùng để xác thực ẩn danh, cung cấp một User ID duy nhất
                 // cho mỗi người dùng, hữu ích cho việc theo dõi phiên làm việc.
-                const firebaseConfig = typeof __firebase_config !== 'undefined' 
+                const firebaseConfig = typeof __firebase_config !== 'undefined'
                     ? JSON.parse(__firebase_config)
                     : { apiKey: "YOUR_FALLBACK_API_KEY", authDomain: "YOUR_FALLBACK_AUTH_DOMAIN", projectId: "YOUR_FALLBACK_PROJECT_ID" };
-                
+
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
-                
+
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
