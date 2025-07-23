@@ -12,12 +12,19 @@
         /* Base styles for the body and scrollbar */
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .dark body {
+            background-color: #111827;
         }
         #image-input { display: none; }
-        .chat-container::-webkit-scrollbar { width: 8px; }
-        .chat-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        .chat-container::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
-        .chat-container::-webkit-scrollbar-thumb:hover { background: #555; }
+        .chat-container::-webkit-scrollbar { width: 6px; }
+        .chat-container::-webkit-scrollbar-track { background: transparent; }
+        .chat-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .chat-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .dark .chat-container::-webkit-scrollbar-thumb { background: #4b5563; }
+        .dark .chat-container::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
         .drag-over {
             background-color: #e0f2fe !important; /* light-blue */
             border: 2px dashed #3b82f6; /* blue-500 */
@@ -49,20 +56,53 @@
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
             font-weight: 600;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
         }
         .camera-button:hover {
             background-color: #059669; /* green-600 */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
         .camera-button:disabled {
             background-color: #6ee7b7; /* green-200 */
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* New UI Styles for Chat Bubbles */
+        @keyframes message-fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .message-fade-in {
+            animation: message-fade-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        .avatar-container {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+        .avatar-container svg {
+            width: 24px;
+            height: 24px;
         }
     </style>
 
-    <!-- Firebase Configuration (kept for chat functionality if needed, but admin-specific parts removed) -->
+    <!-- Firebase Configuration -->
     <script>
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
           apiKey: "AIzaSyDJBY6U0LUtmnk4PrfNeA7UE7qq1FZ84X8",
           authDomain: "data-chung-a62ee.firebaseapp.com",
@@ -73,7 +113,6 @@
           appId: "1:4531115303161:web:d40a0ec5a38ab7d4863e28",
           measurementId: "G-WNVH78VY1Z"
         };
-        // Expose firebaseConfig to the global scope for the main script
         window.__firebase_config = JSON.stringify(firebaseConfig);
     </script>
 </head>
@@ -81,19 +120,20 @@
 
     <!-- Chat View Container -->
     <div id="chat-view" class="flex h-screen">
-        <main class="flex-1 flex flex-col">
+        <main class="flex-1 flex flex-col bg-white dark:bg-gray-800">
             <!-- Header -->
-            <header class="p-4 border-b dark:border-gray-700 flex items-center justify-between bg-blue-600 text-white">
+            <header class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-800 shadow-sm z-10">
                 <div class="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
-                    <h1 class="text-lg md:text-xl font-bold">(Trợ Lý Ảo) Công Ty Thiết Kế In Ấn Hội An </h1>
+                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
+                    </div>
+                    <h1 class="text-lg md:text-xl font-bold text-gray-800 dark:text-white">Trợ lý In ấn Hội An</h1>
                 </div>
-                <!-- Admin Button removed -->
             </header>
 
-            <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900"></div>
+            <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"></div>
 
-            <div id="input-area" class="p-4 border-t dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
+            <div id="input-area" class="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                 <!-- Camera Feed and Controls -->
                 <video id="camera-feed" autoplay playsinline></video>
                 <canvas id="camera-canvas"></canvas>
@@ -107,12 +147,13 @@
                 <div id="image-info" class="text-xs text-gray-500 dark:text-gray-400 mb-2 h-4"></div>
                 <form id="chat-form" class="flex items-center gap-3">
                     <input type="file" id="image-input" accept="image/*" multiple>
-                    <label for="image-input" id="image-upload-button" class="cursor-pointer p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <label for="image-input" id="image-upload-button" class="cursor-pointer p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 dark:text-gray-400"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                     </label>
-                    <input type="text" id="user-input" placeholder="Nhập tin nhắn, dán hoặc kéo thả ảnh..." class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white" autocomplete="off">
-                    <button type="submit" id="send-button" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center">
-                        <span id="send-text">Gửi</span>
+                    <input type="text" id="user-input" placeholder="Nhập tin nhắn..." class="flex-1 p-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all" autocomplete="off">
+                    <button type="submit" id="send-button" class="bg-blue-600 text-white w-12 h-12 rounded-full font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0 transition-transform hover:scale-110 active:scale-100">
+                        <span id="send-text" class="hidden">Gửi</span>
+                        <svg id="send-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                         <svg id="loading-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     </button>
                 </form>
@@ -137,6 +178,7 @@
         const chatView = document.getElementById('chat-view');
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
               sendButton = document.getElementById('send-button'), sendText = document.getElementById('send-text'),
+              sendIcon = document.getElementById('send-icon'),
               loadingSpinner = document.getElementById('loading-spinner'), imageInput = document.getElementById('image-input'),
               imagePreviewContainer = document.getElementById('image-preview-container'), imageInfo = document.getElementById('image-info'),
               inputArea = document.getElementById('input-area');
@@ -292,7 +334,6 @@
                 showCustomMessage('Camera đã bật.', 'info');
             } catch (err) {
                 console.error('Lỗi khi truy cập camera:', err);
-                // If environment facing mode fails, try user facing mode
                 if (!deviceId && constraints.video.facingMode && err.name === 'OverconstrainedError') {
                     try {
                         constraints.video.facingMode = { exact: 'user' }; // Try front camera
@@ -389,12 +430,8 @@
                 const filename = `captured_${Date.now()}.jpeg`;
                 const capturedFile = dataURLtoFile(cameraCanvas.toDataURL('image/jpeg', 0.8), filename);
                 
-                // Add the new file to the array, don't clear it
                 uploadedImages.push(capturedFile);
-                
-                // Add the new preview to the container, don't clear it
                 createImagePreview(URL.createObjectURL(capturedFile), capturedFile);
-                
                 updateImageCount();
                 showCustomMessage('Đã chụp ảnh. Bạn có thể chụp thêm hoặc gửi đi.', 'info');
 
@@ -403,7 +440,6 @@
             }
         });
 
-        // Helper to convert Data URL to File object for consistent handling
         function dataURLtoFile(dataurl, filename) {
             var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
                 bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -413,13 +449,10 @@
             return new File([u8arr], filename, {type:mime});
         }
 
-
         // --- UI & Event Handlers ---
-        // Chat form submission
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const message = userInput.value.trim();
-            
             const imagesToSubmit = [...uploadedImages]; 
             
             if (!message && imagesToSubmit.length === 0) {
@@ -458,7 +491,6 @@
 
             try {
                 await Promise.all(imageConversionPromises); 
-
                 chatHistory.push({ role: "user", parts: userPartsForAPI });
                 const botResponse = await getGeminiResponse();
                 appendMessage({ text: botResponse }, 'bot');
@@ -470,11 +502,9 @@
             }
         });
         
-        // Modal Handlers
         function showCustomMessage(message, type = 'info') { customMessageText.textContent = message; customMessageModal.classList.remove('hidden'); }
         customMessageOkButton.addEventListener('click', () => customMessageModal.classList.add('hidden'));
 
-        // Image Handling Helpers
         function processFiles(files) { 
             if (!files || files.length === 0) return; 
             const newImageCount = uploadedImages.length + files.length;
@@ -501,11 +531,11 @@
             pWrap.className = 'relative'; 
             const img = document.createElement('img'); 
             img.src = dataUrl; 
-            img.className = 'h-16 w-16 object-cover rounded-md'; 
+            img.className = 'h-16 w-16 object-cover rounded-md shadow-md'; 
             pWrap.appendChild(img); 
             const rBtn = document.createElement('button'); 
             rBtn.innerHTML = '&times;'; 
-            rBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs'; 
+            rBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs shadow-lg'; 
             rBtn.onclick = () => { 
                 uploadedImages = uploadedImages.filter(item => item !== file); 
                 pWrap.remove(); 
@@ -518,20 +548,42 @@
             const totalImages = uploadedImages.length;
             imageInfo.textContent = totalImages > 0 ? `Đã chọn ${totalImages}/${MAX_IMAGES} ảnh.` : ''; 
         }
+        
         function appendMessage(data, sender, isError = false) { 
             const { text, images } = data; 
             const msgWrap = document.createElement('div'); 
-            msgWrap.className = `flex items-start gap-3 mb-4 ${sender === 'user' ? 'justify-end' : ''}`; 
+            msgWrap.className = `flex items-start gap-3 mb-6 message-fade-in ${sender === 'user' ? 'justify-end' : ''}`; 
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar-container';
+            
             const msgContent = document.createElement('div'); 
-            msgContent.className = `p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-xl ${sender === 'user' ? 'bg-blue-600 text-white' : isError ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : 'bg-gray-200 dark:bg-gray-700'}`; 
+            msgContent.className = `p-4 rounded-2xl shadow-md max-w-xs md:max-w-md lg:max-w-xl`; 
+
+            if (sender === 'user') {
+                avatar.classList.add('bg-gray-300', 'dark:bg-gray-600');
+                avatar.innerHTML = `<svg class="text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+                msgContent.classList.add('bg-blue-500', 'text-white', 'rounded-br-lg');
+            } else {
+                avatar.classList.add(isError ? 'bg-red-500' : 'bg-blue-500');
+                avatar.innerHTML = isError 
+                    ? `<svg class="text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`
+                    : `<svg class="text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15 4c-2.23 0-4.14 1.25-5.1 3.05A8.93 8.93 0 0 0 4 9c-2.21 0-4 1.79-4 4s1.79 4 4 4h1v2h-1c-3.31 0-6-2.69-6-6 0-2.95 2.14-5.43 5-5.92V4h1c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2h1v2h-1c1.55 0 2.96.59 4 1.54V4h1c1.1 0 2 .9 2 2v1c.73.55 1.39 1.22 1.92 2H23v-1c0-2.21-1.79-4-4-4h-4zm-2 5h-2v2H9v2h2v2h2v-2h2v-2h-2V9z"/></svg>`;
+                
+                if (isError) {
+                    msgContent.classList.add('bg-red-100', 'dark:bg-red-900', 'text-red-800', 'dark:text-red-200', 'rounded-bl-lg');
+                } else {
+                    msgContent.classList.add('bg-gray-100', 'dark:bg-gray-700', 'rounded-bl-lg');
+                }
+            }
             
             if (images?.length) { 
                 const grid = document.createElement('div'); 
-                grid.className = 'grid grid-cols-3 gap-1 mb-2'; 
+                grid.className = 'grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-lg overflow-hidden'; 
                 images.forEach(imgData => { 
                     const img = document.createElement('img'); 
                     img.src = URL.createObjectURL(imgData);
-                    img.className = 'w-full h-auto object-cover rounded'; 
+                    img.className = 'w-full h-auto object-cover rounded-md aspect-square'; 
                     img.onload = () => URL.revokeObjectURL(img.src); 
                     grid.appendChild(img); 
                 }); 
@@ -540,14 +592,10 @@
             
             if (text) { 
                 const p = document.createElement('p'); 
-                p.className = `text-sm`; 
+                p.className = `text-sm leading-relaxed ${images?.length ? 'mt-3' : ''}`; 
                 p.innerHTML = text.replace(/\n/g, '<br>'); 
                 msgContent.appendChild(p); 
             } 
-            
-            const avatar = document.createElement('div'); 
-            avatar.className = `flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center font-bold text-white ${sender === 'user' ? 'bg-gray-500' : isError ? 'bg-red-500' : 'bg-blue-500'}`; 
-            avatar.textContent = sender === 'user' ? 'U' : 'B'; 
             
             if (sender === 'user') { 
                 msgWrap.append(msgContent, avatar); 
@@ -563,14 +611,15 @@
             userInput.disabled = isLoading; 
             document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; 
             
+            sendIcon.classList.toggle('hidden', isLoading);
+            loadingSpinner.classList.toggle('hidden', !isLoading); 
+
             if (isMobileDevice()) {
                 startCameraButton.disabled = isLoading; 
                 captureSendButton.disabled = isLoading || !mediaStream || !mediaStream.active; 
                 switchCameraButton.disabled = isLoading || availableVideoDevices.length <= 1; 
             }
 
-            sendText.classList.toggle('hidden', isLoading); 
-            loadingSpinner.classList.toggle('hidden', !isLoading); 
             if (!isLoading) userInput.focus(); 
         }
 
@@ -580,7 +629,7 @@
                 cameraControls.style.display = 'none';
             }
 
-            appendMessage({ text: "Xin chào! Tôi là trợ lý ảo. Tôi có thể giúp gì cho bạn?" }, 'bot');
+            appendMessage({ text: "Dạ thưa, tôi là trợ lý ảo của công ty. Tôi có thể giúp gì cho quý khách ạ?" }, 'bot');
             try {
                 const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : null;
                 
