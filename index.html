@@ -12,10 +12,10 @@
         /* Base styles for the body and scrollbar */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #f7f8fa;
         }
         .dark body {
-            background-color: #111827;
+            background-color: #0d1117;
         }
         #image-input { display: none; }
         .chat-container::-webkit-scrollbar { width: 6px; }
@@ -99,6 +99,24 @@
             width: 24px;
             height: 24px;
         }
+
+        /* Typing indicator styles */
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #9ca3af;
+            animation: bounce 1.2s infinite ease-in-out;
+        }
+        .dark .typing-dot {
+            background-color: #6b7280;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
     </style>
 
     <!-- Firebase Configuration -->
@@ -124,14 +142,14 @@
             <!-- Header -->
             <header class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-800 shadow-sm z-10">
                 <div class="flex items-center">
-                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-3 shadow-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     </div>
                     <h1 class="text-lg md:text-xl font-bold text-gray-800 dark:text-white">Trợ lý In ấn Hội An</h1>
                 </div>
             </header>
 
-            <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"></div>
+            <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900"></div>
 
             <div id="input-area" class="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                 <!-- Camera Feed and Controls -->
@@ -175,7 +193,7 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // --- DOM Element Selection ---
-        const chatView = document.getElementById('chat-view');
+        const chatContainer = document.querySelector('.chat-container');
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
               sendButton = document.getElementById('send-button'), sendText = document.getElementById('send-text'),
               sendIcon = document.getElementById('send-icon'),
@@ -274,7 +292,7 @@
 
         // --- View Control Functions (Simplified for chat only) ---
         function showChatView() {
-            chatView.style.display = 'flex'; 
+            chatContainer.parentElement.style.display = 'flex'; 
             console.log("Showing Chat View.");
         }
 
@@ -466,8 +484,9 @@
             imagePreviewContainer.innerHTML = '';
             uploadedImages = [];
             updateImageCount();
-
+            
             toggleLoading(true);
+            showTypingIndicator(true);
 
             const userPartsForAPI = [];
             if (message) userPartsForAPI.push({ text: message });
@@ -498,6 +517,7 @@
             } catch (error) {
                 appendMessage({ text: `Lỗi: ${error.message}` }, 'bot', true);
             } finally {
+                showTypingIndicator(false);
                 toggleLoading(false);
             }
         });
@@ -549,11 +569,42 @@
             imageInfo.textContent = totalImages > 0 ? `Đã chọn ${totalImages}/${MAX_IMAGES} ảnh.` : ''; 
         }
         
+        function showTypingIndicator(show) {
+            let indicator = document.getElementById('typing-indicator');
+            if (show) {
+                if (!indicator) {
+                    indicator = document.createElement('div');
+                    indicator.id = 'typing-indicator';
+                    indicator.className = 'flex items-center gap-3 mb-6 message-fade-in';
+                    indicator.innerHTML = `
+                        <div class="avatar-container bg-blue-500">
+                            <svg class="text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15 4c-2.23 0-4.14 1.25-5.1 3.05A8.93 8.93 0 0 0 4 9c-2.21 0-4 1.79-4 4s1.79 4 4 4h1v2h-1c-3.31 0-6-2.69-6-6 0-2.95 2.14-5.43 5-5.92V4h1c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2h1v2h-1c1.55 0 2.96.59 4 1.54V4h1c1.1 0 2 .9 2 2v1c.73.55 1.39 1.22 1.92 2H23v-1c0-2.21-1.79-4-4-4h-4zm-2 5h-2v2H9v2h2v2h2v-2h2v-2h-2V9z"/></svg>
+                        </div>
+                        <div class="p-4 rounded-2xl shadow-md bg-gray-100 dark:bg-gray-700 rounded-bl-lg flex items-center gap-2">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    `;
+                    chatContainer.appendChild(indicator);
+                }
+                indicator.style.display = 'flex';
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } else {
+                if (indicator) {
+                    indicator.remove();
+                }
+            }
+        }
+
         function appendMessage(data, sender, isError = false) { 
             const { text, images } = data; 
             const msgWrap = document.createElement('div'); 
-            msgWrap.className = `flex items-start gap-3 mb-6 message-fade-in ${sender === 'user' ? 'justify-end' : ''}`; 
+            msgWrap.className = `flex items-start gap-3 mb-2 ${sender === 'user' ? 'justify-end' : ''}`; 
             
+            const msgContainer = document.createElement('div');
+            msgContainer.className = `flex flex-col ${sender === 'user' ? 'items-end' : 'items-start'}`;
+
             const avatar = document.createElement('div');
             avatar.className = 'avatar-container';
             
@@ -563,7 +614,7 @@
             if (sender === 'user') {
                 avatar.classList.add('bg-gray-300', 'dark:bg-gray-600');
                 avatar.innerHTML = `<svg class="text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-                msgContent.classList.add('bg-blue-500', 'text-white', 'rounded-br-lg');
+                msgContent.classList.add('bg-blue-500', 'text-white', 'rounded-br-none');
             } else {
                 avatar.classList.add(isError ? 'bg-red-500' : 'bg-blue-500');
                 avatar.innerHTML = isError 
@@ -571,9 +622,9 @@
                     : `<svg class="text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15 4c-2.23 0-4.14 1.25-5.1 3.05A8.93 8.93 0 0 0 4 9c-2.21 0-4 1.79-4 4s1.79 4 4 4h1v2h-1c-3.31 0-6-2.69-6-6 0-2.95 2.14-5.43 5-5.92V4h1c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2h1v2h-1c1.55 0 2.96.59 4 1.54V4h1c1.1 0 2 .9 2 2v1c.73.55 1.39 1.22 1.92 2H23v-1c0-2.21-1.79-4-4-4h-4zm-2 5h-2v2H9v2h2v2h2v-2h2v-2h-2V9z"/></svg>`;
                 
                 if (isError) {
-                    msgContent.classList.add('bg-red-100', 'dark:bg-red-900', 'text-red-800', 'dark:text-red-200', 'rounded-bl-lg');
+                    msgContent.classList.add('bg-red-100', 'dark:bg-red-900', 'text-red-800', 'dark:text-red-200', 'rounded-bl-none');
                 } else {
-                    msgContent.classList.add('bg-gray-100', 'dark:bg-gray-700', 'rounded-bl-lg');
+                    msgContent.classList.add('bg-gray-100', 'dark:bg-gray-700', 'rounded-bl-none');
                 }
             }
             
@@ -597,13 +648,25 @@
                 msgContent.appendChild(p); 
             } 
             
+            const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            const timeEl = document.createElement('div');
+            timeEl.className = `text-xs mt-2 ${sender === 'user' ? 'text-blue-200' : 'text-gray-400'}`;
+            timeEl.textContent = time;
+
+            msgContainer.appendChild(msgContent);
+            msgContainer.appendChild(timeEl);
+
             if (sender === 'user') { 
-                msgWrap.append(msgContent, avatar); 
+                msgWrap.append(msgContainer, avatar); 
             } else { 
-                msgWrap.append(avatar, msgContent); 
+                msgWrap.append(avatar, msgContainer); 
             } 
-            document.querySelector('.chat-container').appendChild(msgWrap); 
-            document.querySelector('.chat-container').scrollTop = document.querySelector('.chat-container').scrollHeight; 
+            
+            const fullMessageWrapper = document.createElement('div');
+            fullMessageWrapper.className = 'message-fade-in w-full';
+            fullMessageWrapper.appendChild(msgWrap);
+            chatContainer.appendChild(fullMessageWrapper); 
+            chatContainer.scrollTop = chatContainer.scrollHeight; 
         }
 
         function toggleLoading(isLoading) { 
