@@ -117,6 +117,14 @@
         }
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Subtle background pattern */
+        .chat-bg {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .dark .chat-bg {
+             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23374151' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
     </style>
 
     <!-- Firebase Configuration -->
@@ -138,20 +146,45 @@
 
     <!-- Chat View Container -->
     <div id="chat-view" class="flex h-screen">
+        <!-- Sidebar is now hidden on all screen sizes -->
+        <aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col justify-between hidden">
+            <div class="p-4">
+                <div class="flex items-center mb-6">
+                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
+                    </div>
+                    <h2 class="font-bold text-lg text-gray-800 dark:text-white">In Ấn Hội An</h2>
+                </div>
+                <button class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>
+                    Cuộc trò chuyện mới
+                </button>
+            </div>
+             <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
+                <p>&copy; 2024 Công Ty In Thiết Kế Ấn Hội An</p>
+            </div>
+        </aside>
+
         <main class="flex-1 flex flex-col bg-white dark:bg-gray-800">
             <!-- Header -->
             <header class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-800 shadow-sm z-10">
                 <div class="flex items-center">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-3 shadow-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
+                    <div class="relative mr-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4c-2.23 0-4.14 1.25-5.1 3.05A8.93 8.93 0 0 0 4 9c-2.21 0-4 1.79-4 4s1.79 4 4 4h1v2h-1c-3.31 0-6-2.69-6-6 0-2.95 2.14-5.43 5-5.92V4h1c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2h1v2h-1c1.55 0 2.96.59 4 1.54V4h1c1.1 0 2 .9 2 2v1c.73.55 1.39 1.22 1.92 2H23v-1c0-2.21-1.79-4-4-4h-4zm-2 5h-2v2H9v2h2v2h2v-2h2v-2h-2V9z"/></svg>
+                        </div>
+                        <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-400 ring-2 ring-white dark:ring-gray-800"></span>
                     </div>
-                    <h1 class="text-lg md:text-xl font-bold text-gray-800 dark:text-white">Trợ lý In ấn Hội An</h1>
+                    <div>
+                        <h1 class="text-lg md:text-xl font-bold text-gray-800 dark:text-white">Trợ Lý Ảo Của Công Ty In Ấn Hội An</h1>
+                        <p class="text-xs text-green-500 font-semibold">Đang hoạt động</p>
+                    </div>
                 </div>
             </header>
 
-            <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900"></div>
+            <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto chat-bg"></div>
 
-            <div id="input-area" class="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <div id="input-area" class="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-inner">
                 <!-- Camera Feed and Controls -->
                 <video id="camera-feed" autoplay playsinline></video>
                 <canvas id="camera-canvas"></canvas>
@@ -169,7 +202,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 dark:text-gray-400"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                     </label>
                     <input type="text" id="user-input" placeholder="Nhập tin nhắn..." class="flex-1 p-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all" autocomplete="off">
-                    <button type="submit" id="send-button" class="bg-blue-600 text-white w-12 h-12 rounded-full font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0 transition-transform hover:scale-110 active:scale-100">
+                    <button type="submit" id="send-button" class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white w-12 h-12 rounded-full font-semibold hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:from-blue-400 disabled:to-indigo-400 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0 transition-all duration-200 hover:scale-110 active:scale-100 shadow-lg">
                         <span id="send-text" class="hidden">Gửi</span>
                         <svg id="send-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                         <svg id="loading-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -580,7 +613,7 @@
                         <div class="avatar-container bg-blue-500">
                             <svg class="text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15 4c-2.23 0-4.14 1.25-5.1 3.05A8.93 8.93 0 0 0 4 9c-2.21 0-4 1.79-4 4s1.79 4 4 4h1v2h-1c-3.31 0-6-2.69-6-6 0-2.95 2.14-5.43 5-5.92V4h1c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2h1v2h-1c1.55 0 2.96.59 4 1.54V4h1c1.1 0 2 .9 2 2v1c.73.55 1.39 1.22 1.92 2H23v-1c0-2.21-1.79-4-4-4h-4zm-2 5h-2v2H9v2h2v2h2v-2h2v-2h-2V9z"/></svg>
                         </div>
-                        <div class="p-4 rounded-2xl shadow-md bg-gray-100 dark:bg-gray-700 rounded-bl-lg flex items-center gap-2">
+                        <div class="p-4 rounded-2xl shadow-md bg-gray-100 dark:bg-gray-700 rounded-bl-none flex items-center gap-2">
                             <div class="typing-dot"></div>
                             <div class="typing-dot"></div>
                             <div class="typing-dot"></div>
