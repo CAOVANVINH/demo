@@ -100,6 +100,7 @@
                 <div class="camera-controls">
                     <button id="start-camera-button" class="camera-button">Bật Camera</button>
                     <button id="capture-send-button" class="camera-button" disabled>Chụp Ảnh & Gửi</button>
+                    <button id="switch-camera-button" class="camera-button hidden" disabled>Chuyển Camera</button>
                 </div>
 
                 <div id="image-preview-container" class="mb-2 flex flex-wrap gap-2"></div>
@@ -149,7 +150,10 @@
         const cameraCanvas = document.getElementById('camera-canvas');
         const startCameraButton = document.getElementById('start-camera-button');
         const captureSendButton = document.getElementById('capture-send-button');
-        let mediaStream = null; // To hold the camera stream
+        const switchCameraButton = document.getElementById('switch-camera-button'); 
+        let mediaStream = null; 
+        let availableVideoDevices = []; 
+        let currentCameraIndex = -1; 
 
         // Modals
         const customMessageModal = document.getElementById('custom-message-modal');
@@ -157,10 +161,10 @@
         const customMessageOkButton = document.getElementById('custom-message-ok');
 
         // --- State Management ---
-        const MAX_IMAGES = 100; // Increased max images for potential camera captures
+        const MAX_IMAGES = 100; 
         let chatHistory = [];
         let uploadedImages = []; // Stores file objects for display
-        let capturedImageBase64 = null; // Stores the single base64 image from camera
+        let capturedImageBase64 = null; 
         let currentApiKeyIndex = 0;
 
         // Firebase State (simplified)
@@ -209,35 +213,6 @@
             const apiKey = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
-            // Constructing content parts for Gemini API
-            const contentParts = [];
-            if (chatHistory.length > 0) {
-                // Add existing chat history (text only, as previous images were handled locally)
-                // For a full multi-modal history, you'd need to store image data in chatHistory
-                chatHistory.forEach(msg => {
-                    if (msg.role === 'user' || msg.role === 'model') {
-                        // Assuming msg.parts might contain text or inlineData
-                        contentParts.push({ role: msg.role, parts: msg.parts });
-                    }
-                });
-            }
-
-            // Add the current user input (text + images/camera capture)
-            const currentUserMessage = chatHistory[chatHistory.length - 1]; // Get the last message added by user
-            if (currentUserMessage && currentUserMessage.role === 'user') {
-                const userParts = [];
-                currentUserMessage.parts.forEach(part => {
-                    if (part.text) {
-                        userParts.push({ text: part.text });
-                    } else if (part.inlineData) {
-                        userParts.push({ inlineData: part.inlineData });
-                    }
-                });
-                // Ensure the last user message is correctly formatted for the API
-                // This logic might need refinement if chatHistory is not storing inlineData for past messages
-                // For simplicity, we assume chatHistory already contains the correct structure for the last user message.
-            }
-
             const payload = { contents: chatHistory, systemInstruction: { parts: [{ text: generateSystemInstruction() }] } };
 
             try {
@@ -256,34 +231,144 @@
 
         // --- View Control Functions (Simplified for chat only) ---
         function showChatView() {
-            chatView.style.display = 'flex'; // Explicitly show chat
+            chatView.style.display = 'flex'; 
             console.log("Showing Chat View.");
         }
 
         // --- Camera Functions ---
-        startCameraButton.addEventListener('click', async () => {
-            if (mediaStream && mediaStream.active) {
-                // Stop camera if already active
+        async function stopCamera() {
+            if (mediaStream) {
                 mediaStream.getTracks().forEach(track => track.stop());
                 cameraFeed.srcObject = null;
                 cameraFeed.style.display = 'none';
                 startCameraButton.textContent = 'Bật Camera';
                 captureSendButton.disabled = true;
-                showCustomMessage('Camera đã tắt.', 'info');
+                switchCameraButton.classList.add('hidden'); 
+                switchCameraButton.disabled = true;
                 mediaStream = null;
-            } else {
-                try {
-                    mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                    cameraFeed.srcObject = mediaStream;
-                    cameraFeed.style.display = 'block';
-                    startCameraButton.textContent = 'Tắt Camera';
-                    captureSendButton.disabled = false;
-                    showCustomMessage('Camera đã bật.', 'info');
-                } catch (err) {
-                    console.error('Lỗi khi truy cập camera:', err);
-                    showCustomMessage(`Không thể truy cập camera: ${err.message}. Vui lòng kiểm tra quyền truy cập.`, 'error');
-                    captureSendButton.disabled = true;
+                availableVideoDevices = []; 
+                currentCameraIndex = -1; 
+                showCustomMessage('Camera đã tắt.', 'info');
+            }
+        }
+
+        async function startCamera(deviceId = null) {
+            if (mediaStream) { 
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+
+            const constraints = {
+                video: {
+                    width: { ideal: 640 }, 
+                    height: { ideal: 480 }
                 }
+            };
+
+            if (deviceId) {
+                constraints.video.deviceId = { exact: deviceId };
+            } else {
+                constraints.video.facingMode = { exact: 'environment' }; // Prefer rear camera
+            }
+
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                cameraFeed.srcObject = mediaStream;
+                cameraFeed.style.display = 'block';
+                startCameraButton.textContent = 'Tắt Camera';
+                captureSendButton.disabled = false;
+                
+                await enumerateCameras();
+                if (availableVideoDevices.length > 1) {
+                    switchCameraButton.classList.remove('hidden');
+                    switchCameraButton.disabled = false;
+                } else {
+                    switchCameraButton.classList.add('hidden');
+                    switchCameraButton.disabled = true;
+                }
+
+                showCustomMessage('Camera đã bật.', 'info');
+            } catch (err) {
+                console.error('Lỗi khi truy cập camera:', err);
+                // If environment facing mode fails, try user facing mode
+                if (!deviceId && constraints.video.facingMode && err.name === 'OverconstrainedError') {
+                    try {
+                        constraints.video.facingMode = { exact: 'user' }; // Try front camera
+                        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                        cameraFeed.srcObject = mediaStream;
+                        cameraFeed.style.display = 'block';
+                        startCameraButton.textContent = 'Tắt Camera';
+                        captureSendButton.disabled = false;
+                        await enumerateCameras(); 
+                        if (availableVideoDevices.length > 1) {
+                            switchCameraButton.classList.remove('hidden');
+                            switchCameraButton.disabled = false;
+                        } else {
+                            switchCameraButton.classList.add('hidden');
+                            switchCameraButton.disabled = true;
+                        }
+                        showCustomMessage('Camera đã bật (camera trước).', 'info');
+                    } catch (userErr) {
+                        console.error('Lỗi khi truy cập camera trước:', userErr);
+                        showCustomMessage(`Không thể truy cập camera: ${userErr.message}. Vui lòng kiểm tra quyền truy cập.`, 'error');
+                        stopCamera(); 
+                    }
+                } else {
+                    showCustomMessage(`Không thể truy cập camera: ${err.message}. Vui lòng kiểm tra quyền truy cập.`, 'error');
+                    stopCamera(); 
+                }
+            }
+        }
+
+        async function enumerateCameras() {
+            availableVideoDevices = [];
+            currentCameraIndex = -1; 
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            let foundCurrentCamera = false;
+
+            devices.forEach((device) => {
+                if (device.kind === 'videoinput') {
+                    availableVideoDevices.push(device);
+                }
+            });
+
+            if (mediaStream && mediaStream.getVideoTracks().length > 0) {
+                const activeTrack = mediaStream.getVideoTracks()[0];
+                const activeDeviceId = activeTrack.getSettings().deviceId;
+                const activeLabel = activeTrack.label;
+
+                // Find index by deviceId first, then by label if deviceId is not available or doesn't match
+                let foundIndex = availableVideoDevices.findIndex(dev => dev.deviceId === activeDeviceId);
+                if (foundIndex === -1) {
+                    foundIndex = availableVideoDevices.findIndex(dev => dev.label === activeLabel);
+                }
+
+                if (foundIndex !== -1) {
+                    currentCameraIndex = foundIndex;
+                    foundCurrentCamera = true;
+                }
+            }
+
+            // Fallback: If no specific device is matched but there are devices, set to the first one
+            if (!foundCurrentCamera && availableVideoDevices.length > 0) {
+                currentCameraIndex = 0;
+            }
+        }
+
+        startCameraButton.addEventListener('click', async () => {
+            if (mediaStream && mediaStream.active) {
+                stopCamera();
+            } else {
+                await startCamera(); 
+            }
+        });
+
+        switchCameraButton.addEventListener('click', async () => {
+            if (availableVideoDevices.length > 1) {
+                currentCameraIndex = (currentCameraIndex + 1) % availableVideoDevices.length;
+                const nextDeviceId = availableVideoDevices[currentCameraIndex].deviceId;
+                await startCamera(nextDeviceId);
+            } else {
+                showCustomMessage('Chỉ có một camera khả dụng.', 'info');
             }
         });
 
@@ -294,21 +379,17 @@
                 cameraCanvas.height = cameraFeed.videoHeight;
                 context.drawImage(cameraFeed, 0, 0, cameraCanvas.width, cameraCanvas.height);
                 
-                capturedImageBase64 = cameraCanvas.toDataURL('image/jpeg').split(',')[1]; // Get Base64 data
+                capturedImageBase64 = cameraCanvas.toDataURL('image/jpeg', 0.8).split(',')[1]; 
                 
-                // Display the captured image in the preview area
-                const capturedFile = dataURLtoFile(cameraCanvas.toDataURL('image/jpeg'), 'captured_image.jpeg');
-                uploadedImages = [capturedFile]; // Replace any existing uploaded images with the captured one
-                imagePreviewContainer.innerHTML = ''; // Clear existing previews
+                // Clear any previously uploaded images and add the new captured image
+                uploadedImages = []; 
+                const capturedFile = dataURLtoFile(cameraCanvas.toDataURL('image/jpeg', 0.8), 'captured_image.jpeg');
+                uploadedImages.push(capturedFile);
+                
+                imagePreviewContainer.innerHTML = ''; 
                 createImagePreview(URL.createObjectURL(capturedFile), capturedFile);
                 updateImageCount();
 
-                // Optionally, stop the camera after capturing
-                // mediaStream.getTracks().forEach(track => track.stop());
-                // cameraFeed.srcObject = null;
-                // cameraFeed.style.display = 'none';
-                // startCameraButton.textContent = 'Bật Camera';
-                // captureSendButton.disabled = true;
             } else {
                 showCustomMessage('Vui lòng bật camera trước khi chụp ảnh.', 'warning');
             }
@@ -331,83 +412,56 @@
             e.preventDefault();
             const message = userInput.value.trim();
             
-            // Collect all images: from file input and from camera capture
-            const imagesToSend = [];
+            // Prepare images for display first (using File objects)
+            const imagesForDisplay = [...uploadedImages]; // Copy current uploaded images
             if (capturedImageBase64) {
-                imagesToSend.push({
-                    inlineData: {
-                        mimeType: 'image/jpeg', // Assuming JPEG for camera capture
-                        data: capturedImageBase64
-                    }
-                });
-            }
-            // Add other uploaded images if any (from file input)
-            uploadedImages.filter(img => img.type !== 'image/jpeg' || img.name !== 'captured_image.jpeg').forEach(file => {
-                // For file input images, we need to read them as Base64 first
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    imagesToSend.push({
-                        inlineData: {
-                            mimeType: file.type,
-                            data: e.target.result.split(',')[1]
-                        }
-                    });
-                    // Only process message after all file input images are read
-                    if (imagesToSend.length === (uploadedImages.length + (capturedImageBase64 ? 0 : 0))) { // Adjust count based on if camera image is already in imagesToSend
-                         processMessage(message, imagesToSend);
-                    }
-                };
-                reader.readAsDataURL(file);
-            });
-
-            // If no file input images, and only camera image or text
-            if (imagesToSend.length === 0 && uploadedImages.length === 0 && !message) {
-                showCustomMessage("Vui lòng nhập tin nhắn hoặc tải lên ảnh.", "warning");
-                return;
+                imagesForDisplay.push(dataURLtoFile(`data:image/jpeg;base64,${capturedImageBase64}`, 'captured_image.jpeg'));
             }
             
-            // If there are no file input images, but there's a camera image or just text
-            if (uploadedImages.length === 0 && (capturedImageBase64 || message)) {
-                 processMessage(message, imagesToSend);
-            } else if (uploadedImages.length > 0 && !capturedImageBase64) {
-                 // If there are file input images, but no camera image, process them directly
-                 const fileInputImagesToSend = [];
-                 let filesProcessedCount = 0;
-                 uploadedImages.forEach(file => {
-                     const reader = new FileReader();
-                     reader.onload = (e) => {
-                         fileInputImagesToSend.push({
-                             inlineData: {
-                                 mimeType: file.type,
-                                 data: e.target.result.split(',')[1]
-                             }
-                         });
-                         filesProcessedCount++;
-                         if (filesProcessedCount === uploadedImages.length) {
-                             processMessage(message, fileInputImagesToSend);
-                         }
-                     };
-                     reader.readAsDataURL(file);
-                 });
-            }
-
-
-            // Clear inputs and previews after sending
+            // Display user message immediately
+            appendMessage({ text: message, images: imagesForDisplay }, 'user');
+            
+            // Clear inputs and previews
             userInput.value = '';
             imagePreviewContainer.innerHTML = '';
             uploadedImages = [];
-            capturedImageBase64 = null; // Clear captured image
+            capturedImageBase64 = null; 
             updateImageCount();
-        });
-
-        async function processMessage(message, images) {
+            
+            // Start loading state
             toggleLoading(true);
+
+            const userPartsForAPI = [];
+            if (message) userPartsForAPI.push({ text: message });
+
+            // Convert all images to Base64 for API call asynchronously
+            const imageConversionPromises = imagesForDisplay.map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        userPartsForAPI.push({
+                            inlineData: {
+                                mimeType: file.type,
+                                data: e.target.result.split(',')[1]
+                            }
+                        });
+                        resolve();
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            });
+
             try {
-                const userParts = [];
-                if (message) userParts.push({ text: message });
-                images.forEach(img => userParts.push(img)); // Images are already in {inlineData} format
+                await Promise.all(imageConversionPromises); // Wait for all images to be converted
                 
-                chatHistory.push({ role: "user", parts: userParts });
+                if (userPartsForAPI.length === 0) { // If no message and no images after conversion
+                    showCustomMessage("Vui lòng nhập tin nhắn hoặc tải lên ảnh.", "warning");
+                    toggleLoading(false);
+                    return;
+                }
+
+                chatHistory.push({ role: "user", parts: userPartsForAPI });
                 const botResponse = await getGeminiResponse();
                 appendMessage({ text: botResponse }, 'bot');
                 chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
@@ -416,7 +470,9 @@
             } finally {
                 toggleLoading(false);
             }
-        }
+        });
+
+        // processMessage is now integrated into chatForm.addEventListener for clarity
         
         // Modal Handlers (Kept for general messages)
         function showCustomMessage(message, type = 'info') { customMessageText.textContent = message; customMessageModal.classList.remove('hidden'); }
@@ -425,13 +481,13 @@
         // Image Handling Helpers (Updated to handle camera capture)
         function processFiles(files) { 
             if (!files || files.length === 0) return; 
-            if (uploadedImages.length + files.length > MAX_IMAGES) { 
-                showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`); 
+            // Check total images including potential captured image
+            if (uploadedImages.length + files.length + (capturedImageBase64 ? 1 : 0) > MAX_IMAGES) { 
+                showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh (bao gồm ảnh chụp từ camera).`); 
                 return; 
             } 
             for (const file of Array.from(files).filter(f => f.type.startsWith('image/'))) { 
-                if (uploadedImages.some(img => img.name === file.name && img.size === file.size)) continue; // Check for duplicate file objects
-                // Store the File object directly for display purposes
+                if (uploadedImages.some(img => img.name === file.name && img.size === file.size)) continue; 
                 uploadedImages.push(file); 
                 createImagePreview(URL.createObjectURL(file), file); 
                 updateImageCount(); 
@@ -455,10 +511,10 @@
             rBtn.innerHTML = '&times;'; 
             rBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs'; 
             rBtn.onclick = () => { 
-                uploadedImages = uploadedImages.filter(item => item !== file); // Filter by object reference
+                uploadedImages = uploadedImages.filter(item => item !== file); 
                 pWrap.remove(); 
                 updateImageCount(); 
-                if (file.name === 'captured_image.jpeg') { // If the removed image was from camera, clear capturedImageBase64
+                if (file.name === 'captured_image.jpeg') { 
                     capturedImageBase64 = null;
                 }
             }; 
@@ -466,7 +522,8 @@
             imagePreviewContainer.appendChild(pWrap); 
         }
         function updateImageCount() { 
-            imageInfo.textContent = uploadedImages.length > 0 ? `Đã tải lên ${uploadedImages.length}/${MAX_IMAGES} ảnh.` : ''; 
+            const totalImages = uploadedImages.length + (capturedImageBase64 ? 1 : 0);
+            imageInfo.textContent = totalImages > 0 ? `Đã tải lên ${totalImages}/${MAX_IMAGES} ảnh.` : ''; 
         }
         function appendMessage(data, sender, isError = false) { 
             const { text, images } = data; 
@@ -478,15 +535,11 @@
             if (images?.length) { 
                 const grid = document.createElement('div'); 
                 grid.className = 'grid grid-cols-3 gap-1'; 
-                images.forEach(imgData => { // imgData can be a File object or {inlineData}
+                images.forEach(imgData => { 
                     const img = document.createElement('img'); 
-                    if (imgData instanceof File) {
-                        img.src = URL.createObjectURL(imgData);
-                        img.onload = () => URL.revokeObjectURL(img.src);
-                    } else if (imgData.inlineData) {
-                        img.src = `data:${imgData.inlineData.mimeType};base64,${imgData.inlineData.data}`;
-                    }
+                    img.src = URL.createObjectURL(imgData);
                     img.className = 'w-full h-auto object-cover rounded'; 
+                    img.onload = () => URL.revokeObjectURL(img.src); 
                     grid.appendChild(img); 
                 }); 
                 msgContent.appendChild(grid); 
@@ -516,8 +569,9 @@
             sendButton.disabled = isLoading; 
             userInput.disabled = isLoading; 
             document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; 
-            startCameraButton.disabled = isLoading; // Disable camera buttons during loading
-            captureSendButton.disabled = isLoading || !mediaStream || !mediaStream.active; // Keep disabled if camera is off
+            startCameraButton.disabled = isLoading; 
+            captureSendButton.disabled = isLoading || !mediaStream || !mediaStream.active; 
+            switchCameraButton.disabled = isLoading || availableVideoDevices.length <= 1; 
             sendText.classList.toggle('hidden', isLoading); 
             loadingSpinner.classList.toggle('hidden', !isLoading); 
             if (!isLoading) userInput.focus(); 
@@ -533,7 +587,7 @@
                     console.warn("Firebase config is incomplete or invalid. Chat will function without Firestore features.");
                 } else {
                     app = initializeApp(firebaseConfig);
-                    auth = getAuth(app); // Only auth is needed, getFirestore is not needed without admin
+                    auth = getAuth(app); 
                     onAuthStateChanged(auth, user => {
                         userId = user?.uid;
                         isAuthReady = !!user;
