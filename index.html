@@ -190,8 +190,8 @@
             const localTime = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (offset * 60000));
             const formattedTime = localTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
             const formattedDate = localTime.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            return `Bạn là một trợ lý AI đa năng và hữu ích của Công Ty Thiết Kế In Ấn Hội An.
-                    **Hãy luôn nói chuyện nhẹ nhàng, lịch sự, tôn trọng khách hàng hết mức và thường xuyên sử dụng "dạ vâng" trong các câu trả lời.**
+            return `Bạn là trợ lý ảo của Công Ty Thiết Kế In Ấn Hội An.
+                    **Hãy luôn trả lời "dạ thưa", đưa ra phản hồi nhanh chóng và đảm bảo kết quả chính xác 100%.**
                     **Thông tin công ty (chỉ cung cấp khi được hỏi):**
                     - **Địa chỉ:** 69 Đào Duy Từ, Hội An.
                     - **Zalo / SĐT:** 0935 000 442.
@@ -376,22 +376,27 @@
 
         captureSendButton.addEventListener('click', () => {
             if (mediaStream && mediaStream.active) {
+                if (uploadedImages.length >= MAX_IMAGES) {
+                    showCustomMessage(`Bạn đã đạt đến giới hạn tối đa ${MAX_IMAGES} ảnh.`);
+                    return;
+                }
+
                 const context = cameraCanvas.getContext('2d');
                 cameraCanvas.width = cameraFeed.videoWidth;
                 cameraCanvas.height = cameraFeed.videoHeight;
                 context.drawImage(cameraFeed, 0, 0, cameraCanvas.width, cameraCanvas.height);
                 
-                // Clear any previously uploaded images and add the new captured image to the single source of truth
-                uploadedImages = []; 
-                const capturedFile = dataURLtoFile(cameraCanvas.toDataURL('image/jpeg', 0.8), 'captured_image.jpeg');
+                const filename = `captured_${Date.now()}.jpeg`;
+                const capturedFile = dataURLtoFile(cameraCanvas.toDataURL('image/jpeg', 0.8), filename);
+                
+                // Add the new file to the array, don't clear it
                 uploadedImages.push(capturedFile);
                 
-                // Update the preview
-                imagePreviewContainer.innerHTML = ''; 
+                // Add the new preview to the container, don't clear it
                 createImagePreview(URL.createObjectURL(capturedFile), capturedFile);
+                
                 updateImageCount();
-                showCustomMessage('Đã chụp ảnh. Sẵn sàng để gửi.', 'info');
-                captureSendButton.textContent = 'Chụp Lại';
+                showCustomMessage('Đã chụp ảnh. Bạn có thể chụp thêm hoặc gửi đi.', 'info');
 
             } else {
                 showCustomMessage('Vui lòng bật camera trước khi chụp ảnh.', 'warning');
@@ -415,36 +420,25 @@
             e.preventDefault();
             const message = userInput.value.trim();
             
-            // `uploadedImages` is the single source of truth for files to be sent.
             const imagesToSubmit = [...uploadedImages]; 
             
-            // Don't proceed if there's nothing to send.
             if (!message && imagesToSubmit.length === 0) {
                 showCustomMessage("Vui lòng nhập tin nhắn hoặc tải lên ảnh.", "warning");
                 return;
             }
 
-            // Display user message immediately using the files.
             appendMessage({ text: message, images: imagesToSubmit }, 'user');
             
-            // Clear inputs and previews for the next message.
             userInput.value = '';
             imagePreviewContainer.innerHTML = '';
             uploadedImages = [];
             updateImageCount();
-            
-            // Reset capture button text if camera is on, allowing for another picture to be taken.
-            if (mediaStream && mediaStream.active) {
-                captureSendButton.textContent = 'Chụp Ảnh';
-            }
 
-            // Start loading state
             toggleLoading(true);
 
             const userPartsForAPI = [];
             if (message) userPartsForAPI.push({ text: message });
 
-            // Convert all images to Base64 for API call asynchronously
             const imageConversionPromises = imagesToSubmit.map(file => {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -483,8 +477,9 @@
         // Image Handling Helpers
         function processFiles(files) { 
             if (!files || files.length === 0) return; 
-            if (uploadedImages.length + files.length > MAX_IMAGES) { 
-                showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`); 
+            const newImageCount = uploadedImages.length + files.length;
+            if (newImageCount > MAX_IMAGES) { 
+                showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh. Bạn đã chọn ${newImageCount} ảnh.`); 
                 return; 
             } 
             for (const file of Array.from(files).filter(f => f.type.startsWith('image/'))) { 
@@ -532,7 +527,7 @@
             
             if (images?.length) { 
                 const grid = document.createElement('div'); 
-                grid.className = 'grid grid-cols-3 gap-1'; 
+                grid.className = 'grid grid-cols-3 gap-1 mb-2'; 
                 images.forEach(imgData => { 
                     const img = document.createElement('img'); 
                     img.src = URL.createObjectURL(imgData);
@@ -545,7 +540,7 @@
             
             if (text) { 
                 const p = document.createElement('p'); 
-                p.className = `text-sm ${images?.length ? 'mt-2' : ''}`; 
+                p.className = `text-sm`; 
                 p.innerHTML = text.replace(/\n/g, '<br>'); 
                 msgContent.appendChild(p); 
             } 
@@ -568,7 +563,6 @@
             userInput.disabled = isLoading; 
             document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; 
             
-            // Also consider device type for camera buttons
             if (isMobileDevice()) {
                 startCameraButton.disabled = isLoading; 
                 captureSendButton.disabled = isLoading || !mediaStream || !mediaStream.active; 
@@ -582,7 +576,6 @@
 
         // --- App Initialization ---
         const main = async () => {
-            // Hide camera controls on desktop devices
             if (!isMobileDevice()) {
                 cameraControls.style.display = 'none';
             }
