@@ -459,7 +459,7 @@
                 
                 // Initialize default prices if 'mặc_định' customer doesn't exist or has no items
                 if (!allCustomerPrices['mặc_định'] || Object.keys(allCustomerPrices['mặc_định'].items).length === 0) {
-                    saveCustomerPrices('mặc định', { displayName: 'Mặc định', items: { decal: 85000, inBat: 70000, standee: 120000 } });
+                    saveCustomerPrices('mặc định', { displayName: 'Mặc định', items: {} });
                 }
             }, (error) => {
                 console.error("Lỗi khi tải giá:", error);
