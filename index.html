@@ -99,7 +99,7 @@
                 <canvas id="camera-canvas"></canvas>
                 <div class="camera-controls">
                     <button id="start-camera-button" class="camera-button">Bật Camera</button>
-                    <button id="capture-send-button" class="camera-button" disabled>Chụp Ảnh & Gửi</button>
+                    <button id="capture-send-button" class="camera-button" disabled>Chụp Ảnh</button>
                     <button id="switch-camera-button" class="camera-button hidden" disabled>Chuyển Camera</button>
                 </div>
 
@@ -130,12 +130,8 @@
 
     <script type="module">
         // Firebase Imports
-        // Firebase is still initialized for potential future uses or if other parts of the app rely on it,
-        // but Firestore-specific admin functions are removed.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // getFirestore and related Firestore functions are no longer imported as admin functionality is removed.
-        // import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- DOM Element Selection ---
         const chatView = document.getElementById('chat-view');
@@ -163,8 +159,7 @@
         // --- State Management ---
         const MAX_IMAGES = 100; 
         let chatHistory = [];
-        let uploadedImages = []; // Stores file objects for display
-        let capturedImageBase64 = null; 
+        let uploadedImages = []; // Single source of truth for all images (uploaded or captured)
         let currentApiKeyIndex = 0;
 
         // Firebase State (simplified)
@@ -190,21 +185,21 @@
             const formattedTime = localTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
             const formattedDate = localTime.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
             return `Bạn là một trợ lý AI đa năng và hữu ích của Công Ty Thiết Kế In Ấn Hội An.
-                **Hãy luôn nói chuyện nhẹ nhàng, lịch sự, tôn trọng khách hàng hết mức và thường xuyên sử dụng "dạ vâng" trong các câu trả lời.**
-                **Thông tin công ty (chỉ cung cấp khi được hỏi):**
-                - **Địa chỉ:** 69 Đào Duy Từ, Hội An.
-                - **Zalo / SĐT:** 0935 000 442.
-                - **Thời gian hiện tại:** ${formattedTime} ngày ${formattedDate} (GMT+7).
-                
-                **Quy tắc tính toán giá (giá cố định, không có dữ liệu giá động từ admin):**
-                - Giá decal: 85,000 VNĐ/m²
-                - Giá in bạt: 70,000 VNĐ/m²
-                - Giá standee: 120,000 VNĐ/m²
-                - Công thức: (dài * rộng * số lượng) * giá/m². Mặc định số lượng là 1.
-                - Nếu khách nói "có hóa đơn", tính thêm 8% VAT (Tổng giá * 1.08).
-                - Luôn làm tròn kết quả và định dạng tiền tệ (ví dụ: 123,456 VNĐ).
-                **QUAN TRỌNG:** Sau mỗi câu trả lời, thêm dòng quảng cáo:
-                "---<br>Dạ vâng, quý khách có cần thiết kế hay in ấn chuyên nghiệp tại Hội An không ạ? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất ạ!"`;
+                    **Hãy luôn nói chuyện nhẹ nhàng, lịch sự, tôn trọng khách hàng hết mức và thường xuyên sử dụng "dạ vâng" trong các câu trả lời.**
+                    **Thông tin công ty (chỉ cung cấp khi được hỏi):**
+                    - **Địa chỉ:** 69 Đào Duy Từ, Hội An.
+                    - **Zalo / SĐT:** 0935 000 442.
+                    - **Thời gian hiện tại:** ${formattedTime} ngày ${formattedDate} (GMT+7).
+                    
+                    **Quy tắc tính toán giá (giá cố định, không có dữ liệu giá động từ admin):**
+                    - Giá decal: 85,000 VNĐ/m²
+                    - Giá in bạt: 70,000 VNĐ/m²
+                    - Giá standee: 120,000 VNĐ/m²
+                    - Công thức: (dài * rộng * số lượng) * giá/m². Mặc định số lượng là 1.
+                    - Nếu khách nói "có hóa đơn", tính thêm 8% VAT (Tổng giá * 1.08).
+                    - Luôn làm tròn kết quả và định dạng tiền tệ (ví dụ: 123,456 VNĐ).
+                    **QUAN TRỌNG:** Sau mỗi câu trả lời, thêm dòng quảng cáo:
+                    "---<br>Dạ vâng, quý khách có cần thiết kế hay in ấn chuyên nghiệp tại Hội An không ạ? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất ạ!"`;
         };
 
         const getGeminiResponse = async (retryCount = 0) => {
@@ -243,6 +238,7 @@
                 cameraFeed.style.display = 'none';
                 startCameraButton.textContent = 'Bật Camera';
                 captureSendButton.disabled = true;
+                captureSendButton.textContent = 'Chụp Ảnh';
                 switchCameraButton.classList.add('hidden'); 
                 switchCameraButton.disabled = true;
                 mediaStream = null;
@@ -276,6 +272,7 @@
                 cameraFeed.style.display = 'block';
                 startCameraButton.textContent = 'Tắt Camera';
                 captureSendButton.disabled = false;
+                captureSendButton.textContent = 'Chụp Ảnh';
                 
                 await enumerateCameras();
                 if (availableVideoDevices.length > 1) {
@@ -298,6 +295,7 @@
                         cameraFeed.style.display = 'block';
                         startCameraButton.textContent = 'Tắt Camera';
                         captureSendButton.disabled = false;
+                        captureSendButton.textContent = 'Chụp Ảnh';
                         await enumerateCameras(); 
                         if (availableVideoDevices.length > 1) {
                             switchCameraButton.classList.remove('hidden');
@@ -336,7 +334,6 @@
                 const activeDeviceId = activeTrack.getSettings().deviceId;
                 const activeLabel = activeTrack.label;
 
-                // Find index by deviceId first, then by label if deviceId is not available or doesn't match
                 let foundIndex = availableVideoDevices.findIndex(dev => dev.deviceId === activeDeviceId);
                 if (foundIndex === -1) {
                     foundIndex = availableVideoDevices.findIndex(dev => dev.label === activeLabel);
@@ -348,7 +345,6 @@
                 }
             }
 
-            // Fallback: If no specific device is matched but there are devices, set to the first one
             if (!foundCurrentCamera && availableVideoDevices.length > 0) {
                 currentCameraIndex = 0;
             }
@@ -379,23 +375,24 @@
                 cameraCanvas.height = cameraFeed.videoHeight;
                 context.drawImage(cameraFeed, 0, 0, cameraCanvas.width, cameraCanvas.height);
                 
-                capturedImageBase64 = cameraCanvas.toDataURL('image/jpeg', 0.8).split(',')[1]; 
-                
-                // Clear any previously uploaded images and add the new captured image
+                // Clear any previously uploaded images and add the new captured image to the single source of truth
                 uploadedImages = []; 
                 const capturedFile = dataURLtoFile(cameraCanvas.toDataURL('image/jpeg', 0.8), 'captured_image.jpeg');
                 uploadedImages.push(capturedFile);
                 
+                // Update the preview
                 imagePreviewContainer.innerHTML = ''; 
                 createImagePreview(URL.createObjectURL(capturedFile), capturedFile);
                 updateImageCount();
+                showCustomMessage('Đã chụp ảnh. Sẵn sàng để gửi.', 'info');
+                captureSendButton.textContent = 'Chụp Lại';
 
             } else {
                 showCustomMessage('Vui lòng bật camera trước khi chụp ảnh.', 'warning');
             }
         });
 
-        // Helper to convert Data URL to File object for consistent handling with uploadedImages
+        // Helper to convert Data URL to File object for consistent handling
         function dataURLtoFile(dataurl, filename) {
             var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
                 bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -412,20 +409,22 @@
             e.preventDefault();
             const message = userInput.value.trim();
             
-            // Prepare images for display first (using File objects)
-            const imagesForDisplay = [...uploadedImages]; // Copy current uploaded images
-            if (capturedImageBase64) {
-                imagesForDisplay.push(dataURLtoFile(`data:image/jpeg;base64,${capturedImageBase64}`, 'captured_image.jpeg'));
+            // `uploadedImages` is the single source of truth for files to be sent.
+            const imagesToSubmit = [...uploadedImages]; 
+            
+            // Don't proceed if there's nothing to send.
+            if (!message && imagesToSubmit.length === 0) {
+                showCustomMessage("Vui lòng nhập tin nhắn hoặc tải lên ảnh.", "warning");
+                return;
             }
+
+            // Display user message immediately using the files.
+            appendMessage({ text: message, images: imagesToSubmit }, 'user');
             
-            // Display user message immediately
-            appendMessage({ text: message, images: imagesForDisplay }, 'user');
-            
-            // Clear inputs and previews
+            // Clear inputs and previews for the next message.
             userInput.value = '';
             imagePreviewContainer.innerHTML = '';
             uploadedImages = [];
-            capturedImageBase64 = null; 
             updateImageCount();
             
             // Start loading state
@@ -435,7 +434,7 @@
             if (message) userPartsForAPI.push({ text: message });
 
             // Convert all images to Base64 for API call asynchronously
-            const imageConversionPromises = imagesForDisplay.map(file => {
+            const imageConversionPromises = imagesToSubmit.map(file => {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
@@ -453,45 +452,36 @@
             });
 
             try {
-                await Promise.all(imageConversionPromises); // Wait for all images to be converted
-                
-                if (userPartsForAPI.length === 0) { // If no message and no images after conversion
-                    showCustomMessage("Vui lòng nhập tin nhắn hoặc tải lên ảnh.", "warning");
-                    toggleLoading(false);
-                    return;
-                }
+                await Promise.all(imageConversionPromises); 
 
                 chatHistory.push({ role: "user", parts: userPartsForAPI });
                 const botResponse = await getGeminiResponse();
                 appendMessage({ text: botResponse }, 'bot');
                 chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
             } catch (error) {
-                appendMessage({ text: error.message }, 'bot', true);
+                appendMessage({ text: `Lỗi: ${error.message}` }, 'bot', true);
             } finally {
                 toggleLoading(false);
             }
         });
-
-        // processMessage is now integrated into chatForm.addEventListener for clarity
         
-        // Modal Handlers (Kept for general messages)
+        // Modal Handlers
         function showCustomMessage(message, type = 'info') { customMessageText.textContent = message; customMessageModal.classList.remove('hidden'); }
         customMessageOkButton.addEventListener('click', () => customMessageModal.classList.add('hidden'));
 
-        // Image Handling Helpers (Updated to handle camera capture)
+        // Image Handling Helpers
         function processFiles(files) { 
             if (!files || files.length === 0) return; 
-            // Check total images including potential captured image
-            if (uploadedImages.length + files.length + (capturedImageBase64 ? 1 : 0) > MAX_IMAGES) { 
-                showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh (bao gồm ảnh chụp từ camera).`); 
+            if (uploadedImages.length + files.length > MAX_IMAGES) { 
+                showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`); 
                 return; 
             } 
             for (const file of Array.from(files).filter(f => f.type.startsWith('image/'))) { 
                 if (uploadedImages.some(img => img.name === file.name && img.size === file.size)) continue; 
                 uploadedImages.push(file); 
                 createImagePreview(URL.createObjectURL(file), file); 
-                updateImageCount(); 
             } 
+            updateImageCount(); 
         }
         imageInput.addEventListener('change', (e) => { processFiles(e.target.files); e.target.value = ''; });
         userInput.addEventListener('paste', (e) => { processFiles(e.clipboardData?.files); });
@@ -514,16 +504,13 @@
                 uploadedImages = uploadedImages.filter(item => item !== file); 
                 pWrap.remove(); 
                 updateImageCount(); 
-                if (file.name === 'captured_image.jpeg') { 
-                    capturedImageBase64 = null;
-                }
             }; 
             pWrap.appendChild(rBtn); 
             imagePreviewContainer.appendChild(pWrap); 
         }
         function updateImageCount() { 
-            const totalImages = uploadedImages.length + (capturedImageBase64 ? 1 : 0);
-            imageInfo.textContent = totalImages > 0 ? `Đã tải lên ${totalImages}/${MAX_IMAGES} ảnh.` : ''; 
+            const totalImages = uploadedImages.length;
+            imageInfo.textContent = totalImages > 0 ? `Đã chọn ${totalImages}/${MAX_IMAGES} ảnh.` : ''; 
         }
         function appendMessage(data, sender, isError = false) { 
             const { text, images } = data; 
