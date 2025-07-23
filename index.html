@@ -24,23 +24,31 @@
         .dark .drag-over {
             background-color: #1e3a8a !important; /* dark-blue */
         }
+        /* Ensure admin view takes full height */
+        #admin-view {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .sort-icon {
+            margin-left: 8px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 
-    <div class="flex h-screen">
-        <!-- Main Chat UI -->
+    <!-- Chat View Container -->
+    <div id="chat-view" class="flex h-screen">
         <main class="flex-1 flex flex-col">
             <!-- Header -->
             <header class="p-4 border-b dark:border-gray-700 flex items-center justify-between bg-blue-600 text-white">
                 <div class="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     <h1 class="text-lg md:text-xl font-bold">(Trợ Lý Ảo) Công Ty Thiết Kế In Ấn Hội An </h1>
                 </div>
-                <!-- User ID Display - Hidden as requested -->
-                <div id="user-id-display" class="text-sm font-medium mr-4 hidden"></div>
-                <!-- Admin Button -->
-                <button id="admin-button" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold text-sm">Quản lý giá</button>
+                 <!-- Admin Button -->
+                <button id="admin-button" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold text-sm">Quản lý</button>
             </header>
 
             <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900"></div>
@@ -61,6 +69,73 @@
                 </form>
             </div>
         </main>
+    </div>
+
+    <!-- Admin View Container (Initially Hidden) -->
+    <div id="admin-view" class="hidden">
+        <header class="p-4 border-b dark:border-gray-700 flex items-center justify-between bg-gray-800 text-white shadow-md">
+            <h1 class="text-lg md:text-xl font-bold">Bảng điều khiển Quản lý Giá</h1>
+            <button id="logout-button" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold text-sm">Đăng xuất</button>
+        </header>
+
+        <div id="price-management-content" class="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto hidden">
+             <!-- Customer Selection -->
+            <div class="mb-6 p-4 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow">
+                <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Chọn Khách hàng</h3>
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                    <input type="text" id="customer-select-input" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-50 dark:bg-gray-700" placeholder="Nhập tên khách hàng hoặc 'mặc định'" value="mặc định">
+                    <button type="button" id="load-customer-prices-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline w-full md:w-auto">Tải giá</button>
+                </div>
+                <p id="current-customer-display" class="mt-2 text-sm text-gray-700 dark:text-gray-300">Đang quản lý giá cho: <strong>Mặc định</strong></p>
+                <div id="customer-select-error" class="text-red-500 text-xs italic mt-2 hidden"></div>
+            </div>
+
+            <!-- Add New Item Form -->
+            <div class="mb-6 p-4 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow">
+                <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Thêm/Chỉnh sửa Vật tư</h3>
+                <form id="add-edit-price-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="item-name" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Tên Vật tư (ví dụ: decal, in bạt):</label>
+                        <input type="text" id="item-name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-50 dark:bg-gray-700" placeholder="Tên vật tư" required>
+                    </div>
+                    <div>
+                        <label for="item-price" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Giá (VNĐ/m²):</label>
+                        <input type="number" id="item-price" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-50 dark:bg-gray-700" placeholder="Giá trên mỗi mét vuông" step="100" required>
+                    </div>
+                    <div class="md:col-span-2 flex justify-end gap-3">
+                        <button type="submit" id="save-item-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Lưu Vật tư</button>
+                        <button type="button" id="cancel-edit-button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline hidden">Hủy</button>
+                    </div>
+                </form>
+                <div id="price-form-error" class="text-red-500 text-xs italic mt-2 hidden"></div>
+            </div>
+
+            <!-- Price List Table -->
+            <div class="mb-4">
+                <input type="text" id="price-search-input" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-50 dark:bg-gray-700" placeholder="Tìm kiếm vật tư...">
+            </div>
+            <div class="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-left cursor-pointer" id="sort-item-name" data-sort-column="name">Tên Vật tư <span class="sort-icon"></span></th>
+                            <th class="py-3 px-6 text-right cursor-pointer" id="sort-item-price" data-sort-column="price">Giá (VNĐ/m²) <span class="sort-icon"></span></th>
+                            <th class="py-3 px-6 text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="price-list-body" class="text-gray-600 dark:text-gray-300 text-sm font-light">
+                        <!-- Prices will be rendered here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="admin-main-content" class="flex-1 flex items-center justify-center">
+            <button id="manage-prices-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg text-xl shadow-lg">
+                Quản Lý Giá
+            </button>
+        </div>
+
     </div>
 
     <!-- Admin Login Modal -->
@@ -85,64 +160,6 @@
         </div>
     </div>
 
-    <!-- Price Management Modal -->
-    <div id="price-management-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-50">
-        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-h-[90vh] overflow-y-auto">
-            <h2 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Quản lý Giá Vật tư</h2>
-
-            <!-- Customer Selection -->
-            <div class="mb-6 p-4 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700">
-                <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Chọn Khách hàng</h3>
-                <div class="flex flex-col md:flex-row items-center gap-4">
-                    <input type="text" id="customer-select-input" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-white dark:bg-gray-600" placeholder="Nhập tên khách hàng hoặc 'mặc định'" value="mặc định">
-                    <button type="button" id="load-customer-prices-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Tải giá khách hàng</button>
-                </div>
-                <p id="current-customer-display" class="mt-2 text-sm text-gray-700 dark:text-gray-300">Đang quản lý giá cho: <strong>Mặc định</strong></p>
-                <div id="customer-select-error" class="text-red-500 text-xs italic mt-2 hidden"></div>
-            </div>
-
-            <!-- Add New Item Form -->
-            <div class="mb-6 p-4 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700">
-                <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Thêm/Chỉnh sửa Vật tư</h3>
-                <form id="add-edit-price-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="item-name" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Tên Vật tư (ví dụ: decal, in bạt):</label>
-                        <input type="text" id="item-name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-white dark:bg-gray-600" placeholder="Tên vật tư" required>
-                    </div>
-                    <div>
-                        <label for="item-price" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Giá ($/m²):</label>
-                        <input type="number" id="item-price" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-white dark:bg-gray-600" placeholder="Giá trên mỗi mét vuông" step="0.01" required>
-                    </div>
-                    <div class="md:col-span-2 flex justify-end gap-3">
-                        <button type="submit" id="save-item-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Lưu Vật tư</button>
-                        <button type="button" id="cancel-edit-button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline hidden">Hủy chỉnh sửa</button>
-                    </div>
-                </form>
-                <div id="price-form-error" class="text-red-500 text-xs italic mt-2 hidden"></div>
-            </div>
-
-            <!-- Price List Table -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white dark:bg-gray-700 rounded-lg shadow-md">
-                    <thead>
-                        <tr class="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 uppercase text-sm leading-normal">
-                            <th class="py-3 px-6 text-left">Tên Vật tư</th>
-                            <th class="py-3 px-6 text-right">Giá ($/m²)</th>
-                            <th class="py-3 px-6 text-center">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody id="price-list-body" class="text-gray-600 dark:text-gray-300 text-sm font-light">
-                        <!-- Prices will be rendered here -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="flex justify-end mt-6">
-                <button type="button" id="close-price-management" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Đóng</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Custom Message Modal -->
     <div id="custom-message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-[100]">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center">
@@ -155,24 +172,34 @@
         // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // DOM Elements
+        // --- DOM Element Selection ---
+        // Views
+        const chatView = document.getElementById('chat-view');
+        const adminView = document.getElementById('admin-view');
+        const adminMainContent = document.getElementById('admin-main-content');
+        const priceManagementContent = document.getElementById('price-management-content');
+
+        // Chat UI
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
               sendButton = document.getElementById('send-button'), sendText = document.getElementById('send-text'),
               loadingSpinner = document.getElementById('loading-spinner'), imageInput = document.getElementById('image-input'),
               imagePreviewContainer = document.getElementById('image-preview-container'), imageInfo = document.getElementById('image-info'),
               inputArea = document.getElementById('input-area');
-
-        // Admin DOM Elements
+        
+        // Admin Login
         const adminButton = document.getElementById('admin-button'),
               adminLoginModal = document.getElementById('admin-login-modal'),
               adminLoginForm = document.getElementById('admin-login-form'),
               adminUsernameInput = document.getElementById('admin-username'),
               adminPasswordInput = document.getElementById('admin-password'),
               adminLoginError = document.getElementById('admin-login-error'),
-              adminLoginCancelButton = document.getElementById('admin-login-cancel'),
-              priceManagementModal = document.getElementById('price-management-modal'),
+              adminLoginCancelButton = document.getElementById('admin-login-cancel');
+        
+        // Admin Dashboard
+        const logoutButton = document.getElementById('logout-button'),
+              managePricesButton = document.getElementById('manage-prices-button'),
               customerSelectInput = document.getElementById('customer-select-input'),
               loadCustomerPricesButton = document.getElementById('load-customer-prices-button'),
               currentCustomerDisplay = document.getElementById('current-customer-display'),
@@ -184,38 +211,36 @@
               cancelEditButton = document.getElementById('cancel-edit-button'),
               priceListBody = document.getElementById('price-list-body'),
               priceFormError = document.getElementById('price-form-error'),
-              closePriceManagementButton = document.getElementById('close-price-management');
+              priceSearchInput = document.getElementById('price-search-input'), // New search input
+              sortItemNameHeader = document.getElementById('sort-item-name'), // New sort header
+              sortItemPriceHeader = document.getElementById('sort-item-price'); // New sort header
 
+        // Modals
         const customMessageModal = document.getElementById('custom-message-modal');
         const customMessageText = document.getElementById('custom-message-text');
         const customMessageOkButton = document.getElementById('custom-message-ok');
-        const userIdDisplay = document.getElementById('user-id-display');
 
-
-        // State
+        // --- State Management ---
         const MAX_IMAGES = 50;
-        let chatHistory = []; // In-memory chat history
+        let chatHistory = [];
         let uploadedImages = [];
         let currentApiKeyIndex = 0;
-        let editingItemName = null; // To track which item is being edited
+        let editingItemName = null;
 
         // Firebase State
         let app, db, auth, userId;
-        let isAuthReady = false; // Flag to ensure Firestore operations wait for auth
-        // MANDATORY: Use __app_id provided by the Canvas environment
+        let isAuthReady = false;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        let allCustomerPrices = {}; 
+        let currentManagingCustomerSlug = 'mặc_định';
 
-        // Prices will be loaded from Firestore
-        let allCustomerPrices = {}; // { 'default': { displayName: 'Mặc định', items: { decal: 85000, ... } }, 'khach_hang_a': { ... } }
-        let currentManagingCustomerSlug = 'mặc_định'; // Slug for the customer whose prices are currently being managed in admin panel
+        // Admin Price List State
+        let currentFilterText = '';
+        let currentSortColumn = 'name'; // 'name' or 'price'
+        let currentSortDirection = 'asc'; // 'asc' or 'desc'
 
         // ===================================================================================
-        // !!! CẤU HÌNH DUY NHẤT TẠY ĐÂY !!!
-        // THAY THẾ CÁC KEY MẪU BẰNG API KEY THẬT CỦA BẠN.
-        // CẢNH BÁO: KHÔNG ĐĂNG TẢI FILE NÀY LÊN INTERNET CÔNG CỘNG VÌ SẼ LÀM LỘ KEY.
-        // LƯU Ý: Đối với mô hình gemini-2.0-flash, thường không cần cung cấp API key
-        // nếu môi trường Canvas đã được cấu hình sẵn. Để trống chuỗi nếu muốn Canvas tự động cung cấp.
-        // Tuy nhiên, theo mã nguồn ban đầu của quý khách, các API key này đã được cung cấp.
+        // !!! API KEY CONFIGURATION !!!
         // ===================================================================================
         const apiKeys = [
             "AIzaSyCg4gg9GLf6SPzhYCNLmvTZyIuuQZPRw04",
@@ -223,479 +248,201 @@
             "AIzaSyDxr0SL3tbWE2kdp2oBB3Ru4UxpbuimZD0",
             "AIzaSyBR-duVUWZG-lD5usabYD3NS_-tZySMlcA",
             "AIzaSyBNagv3kn8vAJzbyMYlvLLCccNGbFa4ySc",
-            // Add other keys here, each key is a string in the array.
         ];
 
-        // --- Core Functions ---
+        // --- Helper Functions ---
+        const slugify = (text) => text.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, '_').replace(/[^\w-]+/g, '').replace(/--+/g, '_');
 
-        // Helper to convert Vietnamese string to a URL-friendly slug
-        const slugify = (text) => {
-            return text
-                .toString()
-                .normalize('NFD') // Split accented characters into base character and diacritic
-                .replace(/[\u0300-\u036f]/g, '') // Remove diacritic marks
-                .toLowerCase() // Convert to lowercase
-                .trim() // Trim leading/trailing whitespace
-                .replace(/\s+/g, '_') // Replace spaces with underscores
-                .replace(/[^\w-]+/g, '') // Remove all non-word characters (except dashes)
-                .replace(/--+/g, '_'); // Replace multiple dashes with a single underscore
-        };
-
-        // Generates the system instruction text for the AI, including dynamic pricing rules.
-        const generateSystemInstruction = (allPrices) => {
-            let priceRules = '';
-            priceRules += `
-                **Thông tin giá vật tư theo khách hàng:**
-            `;
-
-            for (const customerSlug in allPrices) {
-                if (allPrices.hasOwnProperty(customerSlug)) {
-                    const customerData = allPrices[customerSlug];
-                    const customerDisplayName = customerData.displayName;
-                    const items = customerData.items;
-
-                    priceRules += `- **Giá cho ${customerDisplayName} (tên khách hàng: "${customerDisplayName}"):**\n`;
-                    for (const itemName in items) {
-                        if (items.hasOwnProperty(itemName)) {
-                            const price = items[itemName];
-                            const formattedPrice = price.toLocaleString('vi-VN');
-                            let userKeyword = itemName; // Default to key
-
-                            // Map keys to Vietnamese keywords for AI instruction (same as before)
-                            if (itemName === 'decal') userKeyword = 'decal trắng';
-                            else if (itemName === 'inDecalTho') userKeyword = 'in decal thợ';
-                            else if (itemName === 'decalBe') userKeyword = 'decal bế (hoặc bế)';
-                            else if (itemName === 'inBat') userKeyword = 'in bạt';
-                            else if (itemName === 'inBatTho') userKeyword = 'in bạt thợ';
-                            else if (itemName === 'canMan') userKeyword = 'cán màn';
-                            else {
-                                // Attempt to convert camelCase to more readable Vietnamese
-                                userKeyword = itemName.replace(/([A-Z])/g, ' $1').toLowerCase();
-                                if (userKeyword.startsWith('in ')) userKeyword = 'in ' + userKeyword.substring(3);
-                                if (userKeyword.startsWith('decal ')) userKeyword = 'decal ' + userKeyword.substring(6);
-                                if (userKeyword.startsWith('be ')) userKeyword = 'bế ' + userKeyword.substring(3);
-                                if (userKeyword.startsWith('can ')) userKeyword = 'cán ' + userKeyword.substring(4);
-                            }
-                            priceRules += `    - ${userKeyword}: ${formattedPrice} VNĐ/m².\n`;
-                        }
-                    }
-                    priceRules += `\n`; // Add a newline after each customer's price list
+        // --- AI & Chat Logic ---
+        const generateSystemInstruction = () => {
+            let priceRules = `\n**Thông tin giá vật tư theo khách hàng:**\n`;
+            for (const customerSlug in allCustomerPrices) {
+                const customerData = allCustomerPrices[customerSlug];
+                priceRules += `- **Giá cho ${customerData.displayName} (tên khách hàng: "${customerData.displayName}"):**\n`;
+                for (const itemName in customerData.items) {
+                    const price = customerData.items[itemName];
+                    const formattedPrice = price.toLocaleString('vi-VN');
+                    let userKeyword = itemName.replace(/([A-Z])/g, ' $1').toLowerCase();
+                    priceRules += `    - ${userKeyword}: ${formattedPrice} VNĐ/m².\n`;
                 }
+                priceRules += `\n`;
             }
-            // Get current time in Hanoi timezone (GMT+7)
             const now = new Date();
-            const offset = 7 * 60; // GMT+7 in minutes
+            const offset = 7 * 60;
             const localTime = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (offset * 60000));
-            const formattedTime = localTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const formattedTime = localTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
             const formattedDate = localTime.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-
-            return `
-                Bạn là một trợ lý AI đa năng và hữu ích, được phát triển bởi Google.
-                Nhiệm vụ của bạn là hỗ trợ người dùng một cách tốt nhất có thể trong mọi lĩnh vực, đặc biệt là tư vấn về thiết kế và in ấn.
+            return `Bạn là một trợ lý AI đa năng và hữu ích của Công Ty Thiết Kế In Ấn Hội An.
                 **Hãy luôn nói chuyện nhẹ nhàng, lịch sự, tôn trọng khách hàng hết mức và thường xuyên sử dụng "dạ vâng" trong các câu trả lời.**
-
-                **Khả năng của bạn:**
-                - Dạ vâng, tôi có thể trả lời các câu hỏi kiến thức chung, giải thích các khái niệm phức tạp một cách rõ ràng.
-                - Dạ vâng, tôi có thể phân tích và mô tả nội dung hình ảnh do quý khách cung cấp. Tôi có thể đọc văn bản trong ảnh, nhận dạng đối tượng, và mô tả cảnh vật.
-                - Dạ vâng, tôi có thể sáng tạo nội dung: viết văn, làm thơ, soạn email, v.v.
-                - Dạ vâng, tôi có thể hỗ trợ lập trình, dịch thuật và nhiều tác vụ khác.
-                - Dạ vâng, tôi luôn luôn trả lời bằng tiếng Việt một cách tự nhiên và thân thiện nhất.
-
-                **Thông tin bổ sung (chỉ cung cấp khi được hỏi):**
-                Nếu quý khách hỏi về "Công Ty Thiết Kế In Ấn Hội An", dạ vâng, tôi có thể cung cấp thông tin sau:
+                **Thông tin công ty (chỉ cung cấp khi được hỏi):**
                 - **Địa chỉ:** 69 Đào Duy Từ, Hội An.
                 - **Zalo / SĐT:** 0935 000 442.
-                - **Thời gian hiện tại ở Hà Nội:** ${formattedTime} ngày ${formattedDate} (GMT+7).
-
+                - **Thời gian hiện tại:** ${formattedTime} ngày ${formattedDate} (GMT+7).
                 ${priceRules}
-
                 **Quy tắc tính toán giá:**
-                - Dạ vâng, khi quý khách yêu cầu giá, tôi sẽ **luôn ưu tiên sử dụng giá của khách hàng cụ thể nếu tên khách hàng được nhắc đến trong yêu cầu**. Ví dụ: "Dạ vâng, giá decal cho Khách hàng A là bao nhiêu ạ?", "Khách hàng B muốn in bạt thì giá thế nào ạ?".
-                - **Nếu trong lịch sử chat có chứa cụm từ đặc biệt "[SỬ DỤNG GIÁ MẶC ĐỊNH]", dạ vâng, tôi sẽ bỏ qua mọi tên khách hàng được nhắc đến trong yêu cầu hiện tại và LUÔN sử dụng "Giá cho Mặc định" để tính toán ạ.**
-                - **Nếu không có tên khách hàng nào được nhắc đến rõ ràng trong yêu cầu (ví dụ: chỉ có kích thước và vật tư như "1x1 cán màn"), dạ vâng, tôi sẽ LUÔN sử dụng "Giá cho Mặc định" để tính toán ạ.**
-                - Công thức tính: (chiều dài * chiều rộng * số lượng) * giá trên mỗi mét vuông.
-                - Nếu quý khách không cung cấp số lượng, dạ vâng, tôi sẽ mặc định số lượng là 1.
-                - Ví dụ: "Dạ vâng, 0,2x0,5x2 decal cho Khách hàng A sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 2 decal, và tôi sẽ áp dụng giá của Khách hàng A ạ."
-                - Ví dụ: "Dạ vâng, 0,2x0,5 in bạt sẽ được hiểu là dài 0.2m, rộng 0.5m, số lượng 1 in bạt, và tôi sẽ áp dụng giá mặc định ạ."
-                - **Ví dụ mới:** "Dạ vâng, 1x1 cán màn cán fon 5 sẽ được hiểu là dài 1m, rộng 1m, số lượng 1 cán màn cán fon 5, và tôi sẽ áp dụng giá mặc định ạ."
-                - **Ví dụ mới:** "Dạ vâng, 1x1 in decal cán màn :tho sẽ được hiểu là dài 1m, rộng 1m, số lượng 1 in decal cán màn, và tôi sẽ áp dụng giá của khách hàng 'tho' (nếu có trong danh sách giá khách hàng) ạ. Nếu không tìm thấy khách hàng 'tho', tôi sẽ dùng giá mặc định sau khi quý khách xác nhận ạ."
-
-                **Tính thêm phí hóa đơn:**
-                Nếu quý khách nói "có hóa đơn" hoặc "lấy hóa đơn" hoặc "xuất hóa đơn" trong cùng một yêu cầu tính giá, dạ vâng, tôi sẽ tính thêm 8% trên tổng tổng giá trị đã tính ạ.
-                - Công thức: Tổng giá * 1.08.
-                - Dạ vâng, tôi sẽ thông báo rõ ràng về việc cộng thêm 8% cho hóa đơn ạ.
-
-                - Dạ vâng, tôi sẽ luôn làm tròn kết quả đến hai chữ số thập phân nếu cần và hiển thị đơn vị VNĐ.
-                - **QUAN TRỌNG:** Khi hiển thị kết quả giá tiền, dạ vâng, tôi sẽ định dạng số theo kiểu "000,000,000 VNĐ" (ví dụ: 123,456,789 VNĐ).
-
-                **QUAN TRỌNG:** Sau mỗi câu trả lời, dạ vâng, tôi sẽ thêm một dòng quảng cáo lịch sự về công ty "Công Ty Thiết Kế In Ấn Hội An" như sau:
-                "---<br>Dạ vâng, quý khách có cần thiết kế hay in ấn chuyên nghiệp tại Hội An không ạ? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất ạ!"
-            `;
+                - Khi khách yêu cầu giá, **ưu tiên dùng giá của khách hàng cụ thể nếu tên được nhắc đến**.
+                - Nếu có cụm từ "[SỬ DỤNG GIÁ MẶC ĐỊNH]" trong lịch sử chat, **luôn dùng giá "Mặc định"**.
+                - Nếu không có tên khách hàng, **luôn dùng giá "Mặc định"**.
+                - Công thức: (dài * rộng * số lượng) * giá/m². Mặc định số lượng là 1.
+                - Nếu khách nói "có hóa đơn", tính thêm 8% VAT (Tổng giá * 1.08).
+                - Luôn làm tròn kết quả và định dạng tiền tệ (ví dụ: 123,456 VNĐ).
+                **QUAN TRỌNG:** Sau mỗi câu trả lời, thêm dòng quảng cáo:
+                "---<br>Dạ vâng, quý khách có cần thiết kế hay in ấn chuyên nghiệp tại Hội An không ạ? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất ạ!"`;
         };
-
-
         const getGeminiResponse = async (retryCount = 0) => {
-            // Check if API keys are configured. If not, inform the user.
-            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) {
-                throw new Error("Vui lòng cấu hình ít nhất một API key thật trong mã nguồn.");
-            }
-            // If all API keys have been tried and failed, throw an error.
-            if (retryCount >= apiKeys.length) {
-                throw new Error("Tất cả API key đều không hoạt động. Vui lòng kiểm tra lại.");
-            }
-
-            // Select the current API key based on the index.
+            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) throw new Error("Vui lòng cấu hình API key.");
+            if (retryCount >= apiKeys.length) throw new Error("Tất cả API key đều không hoạt động.");
             const apiKey = apiKeys[currentApiKeyIndex];
-            // Construct the API URL for Gemini-2.0-flash model.
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-            // Generate the system instruction dynamically based on current customer prices.
-            const systemInstructionText = generateSystemInstruction(allCustomerPrices);
-
-            // Prepare the payload for the API request.
-            const payload = {
-                contents: chatHistory, // User's chat history
-                systemInstruction: {
-                    parts: [{ text: systemInstructionText }] // Dynamic system instruction
-                },
-                generationConfig: {
-                    temperature: 0.7, // Controls randomness of the output
-                    topP: 1,          // Nucleus sampling parameter
-                    topK: 40,         // Top-k sampling parameter
-                    maxOutputTokens: 2048 // Maximum number of tokens in the response
-                }
-            };
-
+            const payload = { contents: chatHistory, systemInstruction: { parts: [{ text: generateSystemInstruction() }] } };
             try {
-                // Send the API request.
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                // Check if the response was successful.
-                if (!response.ok) {
-                    const errorBody = await response.json();
-                    throw new Error(`Lỗi API: ${errorBody.error.message}`);
-                }
+                if (!response.ok) { const err = await response.json(); throw new Error(`Lỗi API: ${err.error.message}`); }
                 const result = await response.json();
-                // Extract the text from the successful response.
-                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts) {
-                    return result.candidates[0].content.parts[0].text;
-                }
-                // Handle cases where the prompt was blocked.
-                if (result.promptFeedback && result.promptFeedback.blockReason) {
-                    return `Yêu cầu của bạn đã bị chặn vì: ${result.promptFeedback.blockReason}.`;
-                }
-                // If no valid response or block reason, throw a generic error.
+                if (result.candidates?.[0]?.content?.parts) return result.candidates[0].content.parts[0].text;
+                if (result.promptFeedback?.blockReason) return `Yêu cầu bị chặn: ${result.promptFeedback.blockReason}.`;
                 throw new Error("Không nhận được phản hồi hợp lệ từ API.");
             } catch (error) {
-                // Log the error and try the next API key if available.
-                console.error(`API key tại vị trí ${currentApiKeyIndex} thất bại:`, error.message);
-                currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length; // Move to the next key
-                console.log(`Chuyển sang API key tại vị trí ${currentApiKeyIndex}`);
-                return getGeminiResponse(retryCount + 1); // Retry with the next key
+                console.error(`API key ${currentApiKeyIndex} thất bại:`, error.message);
+                currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+                return getGeminiResponse(retryCount + 1);
+            }
+        };
+        function getCustomerNameFromInput(text) {
+            const colonMatch = text.match(/:(\w+)/);
+            if (colonMatch?.[1]) return colonMatch[1];
+            const customerPhraseMatch = text.match(/khách hàng\s+([^\s]+)/i);
+            if (customerPhraseMatch?.[1]) return customerPhraseMatch[1];
+            return null;
+        }
+
+        // --- Firestore Price Management ---
+        const setupPriceListener = () => {
+            if (!db || !isAuthReady) { console.warn("Firestore/Auth chưa sẵn sàng."); return; }
+            const pricesCollectionRef = collection(db, `artifacts/${appId}/public/data/customerPrices`);
+            onSnapshot(pricesCollectionRef, (snapshot) => {
+                const newPrices = {};
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.displayName && data.items) newPrices[doc.id] = data;
+                });
+                allCustomerPrices = newPrices;
+                console.log("Giá đã được cập nhật từ Firestore:", allCustomerPrices);
+                renderPriceList(currentManagingCustomerSlug); // Re-render admin list
+                if (!allCustomerPrices['mặc_định']) {
+                    saveCustomerPrices('mặc định', { displayName: 'Mặc định', items: { decal: 85000 } });
+                }
+            }, (error) => {
+                console.error("Lỗi khi tải giá:", error);
+                showCustomMessage("Lỗi: Không thể tải giá từ cơ sở dữ liệu.", 'error');
+            });
+        };
+        const saveCustomerPrices = async (customerDisplayName, data) => {
+            if (!db || !isAuthReady) { showCustomMessage('Hệ thống chưa sẵn sàng.', 'error'); return false; }
+            const customerSlug = slugify(customerDisplayName);
+            try {
+                const customerDocRef = doc(db, `artifacts/${appId}/public/data/customerPrices`, customerSlug);
+                await setDoc(customerDocRef, data, { merge: true });
+                return true;
+            } catch (e) {
+                console.error("Lỗi khi lưu giá:", e);
+                showCustomMessage(`Lỗi khi lưu giá: ${e.message}`, 'error');
+                return false;
+            }
+        };
+        const deleteItemPriceForCurrentCustomer = async (itemName) => {
+            if (!db || !isAuthReady) { showCustomMessage('Hệ thống chưa sẵn sàng.', 'error'); return; }
+            const customerSlug = currentManagingCustomerSlug;
+            const customerData = allCustomerPrices[customerSlug];
+            if (!customerData) return;
+            
+            // Create a copy of items to modify
+            const updatedItems = { ...customerData.items };
+            delete updatedItems[itemName];
+
+            const success = await saveCustomerPrices(customerData.displayName, { ...customerData, items: updatedItems });
+            if (success) {
+                showCustomMessage(`Đã xóa vật tư "${itemName}".`, 'success');
             }
         };
 
-        // Function to extract customer name from user input
-        function getCustomerNameFromInput(text) {
-            // Look for words preceded by ':'
-            const colonMatch = text.match(/:(\w+)/);
-            if (colonMatch && colonMatch[1]) {
-                return colonMatch[1]; // Return the word after the colon
-            }
-
-            // Look for "khách hàng " followed by a word
-            const customerPhraseMatch = text.match(/khách hàng\s+([^\s]+)/i);
-            if (customerPhraseMatch && customerPhraseMatch[1]) {
-                return customerPhraseMatch[1]; // Return the word after "khách hàng"
-            }
-
-            return null; // No specific customer name found
-        }
-
         // --- UI & Event Handlers ---
+        // Chat form submission
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const message = userInput.value.trim();
             if (!message && uploadedImages.length === 0) return;
 
-            // Check if API keys are configured before proceeding.
-            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) {
-                appendMessage({ text: "Lỗi: Vui lòng cấu hình API key trong mã nguồn của file HTML." }, 'bot', true);
-                return;
-            }
-
-            // Prepare data for UI display
-            const userMessageData = { text: message, images: uploadedImages.map(img => img.file) };
-            appendMessage(userMessageData, 'user');
-
-            // Clear input fields immediately
+            appendMessage({ text: message, images: uploadedImages.map(img => img.file) }, 'user');
+            const imagesForHistory = [...uploadedImages];
             userInput.value = '';
             imagePreviewContainer.innerHTML = '';
             uploadedImages = [];
             updateImageCount();
 
-            // --- New logic for customer name check ---
             const potentialCustomerName = getCustomerNameFromInput(message);
             const customerSlug = potentialCustomerName ? slugify(potentialCustomerName) : null;
-            const customerExists = customerSlug && allCustomerPrices[customerSlug];
-
-            if (potentialCustomerName && !customerExists) {
-                // Customer name mentioned but not found
-                showCustomConfirm(`Dạ vâng, tôi sẽ áp dụng giá khách lẻ vì khách hàng "${potentialCustomerName}" không có trên hệ thống. Nếu đồng ý, bấm 'có' để tôi tính theo giá mặc định ạ.`, async () => {
-                    // User confirmed to use default price
-                    toggleLoading(true);
-                    try {
-                        // Add a special instruction to chatHistory for AI to use default price
-                        const userParts = [];
-                        if (message) userParts.push({ text: message });
-                        uploadedImages.forEach(img => userParts.push({ inlineData: { mimeType: img.mimeType, data: img.data } }));
-                        userParts.push({ text: "[SỬ DỤNG GIÁ MẶC ĐỊNH]" }); // Special instruction for AI
-                        chatHistory.push({ role: "user", parts: userParts });
-
-                        const botResponse = await getGeminiResponse();
-                        appendMessage({ text: botResponse }, 'bot');
-                        chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
-                    } catch (error) {
-                        console.error('Lỗi khi tính toán giá mặc định:', error);
-                        appendMessage({ text: `Lỗi: ${error.message}` }, 'bot', true);
-                    } finally {
-                        toggleLoading(false);
-                    }
-                }, () => {
-                    // User cancelled, do nothing or provide a message
-                    appendMessage({ text: "Dạ vâng, yêu cầu tính giá đã bị hủy ạ." }, 'bot');
-                });
-                return; // Stop further processing for this submission
+            if (potentialCustomerName && !allCustomerPrices[customerSlug]) {
+                showCustomConfirm(`Khách hàng "${potentialCustomerName}" không tồn tại. Bạn có muốn tính theo giá mặc định không?`, () => processMessage(message, imagesForHistory, true));
+                return;
             }
-            // --- End new logic ---
+            processMessage(message, imagesForHistory, false);
+        });
 
-            // Original logic if no customer issue or customer found
+        async function processMessage(message, images, useDefaultPrice) {
             toggleLoading(true);
             try {
                 const userParts = [];
                 if (message) userParts.push({ text: message });
-                uploadedImages.forEach(img => userParts.push({ inlineData: { mimeType: img.mimeType, data: img.data } }));
+                images.forEach(img => userParts.push({ inlineData: { mimeType: img.mimeType, data: img.data } }));
+                if (useDefaultPrice) userParts.push({ text: "[SỬ DỤNG GIÁ MẶC ĐỊNH]" });
+                
                 chatHistory.push({ role: "user", parts: userParts });
-
                 const botResponse = await getGeminiResponse();
-                
-                // Display bot response
                 appendMessage({ text: botResponse }, 'bot');
-                
-                // Update in-memory chat history for next API call
                 chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
-
             } catch (error) {
-                console.error('Lỗi cuối cùng khi gửi tin nhắn:', error);
-                appendMessage({ text: error.message }, 'bot', true); // Display error in UI
+                appendMessage({ text: error.message }, 'bot', true);
             } finally {
                 toggleLoading(false);
             }
+        }
+        
+        // Admin Login Flow
+        adminButton.addEventListener('click', () => adminLoginModal.classList.remove('hidden'));
+        adminLoginCancelButton.addEventListener('click', () => adminLoginModal.classList.add('hidden'));
+        adminLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (adminUsernameInput.value === 'admin' && adminPasswordInput.value === 'admin') {
+                adminLoginModal.classList.add('hidden');
+                chatView.classList.add('hidden');
+                adminView.classList.remove('hidden');
+                adminMainContent.classList.remove('hidden');
+                priceManagementContent.classList.add('hidden');
+            } else {
+                adminLoginError.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
+                adminLoginError.classList.remove('hidden');
+            }
         });
 
-        // --- Admin Panel Logic ---
+        // Admin Dashboard Flow
+        logoutButton.addEventListener('click', () => {
+            adminView.classList.add('hidden');
+            chatView.classList.remove('hidden');
+        });
 
-        // Setup Firestore listener for all customer prices
-        const setupPriceListener = () => {
-            // Ensure Firestore and Auth are ready before setting up the listener.
-            if (!db || !isAuthReady) {
-                console.warn("Firestore hoặc Auth chưa sẵn sàng để thiết lập listener giá.");
-                return;
-            }
-            console.log("Thiết lập lắng nghe tất cả giá khách hàng từ Firestore...");
-            // Reference to the public customerPrices collection.
-            const customerPricesCollectionRef = collection(db, `artifacts/${appId}/public/data/customerPrices`);
-            // Listen for real-time updates to the collection.
-            onSnapshot(customerPricesCollectionRef, (snapshot) => {
-                const newAllCustomerPrices = {};
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    // Ensure the document has expected structure before adding to prices.
-                    if (data.displayName && data.items && typeof data.items === 'object') {
-                        newAllCustomerPrices[doc.id] = {
-                            displayName: data.displayName,
-                            items: data.items
-                        };
-                    }
-                });
-                allCustomerPrices = newAllCustomerPrices; // Update the global prices object
-                console.log("Tất cả giá khách hàng đã được cập nhật từ Firestore:", allCustomerPrices);
-                // Re-render the admin price list for the currently managed customer.
-                renderPriceList(currentManagingCustomerSlug);
-                // Ensure 'mặc định' customer exists, create it if not.
-                if (!allCustomerPrices['mặc_định']) {
-                    saveCustomerPrices('mặc định', {
-                        
-                    });
-                }
-            }, (error) => {
-                console.error("Lỗi khi lắng nghe cập nhật giá từ Firestore:", error);
-                showCustomMessage("Lỗi: Không thể tải giá từ cơ sở dữ liệu. Vui lòng thử lại sau.", 'error');
-            });
-        };
+        managePricesButton.addEventListener('click', () => {
+            adminMainContent.classList.add('hidden');
+            priceManagementContent.classList.remove('hidden');
+            // Reset filter and sort when entering price management
+            currentFilterText = '';
+            priceSearchInput.value = '';
+            currentSortColumn = 'name';
+            currentSortDirection = 'asc';
+            updateSortIcons();
+            renderPriceList(currentManagingCustomerSlug);
+        });
 
-        // Save/Update customer's prices to Firestore
-        const saveCustomerPrices = async (customerDisplayName, itemsData) => {
-            // Ensure Firestore and Auth are ready.
-            if (!db || !isAuthReady) {
-                customerSelectError.textContent = 'Hệ thống chưa sẵn sàng. Vui lòng đợi hoặc thử lại.';
-                customerSelectError.classList.remove('hidden');
-                return false;
-            }
-            const customerSlug = slugify(customerDisplayName);
-            try {
-                // Reference to the specific customer document.
-                const customerDocRef = doc(db, `artifacts/${appId}/public/data/customerPrices`, customerSlug);
-                // Set the document with merge: true to update existing fields or add new ones.
-                await setDoc(customerDocRef, {
-                    displayName: customerDisplayName,
-                    items: itemsData
-                }, { merge: true });
-                console.log(`Giá cho khách hàng "${customerDisplayName}" đã được lưu/cập nhật.`);
-                customerSelectError.classList.add('hidden');
-                return true; // Indicate success
-            } catch (e) {
-                console.error("Lỗi khi lưu giá khách hàng:", e);
-                customerSelectError.textContent = `Lỗi khi lưu giá khách hàng: ${e.message}`;
-                customerSelectError.classList.remove('hidden');
-                return false; // Indicate failure
-            }
-        };
-
-        // Save/Update a specific item's price for the current managing customer
-        const saveItemPriceForCurrentCustomer = async (itemName, itemPrice) => {
-            // Ensure Firestore and Auth are ready.
-            if (!db || !isAuthReady) {
-                priceFormError.textContent = 'Hệ thống chưa sẵn sàng. Vui lòng đợi hoặc thử lại.';
-                priceFormError.classList.remove('hidden');
-                return false;
-            }
-            const customerSlug = currentManagingCustomerSlug;
-            // Get the display name from allCustomerPrices or the input field.
-            const customerDisplayName = allCustomerPrices[customerSlug]?.displayName || customerSelectInput.value.trim();
-
-            if (!customerDisplayName) {
-                priceFormError.textContent = 'Vui lòng chọn hoặc nhập tên khách hàng trước khi lưu vật tư.';
-                priceFormError.classList.remove('hidden');
-                return false;
-            }
-
-            try {
-                // Reference to the specific customer document.
-                const customerDocRef = doc(db, `artifacts/${appId}/public/data/customerPrices`, customerSlug);
-                // Prepare update data for the nested 'items' field.
-                const updateData = {
-                    displayName: customerDisplayName,
-                    items: {
-                        [itemName]: itemPrice
-                    }
-                };
-                // Set the document with merge: true to update only the specific item within 'items'.
-                await setDoc(customerDocRef, updateData, { merge: true });
-                console.log(`Vật tư "${itemName}" cho khách hàng "${customerDisplayName}" đã được lưu/cập nhật.`);
-                priceFormError.classList.add('hidden');
-                return true;
-            } catch (e) {
-                console.error("Lỗi khi lưu vật tư cho khách hàng:", e);
-                priceFormError.textContent = `Lỗi khi lưu vật tư: ${e.message}`;
-                priceFormError.classList.remove('hidden');
-                return false;
-            }
-        };
-
-        // Delete a specific item's price for the current managing customer
-        const deleteItemPriceForCurrentCustomer = async (itemName) => {
-            // Ensure Firestore and Auth are ready.
-            if (!db || !isAuthReady) {
-                showCustomMessage('Hệ thống chưa sẵn sàng để xóa vật tư. Vui lòng đợi hoặc thử lại.', 'error');
-                return false;
-            }
-            const customerSlug = currentManagingCustomerSlug;
-            const customerDisplayName = allCustomerPrices[customerSlug]?.displayName || customerSelectInput.value.trim();
-
-            if (!customerDisplayName) {
-                showCustomMessage('Vui lòng chọn hoặc nhập tên khách hàng trước khi xóa vật tư.', 'error');
-                return false;
-            }
-
-            try {
-                // Reference to the specific customer document.
-                const customerDocRef = doc(db, `artifacts/${appId}/public/data/customerPrices`, customerSlug);
-                // Get the current document snapshot.
-                const customerDocSnap = await getDoc(customerDocRef);
-                if (customerDocSnap.exists()) {
-                    // Get current items and delete the specific item.
-                    const currentItems = customerDocSnap.data().items || {};
-                    delete currentItems[itemName];
-                    // Update the document with the modified items map.
-                    await setDoc(customerDocRef, { items: currentItems }, { merge: true });
-                    console.log(`Vật tư "${itemName}" cho khách hàng "${customerDisplayName}" đã được xóa.`);
-                    return true;
-                }
-                return false;
-            } catch (e) {
-                console.error("Lỗi khi xóa vật tư cho khách hàng:", e);
-                showCustomMessage(`Lỗi khi xóa vật tư: ${e.message}`, 'error');
-                return false;
-            }
-        };
-
-
-        // Render the price list in the admin modal for a specific customer
-        const renderPriceList = (customerSlug) => {
-            priceListBody.innerHTML = ''; // Clear existing list
-            const customerData = allCustomerPrices[customerSlug];
-
-            if (!customerData || !customerData.items || Object.keys(customerData.items).length === 0) {
-                priceListBody.innerHTML = `<tr><td colspan="3" class="py-3 px-6 text-center text-gray-500 dark:text-gray-400">Chưa có vật tư nào được định giá cho khách hàng này.</td></tr>`;
-                return;
-            }
-
-            for (const key in customerData.items) {
-                if (customerData.items.hasOwnProperty(key)) {
-                    const price = customerData.items[key];
-                    const row = document.createElement('tr');
-                    row.className = 'border-b border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600';
-                    row.innerHTML = `
-                        <td class="py-3 px-6 text-left whitespace-nowrap">${key}</td>
-                        <td class="py-3 px-6 text-right">${price.toLocaleString('vi-VN')}</td>
-                        <td class="py-3 px-6 text-center">
-                            <button class="edit-item-button bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded-lg text-xs mr-2" data-item-name="${key}">Sửa</button>
-                            <button class="delete-item-button bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg text-xs" data-item-name="${key}">Xóa</button>
-                        </td>
-                    `;
-                    priceListBody.appendChild(row);
-                }
-            }
-
-            // Add event listeners for edit and delete buttons
-            document.querySelectorAll('.edit-item-button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const itemName = e.target.dataset.itemName;
-                    editingItemName = itemName;
-                    itemNameInput.value = itemName;
-                    itemPriceInput.value = allCustomerPrices[customerSlug].items[itemName];
-                    itemNameInput.readOnly = true; // Prevent changing name when editing
-                    saveItemButton.textContent = 'Cập nhật Vật tư';
-                    cancelEditButton.classList.remove('hidden');
-                    priceFormError.classList.add('hidden');
-                });
-            });
-
-            document.querySelectorAll('.delete-item-button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const itemName = e.target.dataset.itemName;
-                    showCustomConfirm(`Bạn có chắc chắn muốn xóa "${itemName}" cho khách hàng này không?`, async () => {
-                        const success = await deleteItemPriceForCurrentCustomer(itemName);
-                        if (success) {
-                            showCustomMessage(`Đã xóa vật tư "${itemName}" cho khách hàng này.`, 'success');
-                        }
-                    });
-                });
-            });
-        };
-
-        // Load prices for a specific customer in the admin panel
         loadCustomerPricesButton.addEventListener('click', () => {
             const customerName = customerSelectInput.value.trim();
             if (!customerName) {
@@ -703,135 +450,81 @@
                 customerSelectError.classList.remove('hidden');
                 return;
             }
-            const customerSlug = slugify(customerName);
-            currentManagingCustomerSlug = customerSlug;
+            currentManagingCustomerSlug = slugify(customerName);
             currentCustomerDisplay.innerHTML = `Đang quản lý giá cho: <strong>${customerName}</strong>`;
             customerSelectError.classList.add('hidden');
             renderPriceList(currentManagingCustomerSlug);
-            resetAddEditForm(); // Clear the add/edit form when switching customers
-        });
-
-        // Custom confirmation modal (replaces alert/confirm)
-        function showCustomConfirm(message, onConfirm, onCancel) {
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[100]';
-            modal.innerHTML = `
-                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center">
-                    <p class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">${message}</p>
-                    <div class="flex justify-center gap-4">
-                        <button id="confirm-yes" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Có</button>
-                        <button id="confirm-no" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Không</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-
-            document.getElementById('confirm-yes').addEventListener('click', () => {
-                onConfirm();
-                modal.remove();
-            });
-            document.getElementById('confirm-no').addEventListener('click', () => {
-                if (onCancel) onCancel();
-                modal.remove();
-            });
-        }
-
-        // Custom message modal
-        function showCustomMessage(message, type = 'info') {
-            customMessageText.textContent = message;
-            let bgColor = 'bg-blue-600';
-            let hoverBgColor = 'hover:bg-blue-700';
-            if (type === 'error') {
-                bgColor = 'bg-red-600';
-                hoverBgColor = 'hover:bg-red-700';
-            } else if (type === 'success') {
-                bgColor = 'bg-green-600';
-                hoverBgColor = 'hover:bg-green-700';
-            }
-            // Reset classes and apply new ones
-            customMessageOkButton.className = `bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center ${bgColor} ${hoverBgColor} text-white font-bold py-2 px-4 rounded-lg`;
-            customMessageModal.classList.remove('hidden');
-        }
-
-        customMessageOkButton.addEventListener('click', () => {
-            customMessageModal.classList.add('hidden');
-        });
-
-
-        // Admin button click handler
-        adminButton.addEventListener('click', () => {
-            adminLoginModal.classList.remove('hidden');
-            adminUsernameInput.focus();
-        });
-
-        // Admin login form submission
-        adminLoginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = adminUsernameInput.value;
-            const password = adminPasswordInput.value;
-
-            if (username === 'admin' && password === 'admin') {
-                adminLoginModal.classList.add('hidden');
-                priceManagementModal.classList.remove('hidden');
-                adminLoginError.classList.add('hidden'); // Hide any previous errors
-                renderPriceList(currentManagingCustomerSlug); // Render default prices initially
-            } else {
-                adminLoginError.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
-                adminLoginError.classList.remove('hidden');
-            }
-        });
-
-        // Cancel login
-        adminLoginCancelButton.addEventListener('click', () => {
-            adminLoginModal.classList.add('hidden');
-            adminLoginError.classList.add('hidden');
-            adminLoginForm.reset();
-        });
-
-        // Close price management modal
-        closePriceManagementButton.addEventListener('click', () => {
-            priceManagementModal.classList.add('hidden');
-            // Reset form when closing
             resetAddEditForm();
         });
 
-        // Add/Edit price form submission
+        priceSearchInput.addEventListener('input', (e) => {
+            currentFilterText = e.target.value.toLowerCase();
+            renderPriceList(currentManagingCustomerSlug);
+        });
+
+        sortItemNameHeader.addEventListener('click', () => {
+            if (currentSortColumn === 'name') {
+                currentSortDirection = (currentSortDirection === 'asc' ? 'desc' : 'asc');
+            } else {
+                currentSortColumn = 'name';
+                currentSortDirection = 'asc';
+            }
+            updateSortIcons();
+            renderPriceList(currentManagingCustomerSlug);
+        });
+
+        sortItemPriceHeader.addEventListener('click', () => {
+            if (currentSortColumn === 'price') {
+                currentSortDirection = (currentSortDirection === 'asc' ? 'desc' : 'asc');
+            } else {
+                currentSortColumn = 'price';
+                currentSortDirection = 'asc';
+            }
+            updateSortIcons();
+            renderPriceList(currentManagingCustomerSlug);
+        });
+
+        function updateSortIcons() {
+            document.querySelectorAll('.sort-icon').forEach(icon => icon.textContent = ''); // Clear all
+            let iconElement;
+            if (currentSortColumn === 'name') {
+                iconElement = sortItemNameHeader.querySelector('.sort-icon');
+            } else if (currentSortColumn === 'price') {
+                iconElement = sortItemPriceHeader.querySelector('.sort-icon');
+            }
+            if (iconElement) {
+                iconElement.textContent = currentSortDirection === 'asc' ? '▲' : '▼';
+            }
+        }
+
         addEditPriceForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const itemName = itemNameInput.value.trim();
             const itemPrice = parseFloat(itemPriceInput.value);
-
             if (!itemName || isNaN(itemPrice) || itemPrice <= 0) {
-                priceFormError.textContent = 'Vui lòng nhập tên vật tư và giá hợp lệ (phải là số dương).';
+                priceFormError.textContent = 'Vui lòng nhập tên và giá hợp lệ.';
                 priceFormError.classList.remove('hidden');
                 return;
             }
-
-            // Convert item name to camelCase for consistent storage keys.
-            const camelCaseItemName = itemName.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
-                return index === 0 ? word.toLowerCase() : word.toUpperCase();
-            }).replace(/\s+/g, '');
-
-            // Check if item already exists for the current customer if not editing
-            if (!editingItemName && allCustomerPrices[currentManagingCustomerSlug]?.items?.hasOwnProperty(camelCaseItemName)) {
-                priceFormError.textContent = `Vật tư "${itemName}" đã tồn tại cho khách hàng này. Vui lòng chỉnh sửa hoặc chọn tên khác.`;
+            const camelCaseItemName = itemName.replace(/(?:^\w|[A-Z]|\b\w)/g, (w, i) => i === 0 ? w.toLowerCase() : w.toUpperCase()).replace(/\s+/g, '');
+            const customerSlug = currentManagingCustomerSlug;
+            const customerDisplayName = allCustomerPrices[customerSlug]?.displayName || customerSelectInput.value.trim();
+            const customerData = allCustomerPrices[customerSlug] || { displayName: customerDisplayName, items: {} };
+            
+            if (!editingItemName && customerData.items.hasOwnProperty(camelCaseItemName)) {
+                priceFormError.textContent = `Vật tư "${itemName}" đã tồn tại.`;
                 priceFormError.classList.remove('hidden');
                 return;
             }
-
-            const success = await saveItemPriceForCurrentCustomer(camelCaseItemName, itemPrice);
+            
+            customerData.items[camelCaseItemName] = itemPrice;
+            const success = await saveCustomerPrices(customerDisplayName, customerData);
             if (success) {
                 resetAddEditForm();
-                showCustomMessage(`Đã lưu vật tư "${itemName}" cho khách hàng này.`, 'success');
+                showCustomMessage(`Đã lưu vật tư "${itemName}".`, 'success');
             }
         });
-
-        // Cancel editing
-        cancelEditButton.addEventListener('click', () => {
-            resetAddEditForm();
-        });
-
-        // Reset add/edit form
+        cancelEditButton.addEventListener('click', resetAddEditForm);
         function resetAddEditForm() {
             addEditPriceForm.reset();
             itemNameInput.readOnly = false;
@@ -841,161 +534,129 @@
             priceFormError.classList.add('hidden');
         }
 
-
-        // --- Initialization ---
-        const initializeAppUI = () => {
-            // Initialize Vietnamese IME if available.
-            if (typeof window.VanillaTelex !== 'undefined') {
-                new window.VanillaTelex(userInput);
-            } else {
-                console.warn("VanillaTelex is not defined. Telex input might not work.");
+        const renderPriceList = (customerSlug) => {
+            priceListBody.innerHTML = '';
+            const customerData = allCustomerPrices[customerSlug];
+            
+            if (!customerData || Object.keys(customerData.items).length === 0) {
+                priceListBody.innerHTML = `<tr><td colspan="3" class="py-3 px-6 text-center text-gray-500">Chưa có vật tư nào.</td></tr>`;
+                return;
             }
-            // Display initial greeting message.
-            appendMessage({ text: "Xin chào! Tôi là trợ lý ảo đa năng. Tôi có thể giúp gì cho bạn hôm nay?" }, 'bot');
+
+            let itemsArray = Object.entries(customerData.items).map(([name, price]) => ({ name, price }));
+
+            // Filter
+            if (currentFilterText) {
+                itemsArray = itemsArray.filter(item => 
+                    item.name.toLowerCase().includes(currentFilterText) || 
+                    item.price.toString().includes(currentFilterText)
+                );
+            }
+
+            // Sort
+            itemsArray.sort((a, b) => {
+                let valA, valB;
+                if (currentSortColumn === 'name') {
+                    valA = a.name.toLowerCase();
+                    valB = b.name.toLowerCase();
+                } else { // 'price'
+                    valA = a.price;
+                    valB = b.price;
+                }
+
+                if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            if (itemsArray.length === 0) {
+                 priceListBody.innerHTML = `<tr><td colspan="3" class="py-3 px-6 text-center text-gray-500">Không tìm thấy vật tư nào phù hợp với tìm kiếm.</td></tr>`;
+                 return;
+            }
+
+            itemsArray.forEach(({ name, price }) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600';
+                row.innerHTML = `<td class="py-3 px-6 text-left">${name}</td>
+                                 <td class="py-3 px-6 text-right">${price.toLocaleString('vi-VN')}</td>
+                                 <td class="py-3 px-6 text-center">
+                                     <button class="edit-item-button bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded text-xs mr-2" data-item-name="${name}">Sửa</button>
+                                     <button class="delete-item-button bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded text-xs" data-item-name="${name}">Xóa</button>
+                                 </td>`;
+                priceListBody.appendChild(row);
+            });
+
+            document.querySelectorAll('.edit-item-button').forEach(b => b.addEventListener('click', (e) => {
+                const name = e.target.dataset.itemName;
+                editingItemName = name;
+                itemNameInput.value = name;
+                itemPriceInput.value = allCustomerPrices[customerSlug].items[name];
+                itemNameInput.readOnly = true;
+                saveItemButton.textContent = 'Cập nhật';
+                cancelEditButton.classList.remove('hidden');
+            }));
+            document.querySelectorAll('.delete-item-button').forEach(b => b.addEventListener('click', (e) => {
+                const name = e.target.dataset.itemName;
+                showCustomConfirm(`Bạn có chắc chắn muốn xóa "${name}"?`, () => deleteItemPriceForCurrentCustomer(name));
+            }));
         };
 
+        // Modal Handlers
+        function showCustomMessage(message, type = 'info') { customMessageText.textContent = message; customMessageModal.classList.remove('hidden'); }
+        customMessageOkButton.addEventListener('click', () => customMessageModal.classList.add('hidden'));
+        function showCustomConfirm(message, onConfirm) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[100]';
+            modal.innerHTML = `<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center">
+                <p class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">${message}</p>
+                <div class="flex justify-center gap-4">
+                    <button id="confirm-yes" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Có</button>
+                    <button id="confirm-no" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">Không</button>
+                </div></div>`;
+            document.body.appendChild(modal);
+            document.getElementById('confirm-yes').addEventListener('click', () => { onConfirm(); modal.remove(); });
+            document.getElementById('confirm-no').addEventListener('click', () => modal.remove());
+        }
+
+        // Image Handling Helpers
+        function processFiles(files) { if (!files || files.length === 0) return; if (uploadedImages.length + files.length > MAX_IMAGES) { showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`); return; } for (const file of Array.from(files).filter(f => f.type.startsWith('image/'))) { if (uploadedImages.some(img => img.file.name === file.name && img.file.size === file.size)) continue; const reader = new FileReader(); reader.onload = (e) => { const base64Data = e.target.result.split(',')[1]; uploadedImages.push({ data: base64Data, mimeType: file.type, file: file }); createImagePreview(e.target.result, file); updateImageCount(); }; reader.readAsDataURL(file); } }
+        imageInput.addEventListener('change', (e) => { processFiles(e.target.files); e.target.value = ''; });
+        userInput.addEventListener('paste', (e) => { processFiles(e.clipboardData?.files); });
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => inputArea.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); }));
+        ['dragenter', 'dragover'].forEach(evt => inputArea.addEventListener(evt, () => inputArea.classList.add('drag-over')));
+        ['dragleave', 'drop'].forEach(evt => inputArea.addEventListener(evt, () => inputArea.classList.remove('drag-over')));
+        inputArea.addEventListener('drop', (e) => { processFiles(e.dataTransfer?.files); });
+        function createImagePreview(dataUrl, file) { const pWrap = document.createElement('div'); pWrap.className = 'relative'; const img = document.createElement('img'); img.src = dataUrl; img.className = 'h-16 w-16 object-cover rounded-md'; pWrap.appendChild(img); const rBtn = document.createElement('button'); rBtn.innerHTML = '&times;'; rBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs'; rBtn.onclick = () => { uploadedImages = uploadedImages.filter(img => img.file !== file); pWrap.remove(); updateImageCount(); }; pWrap.appendChild(rBtn); imagePreviewContainer.appendChild(pWrap); }
+        function updateImageCount() { imageInfo.textContent = uploadedImages.length > 0 ? `Đã tải lên ${uploadedImages.length}/${MAX_IMAGES} ảnh.` : ''; }
+        function appendMessage(data, sender, isError = false) { const { text, images } = data; const msgWrap = document.createElement('div'); msgWrap.className = `flex items-start gap-3 mb-4 ${sender === 'user' ? 'justify-end' : ''}`; const msgContent = document.createElement('div'); msgContent.className = `p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-xl ${sender === 'user' ? 'bg-blue-600 text-white' : isError ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : 'bg-gray-200 dark:bg-gray-700'}`; if (images?.length) { const grid = document.createElement('div'); grid.className = 'grid grid-cols-3 gap-1'; images.forEach(file => { const img = document.createElement('img'); img.src = URL.createObjectURL(file); img.className = 'w-full h-auto object-cover rounded'; img.onload = () => URL.revokeObjectURL(img.src); grid.appendChild(img); }); msgContent.appendChild(grid); } if (text) { const p = document.createElement('p'); p.className = `text-sm ${images?.length ? 'mt-2' : ''}`; p.innerHTML = text.replace(/\n/g, '<br>'); msgContent.appendChild(p); } const avatar = document.createElement('div'); avatar.className = `flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center font-bold text-white ${sender === 'user' ? 'bg-gray-500' : isError ? 'bg-red-500' : 'bg-blue-500'}`; avatar.textContent = sender === 'user' ? 'U' : 'B'; if (sender === 'user') { msgWrap.append(msgContent, avatar); } else { msgWrap.append(avatar, msgContent); } document.querySelector('.chat-container').appendChild(msgWrap); document.querySelector('.chat-container').scrollTop = document.querySelector('.chat-container').scrollHeight; }
+        function toggleLoading(isLoading) { sendButton.disabled = isLoading; userInput.disabled = isLoading; document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; sendText.classList.toggle('hidden', isLoading); loadingSpinner.classList.toggle('hidden', !isLoading); if (!isLoading) userInput.focus(); }
+
+        // --- App Initialization ---
         const main = async () => {
-            initializeAppUI();
+            appendMessage({ text: "Xin chào! Tôi là trợ lý ảo. Tôi có thể giúp gì cho bạn?" }, 'bot');
             try {
-                // MANDATORY: Use __firebase_config provided by the Canvas environment.
-                // This ensures Firebase is configured correctly for the specific deployment.
-                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-                    apiKey: "AIzaSyDJBY6U0LUtmnk4PrfNeA7UE7qq1FZ84X8",
-                    authDomain: "data-chung-a62ee.firebaseapp.com",
-                    databaseURL: "https://data-chung-a62ee-default-rtdb.asia-southeast1.firebasedatabase.app",
-                    projectId: "data-chung-a62ee",
-                    storageBucket: "data-chung-a62ee.firebasestorage.app",
-                    messagingSenderId: "453115303161",
-                    appId: "1:453115303161:web:d40a0ec5a38ab7d4863e28",
-                    measurementId: "G-WNVH78VY1Z"
-                };
-                console.log("Khởi tạo Firebase...");
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIzaSy...", authDomain: "...", projectId: "..." };
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
-                console.log("Firebase đã được khởi tạo.");
-
-                // Listen for authentication state changes.
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        // userIdDisplay.textContent = `User ID: ${userId}`; // Removed to hide User ID
-                        console.log("Đã xác thực với User ID:", userId);
-                        isAuthReady = true;
-                        // Start listening to prices *after* auth is ready.
-                        setupPriceListener(); // This listener will populate allCustomerPrices
-                    } else {
-                        console.log("Người dùng chưa đăng nhập.");
-                        userId = null;
-                        userIdDisplay.textContent = ''; // Ensure it's empty even if somehow visible
-                        isAuthReady = false;
-                        // Clear UI and chat history if user logs out or is not authenticated.
-                        document.querySelector('.chat-container').innerHTML = '';
-                        chatHistory = [];
-                        appendMessage({ text: "Vui lòng đăng nhập hoặc đợi hệ thống khởi tạo." }, 'bot');
+                onAuthStateChanged(auth, user => {
+                    userId = user?.uid;
+                    isAuthReady = !!user;
+                    if (isAuthReady) {
+                        console.log("Firebase Auth sẵn sàng. User ID:", userId);
+                        setupPriceListener(); // Load prices once authenticated
                     }
                 });
-
-                console.log("Đang cố gắng đăng nhập Firebase...");
-                // MANDATORY: Use __initial_auth_token for custom token sign-in.
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    try {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                        console.log("Đăng nhập bằng Custom Token thành công.");
-                    } catch (customTokenError) {
-                        console.error("Lỗi khi đăng nhập bằng Custom Token, thử đăng nhập ẩn danh:", customTokenError);
-                        await signInAnonymously(auth); // Fallback to anonymous sign-in.
-                        console.log("Đăng nhập ẩn danh thành công sau khi Custom Token thất bại.");
-                    }
+                    await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
-                    await signInAnonymously(auth); // Sign in anonymously if no custom token is provided.
-                    console.log("Đăng nhập ẩn danh thành công (không có Custom Token).");
+                    await signInAnonymously(auth);
                 }
-
             } catch (error) {
-                console.error("Lỗi khởi tạo Firebase Auth hoặc Firestore:", error);
-                appendMessage({ text: "Lỗi: Không thể khởi tạo dịch vụ xác thực hoặc cơ sở dữ liệu. Vui lòng kiểm tra console để biết chi tiết." }, 'bot', true);
+                console.error("Lỗi khởi tạo Firebase:", error);
+                appendMessage({ text: "Lỗi: Không thể kết nối đến dịch vụ. Vui lòng kiểm tra console." }, 'bot', true);
             }
         };
-
-        // --- Helper functions ---
-        function processFiles(files) { 
-            if (!files || files.length === 0) return; 
-            imageInfo.classList.remove('text-red-500'); 
-            const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/')); 
-            if (imageFiles.length === 0) return; 
-            if (uploadedImages.length + imageFiles.length > MAX_IMAGES) { 
-                imageInfo.textContent = `Bạn chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`; 
-                imageInfo.classList.add('text-red-500'); 
-                return; 
-            } 
-            for (const file of imageFiles) { 
-                const isDuplicate = uploadedImages.some(img => img.file.name === file.name && img.file.size === file.size && img.file.lastModified === file.lastModified); 
-                if (isDuplicate) continue; 
-                const reader = new FileReader(); 
-                reader.onload = (event) => { 
-                    const base64Data = event.target.result.split(',')[1]; 
-                    uploadedImages.push({ data: base64Data, mimeType: file.type, file: file }); 
-                    createImagePreview(event.target.result, file); 
-                    updateImageCount(); 
-                }; 
-                reader.readAsDataURL(file); 
-            } 
-        }
-        imageInput.addEventListener('change', (e) => { processFiles(e.target.files); e.target.value = ''; });
-        userInput.addEventListener('paste', (e) => { const files = e.clipboardData?.files; if (files && files.length > 0) { e.preventDefault(); processFiles(files); } });
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { inputArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }); });
-        ['dragenter', 'dragover'].forEach(eventName => { inputArea.addEventListener(eventName, () => inputArea.classList.add('drag-over')); });
-        ['dragleave', 'drop'].forEach(eventName => { inputArea.addEventListener(eventName, () => inputArea.classList.remove('drag-over')); });
-        inputArea.addEventListener('drop', (e) => { const files = e.dataTransfer?.files; if (files) { processFiles(files); } });
-        function createImagePreview(dataUrl, file) { const previewWrapper = document.createElement('div'); previewWrapper.className = 'relative'; const img = document.createElement('img'); img.src = dataUrl; img.className = 'h-16 w-16 object-cover rounded-md'; previewWrapper.appendChild(img); const removeBtn = document.createElement('button'); removeBtn.innerHTML = '&times;'; removeBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs leading-none'; removeBtn.onclick = () => { uploadedImages = uploadedImages.filter(img => img.file !== file); previewWrapper.remove(); updateImageCount(); }; previewWrapper.appendChild(removeBtn); imagePreviewContainer.appendChild(previewWrapper); }
-        function updateImageCount() { imageInfo.classList.remove('text-red-500'); if (uploadedImages.length > 0) { imageInfo.textContent = `Đã tải lên ${uploadedImages.length}/${MAX_IMAGES} ảnh.`; } else { imageInfo.textContent = ''; } }
-        function appendMessage(data, sender, isError = false) { 
-            const { text, images } = data; 
-            const messageWrapper = document.createElement('div'); 
-            messageWrapper.className = `flex items-start gap-3 mb-4 ${sender === 'user' ? 'justify-end' : ''}`; 
-            const messageContent = document.createElement('div'); 
-            messageContent.className = `p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-xl ${sender === 'user' ? 'bg-blue-600 text-white' : isError ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : 'bg-gray-200 dark:bg-gray-700'}`; 
-            
-            if (images && images.length > 0) { 
-                const imageGrid = document.createElement('div'); 
-                imageGrid.className = 'grid grid-cols-3 gap-1'; 
-                images.forEach(fileOrBlob => { 
-                    const img = document.createElement('img'); 
-                    // Check if it's a File object or a Blob (from base64 conversion)
-                    img.src = fileOrBlob instanceof File || fileOrBlob instanceof Blob ? URL.createObjectURL(fileOrBlob) : `data:${fileOrBlob.mimeType};base64,${fileOrBlob.data}`;
-                    img.className = 'w-full h-auto object-cover rounded'; 
-                    img.onload = () => URL.revokeObjectURL(img.src); 
-                    imageGrid.appendChild(img); 
-                }); 
-                messageContent.appendChild(imageGrid); 
-            } 
-            
-            if (text) { 
-                const textElement = document.createElement('p'); 
-                textElement.className = `text-sm ${sender === 'bot' && !isError ? 'text-gray-800 dark:text-gray-200' : ''} ${(images && images.length > 0) ? 'mt-2' : ''}`; 
-                textElement.innerHTML = text.replace(/\n/g, '<br>'); 
-                messageContent.appendChild(textElement); 
-            } 
-            
-            const avatar = document.createElement('div'); 
-            avatar.className = 'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center font-bold text-white'; 
-            if (sender === 'user') { 
-                avatar.className += ' bg-gray-500'; 
-                avatar.textContent = 'U'; 
-                messageWrapper.appendChild(messageContent); 
-                messageWrapper.appendChild(avatar); 
-            } else { 
-                avatar.className += isError ? ' bg-red-500' : ' bg-blue-500'; 
-                avatar.textContent = 'B'; 
-                messageWrapper.appendChild(avatar); 
-                messageWrapper.appendChild(messageContent); 
-            } 
-            const mainChatContainer = document.querySelector('.chat-container'); 
-            mainChatContainer.appendChild(messageWrapper); 
-            mainChatContainer.scrollTop = mainChatContainer.scrollHeight; 
-        }
-        function toggleLoading(isLoading) { sendButton.disabled = isLoading; userInput.disabled = isLoading; document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; sendText.classList.toggle('hidden', isLoading); loadingSpinner.classList.toggle('hidden', !isLoading); if (!isLoading) { userInput.focus(); } }
 
         // Start the application
         main();
