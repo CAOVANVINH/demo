@@ -25,6 +25,39 @@
         .dark .drag-over {
             background-color: #1e3a8a !important; /* dark-blue */
         }
+        /* Styles for camera feed */
+        #camera-feed {
+            width: 100%;
+            max-width: 320px; /* Limit camera feed width for better mobile experience */
+            height: auto;
+            border-radius: 0.75rem; /* rounded-lg */
+            margin-bottom: 0.5rem;
+            background-color: #000;
+            display: none; /* Hidden by default */
+        }
+        #camera-canvas {
+            display: none; /* Hidden, used for capturing frames */
+        }
+        .camera-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .camera-button {
+            background-color: #10b981; /* green-500 */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .camera-button:hover {
+            background-color: #059669; /* green-600 */
+        }
+        .camera-button:disabled {
+            background-color: #6ee7b7; /* green-200 */
+            cursor: not-allowed;
+        }
     </style>
 
     <!-- Firebase Configuration (kept for chat functionality if needed, but admin-specific parts removed) -->
@@ -61,6 +94,14 @@
             <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900"></div>
 
             <div id="input-area" class="p-4 border-t dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
+                <!-- Camera Feed and Controls -->
+                <video id="camera-feed" autoplay playsinline></video>
+                <canvas id="camera-canvas"></canvas>
+                <div class="camera-controls">
+                    <button id="start-camera-button" class="camera-button">Bật Camera</button>
+                    <button id="capture-send-button" class="camera-button" disabled>Chụp Ảnh & Gửi</button>
+                </div>
+
                 <div id="image-preview-container" class="mb-2 flex flex-wrap gap-2"></div>
                 <div id="image-info" class="text-xs text-gray-500 dark:text-gray-400 mb-2 h-4"></div>
                 <form id="chat-form" class="flex items-center gap-3">
@@ -78,8 +119,6 @@
         </main>
     </div>
 
-    <!-- Admin View Container (Removed) -->
-    <!-- Admin Login Modal (Removed) -->
     <!-- Custom Message Modal (Kept for general messages) -->
     <div id="custom-message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-[100]">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center mx-4 sm:mx-auto">
@@ -90,23 +129,27 @@
 
     <script type="module">
         // Firebase Imports
+        // Firebase is still initialized for potential future uses or if other parts of the app rely on it,
+        // but Firestore-specific admin functions are removed.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // getFirestore and related Firestore functions are no longer imported as admin functionality is removed.
+        // import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- DOM Element Selection ---
-        // Views (Admin views removed)
         const chatView = document.getElementById('chat-view');
-        
-        // Chat UI
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
               sendButton = document.getElementById('send-button'), sendText = document.getElementById('send-text'),
               loadingSpinner = document.getElementById('loading-spinner'), imageInput = document.getElementById('image-input'),
               imagePreviewContainer = document.getElementById('image-preview-container'), imageInfo = document.getElementById('image-info'),
               inputArea = document.getElementById('input-area');
         
-        // Admin Login (Removed)
-        // Admin Dashboard (Removed)
+        // Camera elements
+        const cameraFeed = document.getElementById('camera-feed');
+        const cameraCanvas = document.getElementById('camera-canvas');
+        const startCameraButton = document.getElementById('start-camera-button');
+        const captureSendButton = document.getElementById('capture-send-button');
+        let mediaStream = null; // To hold the camera stream
 
         // Modals
         const customMessageModal = document.getElementById('custom-message-modal');
@@ -114,16 +157,15 @@
         const customMessageOkButton = document.getElementById('custom-message-ok');
 
         // --- State Management ---
-        const MAX_IMAGES = 100;
+        const MAX_IMAGES = 100; // Increased max images for potential camera captures
         let chatHistory = [];
-        let uploadedImages = [];
+        let uploadedImages = []; // Stores file objects for display
+        let capturedImageBase64 = null; // Stores the single base64 image from camera
         let currentApiKeyIndex = 0;
 
-        // Firebase State (Admin-related parts removed)
+        // Firebase State (simplified)
         let app, db, auth, userId;
         let isAuthReady = false;
-        // allCustomerPrices and related admin state removed
-        // currentManagingCustomerSlug, currentFilterText, currentSortColumn, currentSortDirection removed
 
         // ===================================================================================
         // !!! API KEY CONFIGURATION !!!
@@ -136,16 +178,8 @@
             "AIzaSyBNagv3kn8vAJzbyMYlvLLCccNGbFa4ySc",
         ];
 
-        // --- Helper Functions ---
-        // slugify function removed as it's only used for admin price management
-        // getCustomerNameFromInput function removed as it's only used for admin price management
-
         // --- AI & Chat Logic ---
         const generateSystemInstruction = () => {
-            // Simplified price rules as admin functionality is removed.
-            // Prices will need to be hardcoded or fetched from a public, non-admin controlled source
-            // if dynamic pricing is still desired without an admin panel.
-            // For now, removing dynamic price rules.
             const now = new Date();
             const offset = 7 * 60;
             const localTime = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (offset * 60000));
@@ -158,7 +192,7 @@
                 - **Zalo / SĐT:** 0935 000 442.
                 - **Thời gian hiện tại:** ${formattedTime} ngày ${formattedDate} (GMT+7).
                 
-                **Quy tắc tính toán giá (ví dụ, không có dữ liệu giá động từ admin):**
+                **Quy tắc tính toán giá (giá cố định, không có dữ liệu giá động từ admin):**
                 - Giá decal: 85,000 VNĐ/m²
                 - Giá in bạt: 70,000 VNĐ/m²
                 - Giá standee: 120,000 VNĐ/m²
@@ -168,12 +202,44 @@
                 **QUAN TRỌNG:** Sau mỗi câu trả lời, thêm dòng quảng cáo:
                 "---<br>Dạ vâng, quý khách có cần thiết kế hay in ấn chuyên nghiệp tại Hội An không ạ? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất ạ!"`;
         };
+
         const getGeminiResponse = async (retryCount = 0) => {
             if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) throw new Error("Vui lòng cấu hình API key.");
             if (retryCount >= apiKeys.length) throw new Error("Tất cả API key đều không hoạt động.");
             const apiKey = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            
+            // Constructing content parts for Gemini API
+            const contentParts = [];
+            if (chatHistory.length > 0) {
+                // Add existing chat history (text only, as previous images were handled locally)
+                // For a full multi-modal history, you'd need to store image data in chatHistory
+                chatHistory.forEach(msg => {
+                    if (msg.role === 'user' || msg.role === 'model') {
+                        // Assuming msg.parts might contain text or inlineData
+                        contentParts.push({ role: msg.role, parts: msg.parts });
+                    }
+                });
+            }
+
+            // Add the current user input (text + images/camera capture)
+            const currentUserMessage = chatHistory[chatHistory.length - 1]; // Get the last message added by user
+            if (currentUserMessage && currentUserMessage.role === 'user') {
+                const userParts = [];
+                currentUserMessage.parts.forEach(part => {
+                    if (part.text) {
+                        userParts.push({ text: part.text });
+                    } else if (part.inlineData) {
+                        userParts.push({ inlineData: part.inlineData });
+                    }
+                });
+                // Ensure the last user message is correctly formatted for the API
+                // This logic might need refinement if chatHistory is not storing inlineData for past messages
+                // For simplicity, we assume chatHistory already contains the correct structure for the last user message.
+            }
+
             const payload = { contents: chatHistory, systemInstruction: { parts: [{ text: generateSystemInstruction() }] } };
+
             try {
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) { const err = await response.json(); throw new Error(`Lỗi API: ${err.error.message}`); }
@@ -187,48 +253,159 @@
                 return getGeminiResponse(retryCount + 1);
             }
         };
-        // getCustomerNameFromInput removed
-
-        // --- Firestore Price Management (All functions removed) ---
-        // setupPriceListener removed
-        // saveCustomerPrices removed
-        // deleteItemPriceForCurrentCustomer removed
 
         // --- View Control Functions (Simplified for chat only) ---
         function showChatView() {
             chatView.style.display = 'flex'; // Explicitly show chat
-            // All admin related view hiding removed as admin views are removed from HTML
             console.log("Showing Chat View.");
         }
 
-        // showAdminLogin removed
-        // showPriceManagementDashboard removed
+        // --- Camera Functions ---
+        startCameraButton.addEventListener('click', async () => {
+            if (mediaStream && mediaStream.active) {
+                // Stop camera if already active
+                mediaStream.getTracks().forEach(track => track.stop());
+                cameraFeed.srcObject = null;
+                cameraFeed.style.display = 'none';
+                startCameraButton.textContent = 'Bật Camera';
+                captureSendButton.disabled = true;
+                showCustomMessage('Camera đã tắt.', 'info');
+                mediaStream = null;
+            } else {
+                try {
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    cameraFeed.srcObject = mediaStream;
+                    cameraFeed.style.display = 'block';
+                    startCameraButton.textContent = 'Tắt Camera';
+                    captureSendButton.disabled = false;
+                    showCustomMessage('Camera đã bật.', 'info');
+                } catch (err) {
+                    console.error('Lỗi khi truy cập camera:', err);
+                    showCustomMessage(`Không thể truy cập camera: ${err.message}. Vui lòng kiểm tra quyền truy cập.`, 'error');
+                    captureSendButton.disabled = true;
+                }
+            }
+        });
+
+        captureSendButton.addEventListener('click', () => {
+            if (mediaStream && mediaStream.active) {
+                const context = cameraCanvas.getContext('2d');
+                cameraCanvas.width = cameraFeed.videoWidth;
+                cameraCanvas.height = cameraFeed.videoHeight;
+                context.drawImage(cameraFeed, 0, 0, cameraCanvas.width, cameraCanvas.height);
+                
+                capturedImageBase64 = cameraCanvas.toDataURL('image/jpeg').split(',')[1]; // Get Base64 data
+                
+                // Display the captured image in the preview area
+                const capturedFile = dataURLtoFile(cameraCanvas.toDataURL('image/jpeg'), 'captured_image.jpeg');
+                uploadedImages = [capturedFile]; // Replace any existing uploaded images with the captured one
+                imagePreviewContainer.innerHTML = ''; // Clear existing previews
+                createImagePreview(URL.createObjectURL(capturedFile), capturedFile);
+                updateImageCount();
+
+                // Optionally, stop the camera after capturing
+                // mediaStream.getTracks().forEach(track => track.stop());
+                // cameraFeed.srcObject = null;
+                // cameraFeed.style.display = 'none';
+                // startCameraButton.textContent = 'Bật Camera';
+                // captureSendButton.disabled = true;
+            } else {
+                showCustomMessage('Vui lòng bật camera trước khi chụp ảnh.', 'warning');
+            }
+        });
+
+        // Helper to convert Data URL to File object for consistent handling with uploadedImages
+        function dataURLtoFile(dataurl, filename) {
+            var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new File([u8arr], filename, {type:mime});
+        }
+
 
         // --- UI & Event Handlers ---
         // Chat form submission
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const message = userInput.value.trim();
-            if (!message && uploadedImages.length === 0) return;
+            
+            // Collect all images: from file input and from camera capture
+            const imagesToSend = [];
+            if (capturedImageBase64) {
+                imagesToSend.push({
+                    inlineData: {
+                        mimeType: 'image/jpeg', // Assuming JPEG for camera capture
+                        data: capturedImageBase64
+                    }
+                });
+            }
+            // Add other uploaded images if any (from file input)
+            uploadedImages.filter(img => img.type !== 'image/jpeg' || img.name !== 'captured_image.jpeg').forEach(file => {
+                // For file input images, we need to read them as Base64 first
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagesToSend.push({
+                        inlineData: {
+                            mimeType: file.type,
+                            data: e.target.result.split(',')[1]
+                        }
+                    });
+                    // Only process message after all file input images are read
+                    if (imagesToSend.length === (uploadedImages.length + (capturedImageBase64 ? 0 : 0))) { // Adjust count based on if camera image is already in imagesToSend
+                         processMessage(message, imagesToSend);
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
 
-            appendMessage({ text: message, images: uploadedImages.map(img => img.file) }, 'user');
-            const imagesForHistory = [...uploadedImages];
+            // If no file input images, and only camera image or text
+            if (imagesToSend.length === 0 && uploadedImages.length === 0 && !message) {
+                showCustomMessage("Vui lòng nhập tin nhắn hoặc tải lên ảnh.", "warning");
+                return;
+            }
+            
+            // If there are no file input images, but there's a camera image or just text
+            if (uploadedImages.length === 0 && (capturedImageBase64 || message)) {
+                 processMessage(message, imagesToSend);
+            } else if (uploadedImages.length > 0 && !capturedImageBase64) {
+                 // If there are file input images, but no camera image, process them directly
+                 const fileInputImagesToSend = [];
+                 let filesProcessedCount = 0;
+                 uploadedImages.forEach(file => {
+                     const reader = new FileReader();
+                     reader.onload = (e) => {
+                         fileInputImagesToSend.push({
+                             inlineData: {
+                                 mimeType: file.type,
+                                 data: e.target.result.split(',')[1]
+                             }
+                         });
+                         filesProcessedCount++;
+                         if (filesProcessedCount === uploadedImages.length) {
+                             processMessage(message, fileInputImagesToSend);
+                         }
+                     };
+                     reader.readAsDataURL(file);
+                 });
+            }
+
+
+            // Clear inputs and previews after sending
             userInput.value = '';
             imagePreviewContainer.innerHTML = '';
             uploadedImages = [];
+            capturedImageBase64 = null; // Clear captured image
             updateImageCount();
-
-            // Removed admin-related customer price logic
-            processMessage(message, imagesForHistory, false);
         });
 
-        async function processMessage(message, images, useDefaultPrice) {
+        async function processMessage(message, images) {
             toggleLoading(true);
             try {
                 const userParts = [];
                 if (message) userParts.push({ text: message });
-                images.forEach(img => userParts.push({ inlineData: { mimeType: img.mimeType, data: img.data } }));
-                // useDefaultPrice flag is no longer relevant as there's no dynamic customer pricing
+                images.forEach(img => userParts.push(img)); // Images are already in {inlineData} format
                 
                 chatHistory.push({ role: "user", parts: userParts });
                 const botResponse = await getGeminiResponse();
@@ -241,67 +418,130 @@
             }
         }
         
-        // Admin Login Flow (All listeners removed)
-        // adminButton.addEventListener('click', showAdminLogin);
-        // adminLoginCancelButton.addEventListener('click', showChatView);
-        // adminLoginForm.addEventListener('submit', ...);
-
-        // Admin Dashboard Flow (All listeners removed)
-        // logoutButton.addEventListener('click', showChatView);
-        // managePricesButton.addEventListener('click', showPriceManagementDashboard);
-        // loadCustomerPricesButton.addEventListener('click', ...);
-        // priceSearchInput.addEventListener('input', ...);
-        // sortItemNameHeader.addEventListener('click', ...);
-        // sortItemPriceHeader.addEventListener('click', ...);
-        // addEditPriceForm.addEventListener('submit', ...);
-        // cancelEditButton.addEventListener('click', ...);
-        // resetAddEditForm removed
-        // renderPriceList removed
-        // updateSortIcons removed
-
         // Modal Handlers (Kept for general messages)
         function showCustomMessage(message, type = 'info') { customMessageText.textContent = message; customMessageModal.classList.remove('hidden'); }
         customMessageOkButton.addEventListener('click', () => customMessageModal.classList.add('hidden'));
-        // showCustomConfirm removed as it was primarily for admin price logic
 
-        // Image Handling Helpers (Kept as they are part of chat)
-        function processFiles(files) { if (!files || files.length === 0) return; if (uploadedImages.length + files.length > MAX_IMAGES) { showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`); return; } for (const file of Array.from(files).filter(f => f.type.startsWith('image/'))) { if (uploadedImages.some(img => img.file.name === file.name && img.file.size === file.size)) continue; const reader = new FileReader(); reader.onload = (e) => { const base64Data = e.target.result.split(',')[1]; uploadedImages.push({ data: base64Data, mimeType: file.type, file: file }); createImagePreview(e.target.result, file); updateImageCount(); }; reader.readAsDataURL(file); } }
+        // Image Handling Helpers (Updated to handle camera capture)
+        function processFiles(files) { 
+            if (!files || files.length === 0) return; 
+            if (uploadedImages.length + files.length > MAX_IMAGES) { 
+                showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`); 
+                return; 
+            } 
+            for (const file of Array.from(files).filter(f => f.type.startsWith('image/'))) { 
+                if (uploadedImages.some(img => img.name === file.name && img.size === file.size)) continue; // Check for duplicate file objects
+                // Store the File object directly for display purposes
+                uploadedImages.push(file); 
+                createImagePreview(URL.createObjectURL(file), file); 
+                updateImageCount(); 
+            } 
+        }
         imageInput.addEventListener('change', (e) => { processFiles(e.target.files); e.target.value = ''; });
         userInput.addEventListener('paste', (e) => { processFiles(e.clipboardData?.files); });
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => inputArea.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); }));
         ['dragenter', 'dragover'].forEach(evt => inputArea.addEventListener(evt, () => inputArea.classList.add('drag-over')));
         ['dragleave', 'drop'].forEach(evt => inputArea.addEventListener(evt, () => inputArea.classList.remove('drag-over')));
         inputArea.addEventListener('drop', (e) => { processFiles(e.dataTransfer?.files); });
-        function createImagePreview(dataUrl, file) { const pWrap = document.createElement('div'); pWrap.className = 'relative'; const img = document.createElement('img'); img.src = dataUrl; img.className = 'h-16 w-16 object-cover rounded-md'; pWrap.appendChild(img); const rBtn = document.createElement('button'); rBtn.innerHTML = '&times;'; rBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs'; rBtn.onclick = () => { uploadedImages = uploadedImages.filter(img => img.file !== file); pWrap.remove(); updateImageCount(); }; pWrap.appendChild(rBtn); imagePreviewContainer.appendChild(pWrap); }
-        function updateImageCount() { imageInfo.textContent = uploadedImages.length > 0 ? `Đã tải lên ${uploadedImages.length}/${MAX_IMAGES} ảnh.` : ''; }
-        function appendMessage(data, sender, isError = false) { const { text, images } = data; const msgWrap = document.createElement('div'); msgWrap.className = `flex items-start gap-3 mb-4 ${sender === 'user' ? 'justify-end' : ''}`; const msgContent = document.createElement('div'); msgContent.className = `p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-xl ${sender === 'user' ? 'bg-blue-600 text-white' : isError ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : 'bg-gray-200 dark:bg-gray-700'}`; if (images?.length) { const grid = document.createElement('div'); grid.className = 'grid grid-cols-3 gap-1'; images.forEach(file => { const img = document.createElement('img'); img.src = URL.createObjectURL(file); img.className = 'w-full h-auto object-cover rounded'; img.onload = () => URL.revokeObjectURL(img.src); grid.appendChild(img); }); msgContent.appendChild(grid); } if (text) { const p = document.createElement('p'); p.className = `text-sm ${images?.length ? 'mt-2' : ''}`; p.innerHTML = text.replace(/\n/g, '<br>'); msgContent.appendChild(p); } const avatar = document.createElement('div'); avatar.className = `flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center font-bold text-white ${sender === 'user' ? 'bg-gray-500' : isError ? 'bg-red-500' : 'bg-blue-500'}`; avatar.textContent = sender === 'user' ? 'U' : 'B'; if (sender === 'user') { msgWrap.append(msgContent, avatar); } else { msgWrap.append(avatar, msgContent); } document.querySelector('.chat-container').appendChild(msgWrap); document.querySelector('.chat-container').scrollTop = document.querySelector('.chat-container').scrollHeight; }
-        function toggleLoading(isLoading) { sendButton.disabled = isLoading; userInput.disabled = isLoading; document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; sendText.classList.toggle('hidden', isLoading); loadingSpinner.classList.toggle('hidden', !isLoading); if (!isLoading) userInput.focus(); }
+        
+        function createImagePreview(dataUrl, file) { 
+            const pWrap = document.createElement('div'); 
+            pWrap.className = 'relative'; 
+            const img = document.createElement('img'); 
+            img.src = dataUrl; 
+            img.className = 'h-16 w-16 object-cover rounded-md'; 
+            pWrap.appendChild(img); 
+            const rBtn = document.createElement('button'); 
+            rBtn.innerHTML = '&times;'; 
+            rBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs'; 
+            rBtn.onclick = () => { 
+                uploadedImages = uploadedImages.filter(item => item !== file); // Filter by object reference
+                pWrap.remove(); 
+                updateImageCount(); 
+                if (file.name === 'captured_image.jpeg') { // If the removed image was from camera, clear capturedImageBase64
+                    capturedImageBase64 = null;
+                }
+            }; 
+            pWrap.appendChild(rBtn); 
+            imagePreviewContainer.appendChild(pWrap); 
+        }
+        function updateImageCount() { 
+            imageInfo.textContent = uploadedImages.length > 0 ? `Đã tải lên ${uploadedImages.length}/${MAX_IMAGES} ảnh.` : ''; 
+        }
+        function appendMessage(data, sender, isError = false) { 
+            const { text, images } = data; 
+            const msgWrap = document.createElement('div'); 
+            msgWrap.className = `flex items-start gap-3 mb-4 ${sender === 'user' ? 'justify-end' : ''}`; 
+            const msgContent = document.createElement('div'); 
+            msgContent.className = `p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-xl ${sender === 'user' ? 'bg-blue-600 text-white' : isError ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : 'bg-gray-200 dark:bg-gray-700'}`; 
+            
+            if (images?.length) { 
+                const grid = document.createElement('div'); 
+                grid.className = 'grid grid-cols-3 gap-1'; 
+                images.forEach(imgData => { // imgData can be a File object or {inlineData}
+                    const img = document.createElement('img'); 
+                    if (imgData instanceof File) {
+                        img.src = URL.createObjectURL(imgData);
+                        img.onload = () => URL.revokeObjectURL(img.src);
+                    } else if (imgData.inlineData) {
+                        img.src = `data:${imgData.inlineData.mimeType};base64,${imgData.inlineData.data}`;
+                    }
+                    img.className = 'w-full h-auto object-cover rounded'; 
+                    grid.appendChild(img); 
+                }); 
+                msgContent.appendChild(grid); 
+            } 
+            
+            if (text) { 
+                const p = document.createElement('p'); 
+                p.className = `text-sm ${images?.length ? 'mt-2' : ''}`; 
+                p.innerHTML = text.replace(/\n/g, '<br>'); 
+                msgContent.appendChild(p); 
+            } 
+            
+            const avatar = document.createElement('div'); 
+            avatar.className = `flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center font-bold text-white ${sender === 'user' ? 'bg-gray-500' : isError ? 'bg-red-500' : 'bg-blue-500'}`; 
+            avatar.textContent = sender === 'user' ? 'U' : 'B'; 
+            
+            if (sender === 'user') { 
+                msgWrap.append(msgContent, avatar); 
+            } else { 
+                msgWrap.append(avatar, msgContent); 
+            } 
+            document.querySelector('.chat-container').appendChild(msgWrap); 
+            document.querySelector('.chat-container').scrollTop = document.querySelector('.chat-container').scrollHeight; 
+        }
+
+        function toggleLoading(isLoading) { 
+            sendButton.disabled = isLoading; 
+            userInput.disabled = isLoading; 
+            document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; 
+            startCameraButton.disabled = isLoading; // Disable camera buttons during loading
+            captureSendButton.disabled = isLoading || !mediaStream || !mediaStream.active; // Keep disabled if camera is off
+            sendText.classList.toggle('hidden', isLoading); 
+            loadingSpinner.classList.toggle('hidden', !isLoading); 
+            if (!isLoading) userInput.focus(); 
+        }
 
         // --- App Initialization ---
         const main = async () => {
             appendMessage({ text: "Xin chào! Tôi là trợ lý ảo. Tôi có thể giúp gì cho bạn?" }, 'bot');
             try {
-                // Get firebaseConfig from the global scope
                 const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : null;
                 
                 if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
-                    // If Firebase config is missing, still allow chat to function without Firestore
                     console.warn("Firebase config is incomplete or invalid. Chat will function without Firestore features.");
-                    // No need to throw error if chat can still work
                 } else {
                     app = initializeApp(firebaseConfig);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
+                    auth = getAuth(app); // Only auth is needed, getFirestore is not needed without admin
                     onAuthStateChanged(auth, user => {
                         userId = user?.uid;
                         isAuthReady = !!user;
                         if (isAuthReady) {
                             console.log("Firebase Auth sẵn sàng. User ID:", userId);
-                            // setupPriceListener removed
                         }
                     });
 
-                    // Attempt to sign in with custom token, with fallback to anonymous
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                         try {
                             await signInWithCustomToken(auth, __initial_auth_token);
@@ -321,7 +561,6 @@
                 appendMessage({ text: `Lỗi: Không thể kết nối đến dịch vụ Firebase. Vui lòng kiểm tra console để biết chi tiết. (${error.message})` }, 'bot', true);
             }
 
-            // Set initial view state after Firebase initialization
             showChatView();
         };
 
