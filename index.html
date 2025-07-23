@@ -9,6 +9,7 @@
     <!-- Vietnamese IME Library -->
     <script src="https://cdn.jsdelivr.net/npm/vanilla-telex@1/vanilla-telex.min.js"></script>
     <style>
+        /* Base styles for the body and scrollbar */
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -34,7 +35,124 @@
             margin-left: 8px;
             vertical-align: middle;
         }
+
+        /* Custom styling for modern look - refined for better aesthetics */
+        .card {
+            background-color: #ffffff;
+            border-radius: 1rem; /* rounded-2xl for softer corners */
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.08); /* slightly stronger, diffused shadow */
+            padding: 2rem; /* Increased padding for more breathing room */
+            transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transitions */
+        }
+        .dark .card {
+            background-color: #1f2937; /* dark:bg-gray-800 */
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2); /* Darker shadow for dark mode */
+        }
+        .input-field {
+            border-radius: 0.75rem; /* rounded-lg, slightly more rounded */
+            padding: 0.85rem 1.25rem; /* Increased padding for better touch targets and visual space */
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            background-color: #f9fafb; /* bg-gray-50 */
+            color: #1f2937; /* text-gray-900 */
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6; /* blue-500 */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); /* Focus ring */
+        }
+        .dark .input-field {
+            background-color: #374151; /* dark:bg-gray-700 */
+            border-color: #4b5563; /* dark:border-gray-600 */
+            color: #f9fafb; /* dark:text-white */
+        }
+        .button-primary {
+            background-color: #2563eb; /* bg-blue-600 */
+            color: #ffffff;
+            font-weight: 600; /* font-semibold */
+            padding: 0.85rem 1.75rem; /* Increased padding */
+            border-radius: 0.75rem; /* rounded-lg */
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .button-primary:hover {
+            background-color: #1d4ed8; /* hover:bg-blue-700 */
+            transform: translateY(-1px); /* Slight lift effect */
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .button-primary:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .button-secondary {
+            background-color: #6b7280; /* bg-gray-500 */
+            color: #ffffff;
+            font-weight: 600; /* font-semibold */
+            padding: 0.85rem 1.75rem; /* Increased padding */
+            border-radius: 0.75rem; /* rounded-lg */
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .button-secondary:hover {
+            background-color: #4b5563; /* hover:bg-gray-600 */
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .button-secondary:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .table-header {
+            background-color: #e5e7eb; /* bg-gray-200 */
+            color: #374151; /* text-gray-700 */
+            text-transform: uppercase;
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.25rem; /* leading-normal */
+            font-weight: 600; /* Semi-bold headers */
+        }
+        .dark .table-header {
+            background-color: #374151; /* dark:bg-gray-700 */
+            color: #d1d5db; /* dark:text-gray-200 */
+        }
+        .table-row {
+            border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+            transition: background-color 0.2s ease-in-out;
+        }
+        .dark .table-row {
+            border-color: #4b5563; /* dark:border-gray-600 */
+        }
+        .table-row:hover {
+            background-color: #f3f4f6; /* hover:bg-gray-100 */
+        }
+        .dark .table-row:hover {
+            background-color: #4b5563; /* dark:hover:bg-gray-600 */
+        }
+        .table-cell {
+            padding: 1rem 1.5rem; /* Increased vertical padding for table cells */
+        }
+        .action-buttons-group {
+            display: flex;
+            justify-content: center; /* Center buttons in action column */
+            gap: 0.5rem; /* Space between buttons */
+        }
     </style>
+
+    <!-- Firebase Configuration -->
+    <script>
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyDJBY6U0LUtmnk4PrfNeA7UE7qq1FZ84X8",
+          authDomain: "data-chung-a62ee.firebaseapp.com",
+          databaseURL: "https://data-chung-a62ee-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "data-chung-a62ee",
+          storageBucket: "data-chung-a62ee.firebasestorage.app",
+          messagingSenderId: "453115303161",
+          appId: "1:4531115303161:web:d40a0ec5a38ab7d4863e28",
+          measurementId: "G-WNVH78VY1Z"
+        };
+        // Expose firebaseConfig to the global scope for the main script
+        window.__firebase_config = JSON.stringify(firebaseConfig);
+    </script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 
@@ -80,57 +198,57 @@
 
         <div id="price-management-content" class="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto hidden">
              <!-- Customer Selection -->
-            <div class="mb-6 p-4 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow">
-                <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Chọn Khách hàng</h3>
+            <div class="mb-6 card">
+                <h3 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Chọn Khách hàng</h3>
                 <div class="flex flex-col md:flex-row items-center gap-4">
-                    <input type="text" id="customer-select-input" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-50 dark:bg-gray-700" placeholder="Nhập tên khách hàng hoặc 'mặc định'" value="mặc định">
-                    <button type="button" id="load-customer-prices-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline w-full md:w-auto">Tải giá</button>
+                    <input type="text" id="customer-select-input" class="input-field flex-1" placeholder="Nhập tên khách hàng hoặc 'mặc định'" value="mặc định">
+                    <button type="button" id="load-customer-prices-button" class="button-primary w-full md:w-auto">Tải giá</button>
                 </div>
-                <p id="current-customer-display" class="mt-2 text-sm text-gray-700 dark:text-gray-300">Đang quản lý giá cho: <strong>Mặc định</strong></p>
-                <div id="customer-select-error" class="text-red-500 text-xs italic mt-2 hidden"></div>
+                <p id="current-customer-display" class="mt-4 text-base text-gray-700 dark:text-gray-300">Đang quản lý giá cho: <strong>Mặc định</strong></p>
+                <div id="customer-select-error" class="text-red-500 text-sm italic mt-2 hidden"></div>
             </div>
 
             <!-- Add New Item Form -->
-            <div class="mb-6 p-4 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow">
-                <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Thêm/Chỉnh sửa Vật tư</h3>
-                <form id="add-edit-price-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="item-name" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Tên Vật tư (ví dụ: decal, in bạt):</label>
-                        <input type="text" id="item-name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-50 dark:bg-gray-700" placeholder="Tên vật tư" required>
+            <div class="mb-6 card">
+                <h3 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Thêm/Chỉnh sửa Vật tư</h3>
+                <form id="add-edit-price-form" class="flex flex-col md:flex-row md:items-end gap-6">
+                    <div class="flex-1">
+                        <label for="item-name" class="block text-gray-700 dark:text-gray-300 text-sm font-semibold mb-2">Tên Vật tư (ví dụ: decal, in bạt):</label>
+                        <input type="text" id="item-name" class="input-field w-full" placeholder="Tên vật tư" required>
                     </div>
-                    <div>
-                        <label for="item-price" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Giá (VNĐ/m²):</label>
-                        <input type="number" id="item-price" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-50 dark:bg-gray-700" placeholder="Giá trên mỗi mét vuông" step="100" required>
+                    <div class="flex-1">
+                        <label for="item-price" class="block text-gray-700 dark:text-gray-300 text-sm font-semibold mb-2">Giá (VNĐ/m²):</label>
+                        <input type="number" id="item-price" class="input-field w-full" placeholder="Giá trên mỗi mét vuông" step="100" required>
                     </div>
-                    <div class="md:col-span-2 flex justify-end gap-3">
-                        <button type="submit" id="save-item-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Lưu Vật tư</button>
-                        <button type="button" id="cancel-edit-button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline hidden">Hủy</button>
+                    <div class="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0 md:justify-end">
+                        <button type="submit" id="save-item-button" class="button-primary w-full sm:w-auto">Lưu Vật tư</button>
+                        <button type="button" id="cancel-edit-button" class="button-secondary hidden w-full sm:w-auto">Hủy</button>
                     </div>
                 </form>
-                <div id="price-form-error" class="text-red-500 text-xs italic mt-2 hidden"></div>
+                <div id="price-form-error" class="text-red-500 text-sm italic mt-2 hidden"></div>
             </div>
 
             <!-- Price List Table -->
             <div class="mb-4">
-                <input type="text" id="price-search-input" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-50 dark:bg-gray-700" placeholder="Tìm kiếm vật tư...">
+                <input type="text" id="price-search-input" class="input-field w-full" placeholder="Tìm kiếm vật tư...">
             </div>
-            <div class="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div class="overflow-x-auto card p-0">
                 <table class="min-w-full">
                     <thead>
-                        <tr class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 uppercase text-sm leading-normal">
-                            <th class="py-3 px-6 text-left cursor-pointer" id="sort-item-name" data-sort-column="name">Tên Vật tư <span class="sort-icon"></span></th>
-                            <th class="py-3 px-6 text-right cursor-pointer" id="sort-item-price" data-sort-column="price">Giá (VNĐ/m²) <span class="sort-icon"></span></th>
-                            <th class="py-3 px-6 text-center">Hành động</th>
+                        <tr class="table-header">
+                            <th class="table-cell text-left cursor-pointer" id="sort-item-name" data-sort-column="name">Tên Vật tư <span class="sort-icon"></span></th>
+                            <th class="table-cell text-right cursor-pointer" id="sort-item-price" data-sort-column="price">Giá (VNĐ/m²) <span class="sort-icon"></span></th>
+                            <th class="table-cell text-center">Hành động</th>
                         </tr>
                     </thead>
-                    <tbody id="price-list-body" class="text-gray-600 dark:text-gray-300 text-sm font-light">
+                    <tbody id="price-list-body" class="text-gray-600 dark:text-gray-300 text-base font-light">
                         <!-- Prices will be rendered here -->
                     </tbody>
                 </table>
             </div>
         </div>
         
-        <div id="admin-main-content" class="flex-1 flex items-center justify-center">
+        <div id="admin-main-content" class="flex-1 flex items-center justify-center hidden">
             <button id="manage-prices-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg text-xl shadow-lg">
                 Quản Lý Giá
             </button>
@@ -140,7 +258,7 @@
 
     <!-- Admin Login Modal -->
     <div id="admin-login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-50">
-        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-96">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-96 max-w-full mx-4 sm:mx-auto">
             <h2 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Đăng nhập Quản trị</h2>
             <form id="admin-login-form">
                 <div class="mb-4">
@@ -152,9 +270,9 @@
                     <input type="password" id="admin-password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-100 dark:bg-gray-700" value="admin">
                 </div>
                 <div id="admin-login-error" class="text-red-500 text-xs italic mb-4 hidden"></div>
-                <div class="flex items-center justify-between">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Đăng nhập</button>
-                    <button type="button" id="admin-login-cancel" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">Hủy</button>
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline w-full sm:w-auto">Đăng nhập</button>
+                    <button type="button" id="admin-login-cancel" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline w-full sm:w-auto">Hủy</button>
                 </div>
             </form>
         </div>
@@ -162,7 +280,7 @@
 
     <!-- Custom Message Modal -->
     <div id="custom-message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-[100]">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center mx-4 sm:mx-auto">
             <p id="custom-message-text" class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100"></p>
             <button id="custom-message-ok" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">OK</button>
         </div>
@@ -211,9 +329,9 @@
               cancelEditButton = document.getElementById('cancel-edit-button'),
               priceListBody = document.getElementById('price-list-body'),
               priceFormError = document.getElementById('price-form-error'),
-              priceSearchInput = document.getElementById('price-search-input'), // New search input
-              sortItemNameHeader = document.getElementById('sort-item-name'), // New sort header
-              sortItemPriceHeader = document.getElementById('sort-item-price'); // New sort header
+              priceSearchInput = document.getElementById('price-search-input'), 
+              sortItemNameHeader = document.getElementById('sort-item-name'), 
+              sortItemPriceHeader = document.getElementById('sort-item-price'); 
 
         // Modals
         const customMessageModal = document.getElementById('custom-message-modal');
@@ -230,7 +348,6 @@
         // Firebase State
         let app, db, auth, userId;
         let isAuthReady = false;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         let allCustomerPrices = {}; 
         let currentManagingCustomerSlug = 'mặc_định';
 
@@ -319,7 +436,17 @@
         // --- Firestore Price Management ---
         const setupPriceListener = () => {
             if (!db || !isAuthReady) { console.warn("Firestore/Auth chưa sẵn sàng."); return; }
-            const pricesCollectionRef = collection(db, `artifacts/${appId}/public/data/customerPrices`);
+            
+            // Get firebaseConfig from the global scope
+            const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : null;
+            if (!firebaseConfig || !firebaseConfig.projectId) {
+                console.error("Firebase config hoặc projectId không hợp lệ.");
+                showCustomMessage("Lỗi: Cấu hình Firebase không hợp lệ. Vui lòng kiểm tra console.", 'error');
+                return;
+            }
+            const currentProjectId = firebaseConfig.projectId;
+            
+            const pricesCollectionRef = collection(db, `artifacts/${currentProjectId}/public/data/customerPrices`);
             onSnapshot(pricesCollectionRef, (snapshot) => {
                 const newPrices = {};
                 snapshot.forEach(doc => {
@@ -329,19 +456,31 @@
                 allCustomerPrices = newPrices;
                 console.log("Giá đã được cập nhật từ Firestore:", allCustomerPrices);
                 renderPriceList(currentManagingCustomerSlug); // Re-render admin list
-                if (!allCustomerPrices['mặc_định']) {
-                    saveCustomerPrices('mặc định', { displayName: 'Mặc định', items: { decal: 85000 } });
+                
+                // Initialize default prices if 'mặc_định' customer doesn't exist or has no items
+                if (!allCustomerPrices['mặc_định'] || Object.keys(allCustomerPrices['mặc_định'].items).length === 0) {
+                    saveCustomerPrices('mặc định', { displayName: 'Mặc định', items: { decal: 85000, inBat: 70000, standee: 120000 } });
                 }
             }, (error) => {
                 console.error("Lỗi khi tải giá:", error);
-                showCustomMessage("Lỗi: Không thể tải giá từ cơ sở dữ liệu.", 'error');
+                showCustomMessage("Lỗi: Không thể tải giá từ cơ sở dữ liệu. Vui lòng kiểm tra console.", 'error');
             });
         };
         const saveCustomerPrices = async (customerDisplayName, data) => {
             if (!db || !isAuthReady) { showCustomMessage('Hệ thống chưa sẵn sàng.', 'error'); return false; }
             const customerSlug = slugify(customerDisplayName);
+            
+            // Get firebaseConfig from the global scope
+            const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : null;
+            if (!firebaseConfig || !firebaseConfig.projectId) {
+                console.error("Firebase config hoặc projectId không hợp lệ.");
+                showCustomMessage("Lỗi: Cấu hình Firebase không hợp lệ. Vui lòng kiểm tra console.", 'error');
+                return false;
+            }
+            const currentProjectId = firebaseConfig.projectId;
+
             try {
-                const customerDocRef = doc(db, `artifacts/${appId}/public/data/customerPrices`, customerSlug);
+                const customerDocRef = doc(db, `artifacts/${currentProjectId}/public/data/customerPrices`, customerSlug);
                 await setDoc(customerDocRef, data, { merge: true });
                 return true;
             } catch (e) {
@@ -365,6 +504,51 @@
                 showCustomMessage(`Đã xóa vật tư "${itemName}".`, 'success');
             }
         };
+
+        // --- View Control Functions ---
+        function showChatView() {
+            chatView.style.display = 'flex'; // Explicitly show chat
+            adminView.style.display = 'none'; // Explicitly hide admin
+            adminLoginModal.classList.add('hidden'); // Ensure modal is hidden
+            priceManagementContent.classList.add('hidden'); // Ensure price management is hidden
+            adminMainContent.classList.add('hidden'); // Ensure main admin content is hidden
+            console.log("Showing Chat View.");
+        }
+
+        function showAdminLogin() {
+            chatView.style.display = 'none'; // Explicitly hide chat
+            adminView.style.display = 'flex'; // Explicitly show admin container
+            adminLoginModal.classList.remove('hidden'); // Show the login modal
+            priceManagementContent.classList.add('hidden');
+            priceManagementContent.style.display = 'none'; // Ensure hidden
+            adminMainContent.classList.add('hidden');
+            adminMainContent.style.display = 'none'; // Ensure hidden
+            console.log("Showing Admin Login Modal.");
+        }
+
+        function showPriceManagementDashboard() {
+            console.log("Attempting to show Price Management Dashboard...");
+            chatView.style.display = 'none'; // Explicitly hide chat
+            adminView.style.display = 'flex'; // Explicitly show admin container
+            adminLoginModal.classList.add('hidden'); // Hide login modal
+            priceManagementContent.classList.remove('hidden');
+            priceManagementContent.style.display = 'flex'; // Explicitly show price management content as flex
+            adminMainContent.classList.add('hidden');
+            adminMainContent.style.display = 'none'; // Explicitly hide admin main content
+            
+            console.log("priceManagementContent hidden class:", priceManagementContent.classList.contains('hidden'));
+            console.log("priceManagementContent display style:", priceManagementContent.style.display);
+            console.log("adminMainContent hidden class:", adminMainContent.classList.contains('hidden'));
+            console.log("adminMainContent display style:", adminMainContent.style.display);
+
+            currentFilterText = '';
+            priceSearchInput.value = '';
+            currentSortColumn = 'name';
+            currentSortDirection = 'asc';
+            updateSortIcons();
+            renderPriceList(currentManagingCustomerSlug);
+            console.log("Price Management Dashboard display logic executed.");
+        }
 
         // --- UI & Event Handlers ---
         // Chat form submission
@@ -409,16 +593,13 @@
         }
         
         // Admin Login Flow
-        adminButton.addEventListener('click', () => adminLoginModal.classList.remove('hidden'));
-        adminLoginCancelButton.addEventListener('click', () => adminLoginModal.classList.add('hidden'));
+        adminButton.addEventListener('click', showAdminLogin);
+        adminLoginCancelButton.addEventListener('click', showChatView);
+        
         adminLoginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             if (adminUsernameInput.value === 'admin' && adminPasswordInput.value === 'admin') {
-                adminLoginModal.classList.add('hidden');
-                chatView.classList.add('hidden');
-                adminView.classList.remove('hidden');
-                adminMainContent.classList.remove('hidden');
-                priceManagementContent.classList.add('hidden');
+                showPriceManagementDashboard(); // Directly show the price management
             } else {
                 adminLoginError.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
                 adminLoginError.classList.remove('hidden');
@@ -426,22 +607,8 @@
         });
 
         // Admin Dashboard Flow
-        logoutButton.addEventListener('click', () => {
-            adminView.classList.add('hidden');
-            chatView.classList.remove('hidden');
-        });
-
-        managePricesButton.addEventListener('click', () => {
-            adminMainContent.classList.add('hidden');
-            priceManagementContent.classList.remove('hidden');
-            // Reset filter and sort when entering price management
-            currentFilterText = '';
-            priceSearchInput.value = '';
-            currentSortColumn = 'name';
-            currentSortDirection = 'asc';
-            updateSortIcons();
-            renderPriceList(currentManagingCustomerSlug);
-        });
+        logoutButton.addEventListener('click', showChatView);
+        managePricesButton.addEventListener('click', showPriceManagementDashboard); // Button to navigate to price management from main admin area
 
         loadCustomerPricesButton.addEventListener('click', () => {
             const customerName = customerSelectInput.value.trim();
@@ -522,6 +689,7 @@
             if (success) {
                 resetAddEditForm();
                 showCustomMessage(`Đã lưu vật tư "${itemName}".`, 'success');
+                renderPriceList(currentManagingCustomerSlug); // Re-render to show updated list
             }
         });
         cancelEditButton.addEventListener('click', resetAddEditForm);
@@ -539,7 +707,7 @@
             const customerData = allCustomerPrices[customerSlug];
             
             if (!customerData || Object.keys(customerData.items).length === 0) {
-                priceListBody.innerHTML = `<tr><td colspan="3" class="py-3 px-6 text-center text-gray-500">Chưa có vật tư nào.</td></tr>`;
+                priceListBody.innerHTML = `<tr><td colspan="3" class="table-cell text-center text-gray-500 py-4">Chưa có vật tư nào.</td></tr>`;
                 return;
             }
 
@@ -570,17 +738,17 @@
             });
 
             if (itemsArray.length === 0) {
-                 priceListBody.innerHTML = `<tr><td colspan="3" class="py-3 px-6 text-center text-gray-500">Không tìm thấy vật tư nào phù hợp với tìm kiếm.</td></tr>`;
+                 priceListBody.innerHTML = `<tr><td colspan="3" class="table-cell text-center text-gray-500 py-4">Không tìm thấy vật tư nào phù hợp với tìm kiếm.</td></tr>`;
                  return;
             }
 
             itemsArray.forEach(({ name, price }) => {
                 const row = document.createElement('tr');
-                row.className = 'border-b border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600';
-                row.innerHTML = `<td class="py-3 px-6 text-left">${name}</td>
-                                 <td class="py-3 px-6 text-right">${price.toLocaleString('vi-VN')}</td>
-                                 <td class="py-3 px-6 text-center">
-                                     <button class="edit-item-button bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded text-xs mr-2" data-item-name="${name}">Sửa</button>
+                row.className = 'table-row';
+                row.innerHTML = `<td class="table-cell text-left">${name}</td>
+                                 <td class="table-cell text-right">${price.toLocaleString('vi-VN')}</td>
+                                 <td class="table-cell text-center action-buttons-group">
+                                     <button class="edit-item-button bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded text-xs" data-item-name="${name}">Sửa</button>
                                      <button class="delete-item-button bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded text-xs" data-item-name="${name}">Xóa</button>
                                  </td>`;
                 priceListBody.appendChild(row);
@@ -607,7 +775,7 @@
         function showCustomConfirm(message, onConfirm) {
             const modal = document.createElement('div');
             modal.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[100]';
-            modal.innerHTML = `<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center">
+            modal.innerHTML = `<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center mx-4 sm:mx-auto">
                 <p class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">${message}</p>
                 <div class="flex justify-center gap-4">
                     <button id="confirm-yes" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Có</button>
@@ -635,7 +803,13 @@
         const main = async () => {
             appendMessage({ text: "Xin chào! Tôi là trợ lý ảo. Tôi có thể giúp gì cho bạn?" }, 'bot');
             try {
-                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIzaSy...", authDomain: "...", projectId: "..." };
+                // Get firebaseConfig from the global scope
+                const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : null;
+                
+                if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
+                    throw new Error("Cấu hình Firebase không đầy đủ hoặc không hợp lệ.");
+                }
+
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -647,15 +821,28 @@
                         setupPriceListener(); // Load prices once authenticated
                     }
                 });
+
+                // Attempt to sign in with custom token, with fallback to anonymous
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+                    try {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                        console.log("Signed in with custom token.");
+                    } catch (tokenError) {
+                        console.warn("Custom token sign-in failed, attempting anonymous sign-in:", tokenError);
+                        await signInAnonymously(auth);
+                        console.log("Signed in anonymously as fallback.");
+                    }
                 } else {
                     await signInAnonymously(auth);
+                    console.log("Signed in anonymously (no custom token provided).");
                 }
             } catch (error) {
                 console.error("Lỗi khởi tạo Firebase:", error);
-                appendMessage({ text: "Lỗi: Không thể kết nối đến dịch vụ. Vui lòng kiểm tra console." }, 'bot', true);
+                appendMessage({ text: `Lỗi: Không thể kết nối đến dịch vụ Firebase. Vui lòng kiểm tra console để biết chi tiết. (${error.message})` }, 'bot', true);
             }
+
+            // Set initial view state after Firebase initialization
+            showChatView();
         };
 
         // Start the application
