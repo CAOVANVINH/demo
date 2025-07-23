@@ -144,6 +144,7 @@
         // Camera elements
         const cameraFeed = document.getElementById('camera-feed');
         const cameraCanvas = document.getElementById('camera-canvas');
+        const cameraControls = document.querySelector('.camera-controls');
         const startCameraButton = document.getElementById('start-camera-button');
         const captureSendButton = document.getElementById('capture-send-button');
         const switchCameraButton = document.getElementById('switch-camera-button'); 
@@ -176,6 +177,11 @@
             "AIzaSyBR-duVUWZG-lD5usabYD3NS_-tZySMlcA",
             "AIzaSyBNagv3kn8vAJzbyMYlvLLCccNGbFa4ySc",
         ];
+
+        // --- Helper Functions ---
+        const isMobileDevice = () => {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        };
 
         // --- AI & Chat Logic ---
         const generateSystemInstruction = () => {
@@ -427,6 +433,11 @@
             uploadedImages = [];
             updateImageCount();
             
+            // Reset capture button text if camera is on, allowing for another picture to be taken.
+            if (mediaStream && mediaStream.active) {
+                captureSendButton.textContent = 'Chụp Ảnh';
+            }
+
             // Start loading state
             toggleLoading(true);
 
@@ -556,9 +567,14 @@
             sendButton.disabled = isLoading; 
             userInput.disabled = isLoading; 
             document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; 
-            startCameraButton.disabled = isLoading; 
-            captureSendButton.disabled = isLoading || !mediaStream || !mediaStream.active; 
-            switchCameraButton.disabled = isLoading || availableVideoDevices.length <= 1; 
+            
+            // Also consider device type for camera buttons
+            if (isMobileDevice()) {
+                startCameraButton.disabled = isLoading; 
+                captureSendButton.disabled = isLoading || !mediaStream || !mediaStream.active; 
+                switchCameraButton.disabled = isLoading || availableVideoDevices.length <= 1; 
+            }
+
             sendText.classList.toggle('hidden', isLoading); 
             loadingSpinner.classList.toggle('hidden', !isLoading); 
             if (!isLoading) userInput.focus(); 
@@ -566,6 +582,11 @@
 
         // --- App Initialization ---
         const main = async () => {
+            // Hide camera controls on desktop devices
+            if (!isMobileDevice()) {
+                cameraControls.style.display = 'none';
+            }
+
             appendMessage({ text: "Xin chào! Tôi là trợ lý ảo. Tôi có thể giúp gì cho bạn?" }, 'bot');
             try {
                 const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : null;
