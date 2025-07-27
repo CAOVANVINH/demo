@@ -6,7 +6,6 @@
     <title>Công Ty Thiết Kế In Ấn Hội An</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Vietnamese IME Library -->
     <script src="https://cdn.jsdelivr.net/npm/vanilla-telex@1/vanilla-telex.min.js"></script>
     <style>
         /* Base styles for the body and scrollbar */
@@ -102,8 +101,8 @@
 
         /* Typing indicator styles */
         @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
         }
         .typing-dot {
             width: 8px;
@@ -123,12 +122,12 @@
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
         .dark .chat-bg {
-             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23374151' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23374151' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
     </style>
 
-    <!-- Firebase Configuration -->
     <script>
+        // Firebase configuration (replace with your actual config if deploying)
         const firebaseConfig = {
           apiKey: "AIzaSyDJBY6U0LUtmnk4PrfNeA7UE7qq1FZ84X8",
           authDomain: "data-chung-a62ee.firebaseapp.com",
@@ -139,19 +138,41 @@
           appId: "1:4531115303161:web:d40a0ec5a38ab7d4863e28",
           measurementId: "G-WNVH78VY1Z"
         };
+        // Expose Firebase config to the global scope for the module script
         window.__firebase_config = JSON.stringify(firebaseConfig);
     </script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 
-    <!-- Chat View Container -->
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-[101]">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl max-w-sm w-full mx-4 sm:mx-auto">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Đăng Nhập Admin</h2>
+            <form id="admin-login-form">
+                <div class="mb-4">
+                    <label for="admin-username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tên đăng nhập:</label>
+                    <input type="text" id="admin-username" name="username" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+                </div>
+                <div class="mb-6">
+                    <label for="admin-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mật khẩu:</label>
+                    <input type="password" id="admin-password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Đăng Nhập</button>
+            </form>
+            <p id="admin-login-error" class="text-red-500 text-sm mt-4 text-center hidden">Tên đăng nhập hoặc mật khẩu không đúng.</p>
+        </div>
+    </div>
+
+    <!-- Main Chat Interface -->
     <div id="chat-view" class="flex h-screen">
-        <!-- Sidebar is now hidden on all screen sizes -->
-        <aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col justify-between hidden">
+        <!-- Sidebar -->
+        <aside id="main-sidebar" class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col justify-between
+                                 fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50
+                                 md:relative md:translate-x-0 md:flex">
             <div class="p-4">
                 <div class="flex items-center mb-6">
-                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
                     </div>
                     <h2 class="font-bold text-lg text-gray-800 dark:text-white">In Ấn Hội An</h2>
                 </div>
@@ -160,15 +181,27 @@
                     Cuộc trò chuyện mới
                 </button>
             </div>
-             <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
+                <button id="admin-login-button" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center mb-2">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    Admin Đăng Nhập
+                </button>
                 <p>&copy; 2024 Công Ty In Thiết Kế Ấn Hội An</p>
             </div>
         </aside>
 
+        <!-- Overlay for mobile sidebar -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+        <!-- Main Chat Area -->
         <main class="flex-1 flex flex-col bg-white dark:bg-gray-800">
-            <!-- Header -->
+            <!-- Chat Header -->
             <header class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-800 shadow-sm z-10">
                 <div class="flex items-center">
+                    <!-- Hamburger menu button for mobile -->
+                    <button id="menu-button" class="md:hidden p-2 mr-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
                     <div class="relative mr-4">
                         <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
                             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4c-2.23 0-4.14 1.25-5.1 3.05A8.93 8.93 0 0 0 4 9c-2.21 0-4 1.79-4 4s1.79 4 4 4h1v2h-1c-3.31 0-6-2.69-6-6 0-2.95 2.14-5.43 5-5.92V4h1c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2h1v2h-1c1.55 0 2.96.59 4 1.54V4h1c1.1 0 2 .9 2 2v1c.73.55 1.39 1.22 1.92 2H23v-1c0-2.21-1.79-4-4-4h-4zm-2 5h-2v2H9v2h2v2h2v-2h2v-2h-2V9z"/></svg>
@@ -182,8 +215,10 @@
                 </div>
             </header>
 
+            <!-- Chat Messages Container -->
             <div class="chat-container flex-1 p-4 md:p-6 overflow-y-auto chat-bg"></div>
 
+            <!-- Input Area -->
             <div id="input-area" class="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-inner">
                 <!-- Camera Feed and Controls -->
                 <video id="camera-feed" autoplay playsinline></video>
@@ -194,8 +229,11 @@
                     <button id="switch-camera-button" class="camera-button hidden" disabled>Chuyển Camera</button>
                 </div>
 
+                <!-- Image Previews -->
                 <div id="image-preview-container" class="mb-2 flex flex-wrap gap-2"></div>
                 <div id="image-info" class="text-xs text-gray-500 dark:text-gray-400 mb-2 h-4"></div>
+                
+                <!-- Chat Input Form -->
                 <form id="chat-form" class="flex items-center gap-3">
                     <input type="file" id="image-input" accept="image/*" multiple>
                     <label for="image-input" id="image-upload-button" class="cursor-pointer p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
@@ -212,7 +250,46 @@
         </main>
     </div>
 
-    <!-- Custom Message Modal (Kept for general messages) -->
+    <!-- Admin Panel View (Initially hidden) -->
+    <div id="admin-panel-view" class="flex h-screen hidden">
+        <aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col justify-between">
+            <div class="p-4">
+                <div class="flex items-center mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V12c0-2 2-4 4-4s4 2 4 4v3"/><path d="M8 15V12c0-2-2-4-4-4S0 10 0 12v3"/><path d="M12 15h0a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2v-3c0-1.1-.9-2-2-2Z"/><path d="M18 15h0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3c0 1.1-.9 2-2 2h-4a2 2 0 0 1-2-2v-3c0-1.1.9-2 2-2Z"/></svg>
+                    </div>
+                    <h2 class="font-bold text-lg text-gray-800 dark:text-white">Admin Panel</h2>
+                </div>
+                <button id="logout-button" class="w-full bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center mb-4">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 7L15.59 8.41l1.59 1.59H9v2h8.18l-1.59 1.59L17 17l5-5-5-5zm-1 12H5V5h11V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11v-2z"/></svg>
+                    Đăng Xuất
+                </button>
+            </div>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
+                <p>&copy; 2024 Công Ty In Thiết Kế Ấn Hội An</p>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col bg-white dark:bg-gray-800 p-6">
+            <h1 class="text-3xl font-bold mb-8 text-gray-800 dark:text-white text-center">Chào mừng đến với Bảng Điều Khiển Admin</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <button id="price-management-button" class="admin-panel-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-lg transition-all duration-200 transform hover:scale-105">
+                    Quản Lý Giá
+                </button>
+                <button id="sales-management-button" class="admin-panel-button bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-lg transition-all duration-200 transform hover:scale-105">
+                    Bán Hàng
+                </button>
+                <button id="quotation-management-button" class="admin-panel-button bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-lg transition-all duration-200 transform hover:scale-105">
+                    Báo giá
+                </button>
+                <button id="debt-management-button" class="admin-panel-button bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-lg transition-all duration-200 transform hover:scale-105">
+                    Quản Lý Công Nợ
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Custom Message Modal -->
     <div id="custom-message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden z-[100]">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm text-center mx-4 sm:mx-auto">
             <p id="custom-message-text" class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100"></p>
@@ -227,6 +304,9 @@
 
         // --- DOM Element Selection ---
         const chatContainer = document.querySelector('.chat-container');
+        const chatView = document.getElementById('chat-view'); // Get chat view container
+        const adminPanelView = document.getElementById('admin-panel-view'); // Get admin panel container
+
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
               sendButton = document.getElementById('send-button'), sendText = document.getElementById('send-text'),
               sendIcon = document.getElementById('send-icon'),
@@ -240,21 +320,41 @@
         const cameraControls = document.querySelector('.camera-controls');
         const startCameraButton = document.getElementById('start-camera-button');
         const captureSendButton = document.getElementById('capture-send-button');
-        const switchCameraButton = document.getElementById('switch-camera-button'); 
-        let mediaStream = null; 
-        let availableVideoDevices = []; 
-        let currentCameraIndex = -1; 
+        const switchCameraButton = document.getElementById('switch-camera-button');        
+        let mediaStream = null;        
+        let availableVideoDevices = [];        
+        let currentCameraIndex = -1;        
 
         // Modals
         const customMessageModal = document.getElementById('custom-message-modal');
         const customMessageText = document.getElementById('custom-message-text');
         const customMessageOkButton = document.getElementById('custom-message-ok');
+        const adminLoginModal = document.getElementById('admin-login-modal');
+        const adminLoginForm = document.getElementById('admin-login-form');
+        const adminUsernameInput = document.getElementById('admin-username');
+        const adminPasswordInput = document.getElementById('admin-password');
+        const adminLoginError = document.getElementById('admin-login-error');
+        const adminLoginButton = document.getElementById('admin-login-button');
+
+        // Admin Panel Buttons
+        const priceManagementButton = document.getElementById('price-management-button');
+        const salesManagementButton = document.getElementById('sales-management-button');
+        const quotationManagementButton = document.getElementById('quotation-management-button');
+        const debtManagementButton = document.getElementById('debt-management-button');
+        const logoutButton = document.getElementById('logout-button');
+
+        // New DOM elements for sidebar toggle
+        const mainSidebar = document.getElementById('main-sidebar');
+        const menuButton = document.getElementById('menu-button');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+
 
         // --- State Management ---
-        const MAX_IMAGES = 100; 
+        const MAX_IMAGES = 100;        
         let chatHistory = [];
         let uploadedImages = []; // Single source of truth for all images (uploaded or captured)
         let currentApiKeyIndex = 0;
+        let isAdminLoggedIn = false; // New state for admin login
 
         // Firebase State (simplified)
         let app, db, auth, userId;
@@ -263,6 +363,9 @@
         // ===================================================================================
         // !!! API KEY CONFIGURATION !!!
         // ===================================================================================
+        // These are placeholder API keys. In a real application, these should be managed
+        // securely (e.g., environment variables, a backend service) and not hardcoded.
+        // For demonstration purposes, we cycle through a few to show robustness.
         const apiKeys = [
             "AIzaSyCg4gg9GLf6SPzhYCNLmvTZyIuuQZPRw04",
             "AIzaSyDOfRZnSkMqUAddDF1jZqqzCDZzn68hUyE",
@@ -272,14 +375,17 @@
         ];
 
         // --- Helper Functions ---
+        // Checks if the user is on a mobile device based on the user agent string.
         const isMobileDevice = () => {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         };
 
         // --- AI & Chat Logic ---
+        // Generates the system instruction for the AI model, including current time and company details.
         const generateSystemInstruction = () => {
             const now = new Date();
-            const offset = 7 * 60;
+            // Offset for GMT+7 (Hoi An, Vietnam)
+            const offset = 7 * 60; 
             const localTime = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (offset * 60000));
             const formattedTime = localTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
             const formattedDate = localTime.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -322,31 +428,59 @@
                     "---<br>Dạ vâng, quý khách có cần thiết kế hay in ấn chuyên nghiệp tại Hội An không ạ? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất ạ!"`;
         };
 
+        // Fetches a response from the Gemini API. Includes API key cycling for robustness.
         const getGeminiResponse = async (retryCount = 0) => {
-            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) throw new Error("Vui lòng cấu hình API key.");
-            if (retryCount >= apiKeys.length) throw new Error("Tất cả API key đều không hoạt động.");
+            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) {
+                throw new Error("Vui lòng cấu hình API key.");
+            }
+            if (retryCount >= apiKeys.length) {
+                throw new Error("Tất cả API key đều không hoạt động.");
+            }
             const apiKey = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
-            const payload = { contents: chatHistory, systemInstruction: { parts: [{ text: generateSystemInstruction() }] } };
+            // Construct the payload for the API request
+            const payload = { 
+                contents: chatHistory, 
+                systemInstruction: { parts: [{ text: generateSystemInstruction() }] } 
+            };
 
             try {
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) { const err = await response.json(); throw new Error(`Lỗi API: ${err.error.message}`); }
+                const response = await fetch(apiUrl, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(payload) 
+                });
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(`Lỗi API: ${err.error.message}`);
+                }
                 const result = await response.json();
-                if (result.candidates?.[0]?.content?.parts) return result.candidates[0].content.parts[0].text;
-                if (result.promptFeedback?.blockReason) return `Yêu cầu bị chặn: ${result.promptFeedback.blockReason}.`;
+                // Check for valid content in the response
+                if (result.candidates?.[0]?.content?.parts) {
+                    return result.candidates[0].content.parts[0].text;
+                }
+                // Handle cases where the prompt was blocked by safety settings
+                if (result.promptFeedback?.blockReason) {
+                    return `Yêu cầu bị chặn: ${result.promptFeedback.blockReason}.`;
+                }
                 throw new Error("Không nhận được phản hồi hợp lệ từ API.");
             } catch (error) {
                 console.error(`API key ${currentApiKeyIndex} thất bại:`, error.message);
+                // Cycle to the next API key and retry
                 currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
                 return getGeminiResponse(retryCount + 1);
             }
         };
 
+        // Fetches an image from the Imagen API based on a text prompt. Includes API key cycling.
         const getImagenResponse = async (prompt, retryCount = 0) => {
-            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) throw new Error("Vui lòng cấu hình API key.");
-            if (retryCount >= apiKeys.length) throw new Error("Tất cả API key đều không hoạt động.");
+            if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) {
+                throw new Error("Vui lòng cấu hình API key.");
+            }
+            if (retryCount >= apiKeys.length) {
+                throw new Error("Tất cả API key đều không hoạt động.");
+            }
             const apiKey = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
             
@@ -377,13 +511,31 @@
             }
         };
 
-        // --- View Control Functions (Simplified for chat only) ---
+        // --- View Control Functions ---
+        // Shows the main chat interface and hides the admin panel.
         function showChatView() {
-            chatContainer.parentElement.style.display = 'flex'; 
+            chatView.classList.remove('hidden');
+            adminPanelView.classList.add('hidden');
+            // Close sidebar if it's open (for mobile view)
+            if (!mainSidebar.classList.contains('-translate-x-full')) {
+                toggleSidebar();
+            }
             console.log("Showing Chat View.");
         }
 
+        // Shows the admin panel and hides the chat interface.
+        function showAdminPanelView() {
+            chatView.classList.add('hidden');
+            adminPanelView.classList.remove('hidden');
+            // Close sidebar if it's open (for mobile view)
+            if (!mainSidebar.classList.contains('-translate-x-full')) {
+                toggleSidebar();
+            }
+            console.log("Showing Admin Panel View.");
+        }
+
         // --- Camera Functions ---
+        // Stops the camera stream and resets related UI elements.
         async function stopCamera() {
             if (mediaStream) {
                 mediaStream.getTracks().forEach(track => track.stop());
@@ -401,7 +553,9 @@
             }
         }
 
+        // Starts the camera stream, preferring a specific device if provided, otherwise the environment camera.
         async function startCamera(deviceId = null) {
+            // Stop any existing camera stream before starting a new one
             if (mediaStream) { 
                 mediaStream.getTracks().forEach(track => track.stop());
             }
@@ -416,7 +570,8 @@
             if (deviceId) {
                 constraints.video.deviceId = { exact: deviceId };
             } else {
-                constraints.video.facingMode = { exact: 'environment' }; // Prefer rear camera
+                // Try to get the rear camera first
+                constraints.video.facingMode = { exact: 'environment' }; 
             }
 
             try {
@@ -427,7 +582,7 @@
                 captureSendButton.disabled = false;
                 captureSendButton.textContent = 'Chụp Ảnh';
                 
-                await enumerateCameras();
+                await enumerateCameras(); // Re-enumerate cameras after starting stream
                 if (availableVideoDevices.length > 1) {
                     switchCameraButton.classList.remove('hidden');
                     switchCameraButton.disabled = false;
@@ -439,6 +594,7 @@
                 showCustomMessage('Camera đã bật.', 'info');
             } catch (err) {
                 console.error('Lỗi khi truy cập camera:', err);
+                // If 'environment' camera fails, try 'user' (front) camera
                 if (!deviceId && constraints.video.facingMode && err.name === 'OverconstrainedError') {
                     try {
                         constraints.video.facingMode = { exact: 'user' }; // Try front camera
@@ -469,6 +625,7 @@
             }
         }
 
+        // Enumerates available video input devices (cameras) and updates the list.
         async function enumerateCameras() {
             availableVideoDevices = [];
             currentCameraIndex = -1; 
@@ -481,10 +638,11 @@
                 }
             });
 
+            // Try to find the currently active camera in the enumerated list
             if (mediaStream && mediaStream.getVideoTracks().length > 0) {
                 const activeTrack = mediaStream.getVideoTracks()[0];
                 const activeDeviceId = activeTrack.getSettings().deviceId;
-                const activeLabel = activeTrack.label;
+                const activeLabel = activeTrack.label; // Fallback for devices without deviceId
 
                 let foundIndex = availableVideoDevices.findIndex(dev => dev.deviceId === activeDeviceId);
                 if (foundIndex === -1) {
@@ -497,11 +655,13 @@
                 }
             }
 
+            // If no current camera was found or no stream is active, default to the first available camera
             if (!foundCurrentCamera && availableVideoDevices.length > 0) {
                 currentCameraIndex = 0;
             }
         }
 
+        // Event listener for the "Start Camera" button. Toggles camera on/off.
         startCameraButton.addEventListener('click', async () => {
             if (mediaStream && mediaStream.active) {
                 stopCamera();
@@ -510,6 +670,7 @@
             }
         });
 
+        // Event listener for the "Switch Camera" button. Cycles through available cameras.
         switchCameraButton.addEventListener('click', async () => {
             if (availableVideoDevices.length > 1) {
                 currentCameraIndex = (currentCameraIndex + 1) % availableVideoDevices.length;
@@ -520,6 +681,7 @@
             }
         });
 
+        // Event listener for the "Capture and Send" button. Captures an image from the camera feed.
         captureSendButton.addEventListener('click', () => {
             if (mediaStream && mediaStream.active) {
                 if (uploadedImages.length >= MAX_IMAGES) {
@@ -532,6 +694,7 @@
                 cameraCanvas.height = cameraFeed.videoHeight;
                 context.drawImage(cameraFeed, 0, 0, cameraCanvas.width, cameraCanvas.height);
                 
+                // Convert canvas content to a File object
                 const filename = `captured_${Date.now()}.jpeg`;
                 const capturedFile = dataURLtoFile(cameraCanvas.toDataURL('image/jpeg', 0.8), filename);
                 
@@ -545,6 +708,7 @@
             }
         });
 
+        // Converts a data URL to a File object.
         function dataURLtoFile(dataurl, filename) {
             var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
                 bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -555,6 +719,7 @@
         }
 
         // --- UI & Event Handlers ---
+        // Handles the submission of the chat form (text and/or images).
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             let message = userInput.value.trim();
@@ -565,6 +730,7 @@
                 return;
             }
 
+            // Check if the message is an image generation request
             const imageGenKeywords = ['vẽ ', 'tạo ảnh ', 'generate '];
             const imageGenKeyword = imageGenKeywords.find(kw => message.toLowerCase().startsWith(kw));
 
@@ -588,12 +754,14 @@
 
             // --- Text/OCR/Translation Logic ---
             } else {
+                // If only images are uploaded, set a default message for OCR
                 if (imagesToSubmit.length > 0 && !message) {
                     message = "Vui lòng trích xuất toàn bộ văn bản từ (các) hình ảnh này.";
                 }
 
                 appendMessage({ text: message, images: imagesToSubmit }, 'user');
                 
+                // Clear input fields and image previews
                 userInput.value = '';
                 imagePreviewContainer.innerHTML = '';
                 uploadedImages = [];
@@ -605,6 +773,7 @@
                 const userPartsForAPI = [];
                 if (message) userPartsForAPI.push({ text: message });
 
+                // Convert uploaded images to base64 for API submission
                 const imageConversionPromises = imagesToSubmit.map(file => {
                     return new Promise((resolve, reject) => {
                         const reader = new FileReader();
@@ -612,7 +781,7 @@
                             userPartsForAPI.push({
                                 inlineData: {
                                     mimeType: file.type,
-                                    data: e.target.result.split(',')[1]
+                                    data: e.target.result.split(',')[1] // Get base64 data part
                                 }
                             });
                             resolve();
@@ -623,7 +792,7 @@
                 });
 
                 try {
-                    await Promise.all(imageConversionPromises); 
+                    await Promise.all(imageConversionPromises); // Wait for all images to be converted
                     chatHistory.push({ role: "user", parts: userPartsForAPI });
                     const botResponse = await getGeminiResponse();
                     appendMessage({ text: botResponse }, 'bot');
@@ -637,53 +806,68 @@
             }
         });
         
-        function showCustomMessage(message, type = 'info') { customMessageText.textContent = message; customMessageModal.classList.remove('hidden'); }
+        // Displays a custom message modal.
+        function showCustomMessage(message, type = 'info') {
+            customMessageText.textContent = message;
+            customMessageModal.classList.remove('hidden');
+        }
+        // Hides the custom message modal.
         customMessageOkButton.addEventListener('click', () => customMessageModal.classList.add('hidden'));
 
-        function processFiles(files) { 
-            if (!files || files.length === 0) return; 
+        // Processes files from input or drag-and-drop.
+        function processFiles(files) {        
+            if (!files || files.length === 0) return;        
             const newImageCount = uploadedImages.length + files.length;
-            if (newImageCount > MAX_IMAGES) { 
-                showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh. Bạn đã chọn ${newImageCount} ảnh.`); 
-                return; 
-            } 
-            for (const file of Array.from(files).filter(f => f.type.startsWith('image/'))) { 
-                if (uploadedImages.some(img => img.name === file.name && img.size === file.size)) continue; 
-                uploadedImages.push(file); 
-                createImagePreview(URL.createObjectURL(file), file); 
-            } 
-            updateImageCount(); 
+            if (newImageCount > MAX_IMAGES) {        
+                showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh. Bạn đã chọn ${newImageCount} ảnh.`);        
+                return;        
+            }        
+            for (const file of Array.from(files).filter(f => f.type.startsWith('image/'))) {        
+                // Prevent duplicate files based on name and size
+                if (uploadedImages.some(img => img.name === file.name && img.size === file.size)) continue;        
+                uploadedImages.push(file);        
+                createImagePreview(URL.createObjectURL(file), file);        
+            }        
+            updateImageCount();        
         }
+        // Event listener for image input change.
         imageInput.addEventListener('change', (e) => { processFiles(e.target.files); e.target.value = ''; });
+        // Event listener for pasting files.
         userInput.addEventListener('paste', (e) => { processFiles(e.clipboardData?.files); });
+        // Prevent default drag-and-drop behavior.
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => inputArea.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); }));
+        // Add/remove 'drag-over' class for visual feedback.
         ['dragenter', 'dragover'].forEach(evt => inputArea.addEventListener(evt, () => inputArea.classList.add('drag-over')));
         ['dragleave', 'drop'].forEach(evt => inputArea.addEventListener(evt, () => inputArea.classList.remove('drag-over')));
+        // Handle dropped files.
         inputArea.addEventListener('drop', (e) => { processFiles(e.dataTransfer?.files); });
         
-        function createImagePreview(dataUrl, file) { 
-            const pWrap = document.createElement('div'); 
-            pWrap.className = 'relative'; 
-            const img = document.createElement('img'); 
-            img.src = dataUrl; 
-            img.className = 'h-16 w-16 object-cover rounded-md shadow-md'; 
-            pWrap.appendChild(img); 
-            const rBtn = document.createElement('button'); 
-            rBtn.innerHTML = '&times;'; 
-            rBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs shadow-lg'; 
-            rBtn.onclick = () => { 
-                uploadedImages = uploadedImages.filter(item => item !== file); 
-                pWrap.remove(); 
-                updateImageCount(); 
-            }; 
-            pWrap.appendChild(rBtn); 
-            imagePreviewContainer.appendChild(pWrap); 
+        // Creates and appends an image preview to the UI.
+        function createImagePreview(dataUrl, file) {        
+            const pWrap = document.createElement('div');        
+            pWrap.className = 'relative';        
+            const img = document.createElement('img');        
+            img.src = dataUrl;        
+            img.className = 'h-16 w-16 object-cover rounded-md shadow-md';        
+            pWrap.appendChild(img);        
+            const rBtn = document.createElement('button');        
+            rBtn.innerHTML = '&times;';        
+            rBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs shadow-lg';        
+            rBtn.onclick = () => {        
+                uploadedImages = uploadedImages.filter(item => item !== file);        
+                pWrap.remove();        
+                updateImageCount();        
+            };        
+            pWrap.appendChild(rBtn);        
+            imagePreviewContainer.appendChild(pWrap);        
         }
-        function updateImageCount() { 
+        // Updates the displayed count of uploaded images.
+        function updateImageCount() {        
             const totalImages = uploadedImages.length;
-            imageInfo.textContent = totalImages > 0 ? `Đã chọn ${totalImages}/${MAX_IMAGES} ảnh.` : ''; 
+            imageInfo.textContent = totalImages > 0 ? `Đã chọn ${totalImages}/${MAX_IMAGES} ảnh.` : '';        
         }
         
+        // Shows or hides the typing indicator.
         function showTypingIndicator(show, customText = '') {
             let indicator = document.getElementById('typing-indicator');
             if (show) {
@@ -696,7 +880,7 @@
                             <svg class="text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15 4c-2.23 0-4.14 1.25-5.1 3.05A8.93 8.93 0 0 0 4 9c-2.21 0-4 1.79-4 4s1.79 4 4 4h1v2h-1c-3.31 0-6-2.69-6-6 0-2.95 2.14-5.43 5-5.92V4h1c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2h1v2h-1c1.55 0 2.96.59 4 1.54V4h1c1.1 0 2 .9 2 2v1c.73.55 1.39 1.22 1.92 2H23v-1c0-2.21-1.79-4-4-4h-4zm-2 5h-2v2H9v2h2v2h2v-2h2v-2h-2V9z"/></svg>
                         </div>
                         <div class="p-4 rounded-2xl shadow-md bg-gray-100 dark:bg-gray-700 rounded-bl-none flex items-center gap-2">
-                             <span id="typing-text" class="text-sm mr-2 text-gray-600 dark:text-gray-300"></span>
+                            <span id="typing-text" class="text-sm mr-2 text-gray-600 dark:text-gray-300"></span>
                             <div class="typing-dot"></div>
                             <div class="typing-dot"></div>
                             <div class="typing-dot"></div>
@@ -715,10 +899,11 @@
             }
         }
 
-        function appendMessage(data, sender, isError = false) { 
-            const { text, images, generatedImage, prompt } = data; 
-            const msgWrap = document.createElement('div'); 
-            msgWrap.className = `flex items-start gap-3 mb-2 ${sender === 'user' ? 'justify-end' : ''}`; 
+        // Appends a message (user or bot) to the chat interface.
+        function appendMessage(data, sender, isError = false) {        
+            const { text, images, generatedImage, prompt } = data;        
+            const msgWrap = document.createElement('div');        
+            msgWrap.className = `flex items-start gap-3 mb-2 ${sender === 'user' ? 'justify-end' : ''}`;        
             
             const msgContainer = document.createElement('div');
             msgContainer.className = `flex flex-col ${sender === 'user' ? 'items-end' : 'items-start'}`;
@@ -726,8 +911,8 @@
             const avatar = document.createElement('div');
             avatar.className = 'avatar-container';
             
-            const msgContent = document.createElement('div'); 
-            msgContent.className = `p-4 rounded-2xl shadow-md max-w-xs md:max-w-md lg:max-w-xl`; 
+            const msgContent = document.createElement('div');        
+            msgContent.className = `p-4 rounded-2xl shadow-md max-w-xs md:max-w-md lg:max-w-xl`;        
 
             if (sender === 'user') {
                 avatar.classList.add('bg-gray-300', 'dark:bg-gray-600');
@@ -746,6 +931,7 @@
                 }
             }
             
+            // If a generated image is present, display it
             if (generatedImage) {
                 const genImgContainer = document.createElement('div');
                 genImgContainer.className = 'mt-2';
@@ -757,26 +943,30 @@
                 msgContent.appendChild(genImgContainer);
             }
 
-            if (images?.length) { 
-                const grid = document.createElement('div'); 
-                grid.className = `grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-lg overflow-hidden ${generatedImage ? 'mt-3' : ''}`; 
-                images.forEach(imgData => { 
-                    const img = document.createElement('img'); 
+            // If images are present, display them in a grid
+            if (images?.length) {        
+                const grid = document.createElement('div');        
+                grid.className = `grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-lg overflow-hidden ${generatedImage ? 'mt-3' : ''}`;        
+                images.forEach(imgData => {        
+                    const img = document.createElement('img');        
                     img.src = URL.createObjectURL(imgData);
-                    img.className = 'w-full h-auto object-cover rounded-md aspect-square'; 
-                    img.onload = () => URL.revokeObjectURL(img.src); 
-                    grid.appendChild(img); 
-                }); 
-                msgContent.appendChild(grid); 
-            } 
+                    img.className = 'w-full h-auto object-cover rounded-md aspect-square';        
+                    img.onload = () => URL.revokeObjectURL(img.src); // Clean up object URL after image loads        
+                    grid.appendChild(img);        
+                });        
+                msgContent.appendChild(grid);        
+            }        
             
-            if (text) { 
-                const p = document.createElement('p'); 
-                p.className = `text-sm leading-relaxed ${(images?.length || generatedImage) ? 'mt-3' : ''}`; 
-                p.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
-                msgContent.appendChild(p); 
-            } 
+            // If text is present, display it
+            if (text) {        
+                const p = document.createElement('p');        
+                p.className = `text-sm leading-relaxed ${(images?.length || generatedImage) ? 'mt-3' : ''}`;        
+                // Replace newlines with <br> for proper display and bold text with **
+                p.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');        
+                msgContent.appendChild(p);        
+            }        
             
+            // Add timestamp
             const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
             const timeEl = document.createElement('div');
             timeEl.className = `text-xs mt-2 ${sender === 'user' ? 'text-blue-200' : 'text-gray-400'}`;
@@ -785,44 +975,113 @@
             msgContainer.appendChild(msgContent);
             msgContainer.appendChild(timeEl);
 
-            if (sender === 'user') { 
-                msgWrap.append(msgContainer, avatar); 
-            } else { 
-                msgWrap.append(avatar, msgContainer); 
-            } 
+            // Append avatar and message content based on sender
+            if (sender === 'user') {        
+                msgWrap.append(msgContainer, avatar);        
+            } else {        
+                msgWrap.append(avatar, msgContainer);        
+            }        
             
+            // Add fade-in animation and append to chat container
             const fullMessageWrapper = document.createElement('div');
             fullMessageWrapper.className = 'message-fade-in w-full';
             fullMessageWrapper.appendChild(msgWrap);
-            chatContainer.appendChild(fullMessageWrapper); 
-            chatContainer.scrollTop = chatContainer.scrollHeight; 
+            chatContainer.appendChild(fullMessageWrapper);        
+            chatContainer.scrollTop = chatContainer.scrollHeight;        
         }
 
-        function toggleLoading(isLoading) { 
-            sendButton.disabled = isLoading; 
-            userInput.disabled = isLoading; 
-            document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto'; 
+        // Toggles the loading state of the input area and send button.
+        function toggleLoading(isLoading) {        
+            sendButton.disabled = isLoading;        
+            userInput.disabled = isLoading;        
+            document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto';        
             
             sendIcon.classList.toggle('hidden', isLoading);
-            loadingSpinner.classList.toggle('hidden', !isLoading); 
+            loadingSpinner.classList.toggle('hidden', !isLoading);        
 
+            // Disable camera buttons during loading on mobile
             if (isMobileDevice()) {
-                startCameraButton.disabled = isLoading; 
-                captureSendButton.disabled = isLoading || !mediaStream || !mediaStream.active; 
-                switchCameraButton.disabled = isLoading || availableVideoDevices.length <= 1; 
+                startCameraButton.disabled = isLoading;        
+                captureSendButton.disabled = isLoading || !mediaStream || !mediaStream.active;        
+                switchCameraButton.disabled = isLoading || availableVideoDevices.length <= 1;        
             }
 
-            if (!isLoading) userInput.focus(); 
+            if (!isLoading) userInput.focus();        
         }
 
+        // --- Admin Login Logic ---
+        // Shows the admin login modal.
+        adminLoginButton.addEventListener('click', () => {
+            adminLoginModal.classList.remove('hidden');
+            // Pre-fill username and password with 'admin'
+            adminUsernameInput.value = 'admin';
+            adminPasswordInput.value = 'admin';
+            adminLoginError.classList.add('hidden');
+            adminUsernameInput.focus();
+        });
+
+        // Handles the admin login form submission.
+        adminLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = adminUsernameInput.value;
+            const password = adminPasswordInput.value;
+
+            // Simple hardcoded admin credentials for demonstration
+            if (username === 'admin' && password === 'admin') {
+                isAdminLoggedIn = true;
+                adminLoginModal.classList.add('hidden');
+                showCustomMessage('Đăng nhập Admin thành công!', 'success');
+                showAdminPanelView(); // Switch to admin panel view on successful login
+                console.log("Admin logged in!");
+            } else {
+                adminLoginError.classList.remove('hidden');
+            }
+        });
+
+        // --- Admin Panel Button Handlers ---
+        // Function to display the "under development" message
+        const showUnderDevelopmentMessage = () => {
+            showCustomMessage('Chức năng đang trong giai đoạn phát triển và đang thử nghiệm sẽ cho phép hoạt động sớm nhất', 'info');
+        };
+
+        priceManagementButton.addEventListener('click', showUnderDevelopmentMessage);
+        salesManagementButton.addEventListener('click', showUnderDevelopmentMessage);
+        quotationManagementButton.addEventListener('click', showUnderDevelopmentMessage);
+        debtManagementButton.addEventListener('click', showUnderDevelopmentMessage);
+
+        // Logout functionality for admin panel
+        logoutButton.addEventListener('click', () => {
+            isAdminLoggedIn = false;
+            showChatView(); // Switch back to chat view on logout
+            showCustomMessage('Đã đăng xuất khỏi Admin Panel.', 'info');
+            console.log("Admin logged out!");
+        });
+
+        // --- Sidebar Toggle Logic ---
+        // Function to toggle sidebar visibility on mobile
+        function toggleSidebar() {
+            mainSidebar.classList.toggle('-translate-x-full');
+            sidebarOverlay.classList.toggle('hidden');
+        }
+
+        // Event listeners for sidebar toggle
+        menuButton.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+
         // --- App Initialization ---
+        // Main function to initialize the application.
         const main = async () => {
+            // Hide camera controls if not on a mobile device
             if (!isMobileDevice()) {
                 cameraControls.style.display = 'none';
             }
 
+            // Initial greeting message from the bot
             appendMessage({ text: "Dạ thưa, tôi là trợ lý ảo đa năng. Tôi có thể dịch thuật, tính giá, tạo ảnh, hoặc trích xuất văn bản từ ảnh. Quý khách cần hỗ trợ gì ạ?" }, 'bot');
+            
             try {
+                // Parse Firebase config from global variable
                 const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : null;
                 
                 if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
@@ -830,14 +1089,18 @@
                 } else {
                     app = initializeApp(firebaseConfig);
                     auth = getAuth(app); 
+                    
+                    // Listen for authentication state changes
                     onAuthStateChanged(auth, user => {
                         userId = user?.uid;
                         isAuthReady = !!user;
                         if (isAuthReady) {
                             console.log("Firebase Auth sẵn sàng. User ID:", userId);
+                            // You can add Firestore listeners here if needed, now that auth is ready
                         }
                     });
 
+                    // Attempt to sign in with a custom token if provided, otherwise anonymously
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                         try {
                             await signInWithCustomToken(auth, __initial_auth_token);
@@ -857,7 +1120,7 @@
                 appendMessage({ text: `Lỗi: Không thể kết nối đến dịch vụ Firebase. Vui lòng kiểm tra console để biết chi tiết. (${error.message})` }, 'bot', true);
             }
 
-            showChatView();
+            showChatView(); // Ensure chat view is visible initially
         };
 
         // Start the application
