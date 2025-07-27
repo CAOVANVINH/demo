@@ -176,17 +176,14 @@
                     </div>
                     <h2 class="font-bold text-lg text-gray-800 dark:text-white">In Ấn Hội An</h2>
                 </div>
-                <button class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center">
-                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>
-                    Cuộc trò chuyện mới
-                </button>
-            </div>
-            <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
                 <button id="admin-login-button" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center mb-2">
                     <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                     Admin Đăng Nhập
                 </button>
-                <p>&copy; 2024 Công Ty In Thiết Kế Ấn Hội An</p>
+            </div>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
+                
+                <p>&copy; 2025 Công Ty In Thiết Kế Ấn Hội An</p>
             </div>
         </aside>
 
@@ -250,9 +247,12 @@
         </main>
     </div>
 
-    <!-- Admin Panel View (Initially hidden) -->
+    <!-- Admin Panel View -->
     <div id="admin-panel-view" class="flex h-screen hidden">
-        <aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col justify-between">
+        <!-- Admin Sidebar -->
+        <aside id="admin-sidebar" class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col justify-between
+                                  fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50
+                                  md:relative md:translate-x-0 md:flex">
             <div class="p-4">
                 <div class="flex items-center mb-6">
                     <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
@@ -266,25 +266,40 @@
                 </button>
             </div>
             <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
-                <p>&copy; 2024 Công Ty In Thiết Kế Ấn Hội An</p>
+                <p>&copy; 2025 Công Ty In Thiết Kế Ấn Hội An</p>
             </div>
         </aside>
 
-        <main class="flex-1 flex flex-col bg-white dark:bg-gray-800 p-6">
-            <h1 class="text-3xl font-bold mb-8 text-gray-800 dark:text-white text-center">Chào mừng đến với Bảng Điều Khiển Admin</h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <button id="price-management-button" class="admin-panel-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-lg transition-all duration-200 transform hover:scale-105">
-                    Quản Lý Giá
-                </button>
-                <button id="sales-management-button" class="admin-panel-button bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-lg transition-all duration-200 transform hover:scale-105">
-                    Bán Hàng
-                </button>
-                <button id="quotation-management-button" class="admin-panel-button bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-lg transition-all duration-200 transform hover:scale-105">
-                    Báo giá
-                </button>
-                <button id="debt-management-button" class="admin-panel-button bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-lg transition-all duration-200 transform hover:scale-105">
-                    Quản Lý Công Nợ
-                </button>
+        <!-- Overlay for mobile admin sidebar -->
+        <div id="admin-sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+        <main class="flex-1 flex flex-col bg-white dark:bg-gray-800">
+            <!-- Admin Panel Header -->
+            <header class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-800 shadow-sm z-10">
+                <div class="flex items-center">
+                    <!-- Hamburger menu button for mobile admin panel -->
+                    <button id="admin-menu-button" class="md:hidden p-2 mr-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <h1 class="text-lg md:text-xl font-bold text-gray-800 dark:text-white">Bảng Điều Khiển Admin</h1>
+                </div>
+            </header>
+
+            <div class="flex-1 p-6 overflow-y-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <button id="price-management-button" class="admin-panel-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-lg transition-all duration-200 transform hover:scale-105">
+                        Quản Lý Giá
+                    </button>
+                    <button id="sales-management-button" class="admin-panel-button bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-lg transition-all duration-200 transform hover:scale-105">
+                        Bán Hàng
+                    </button>
+                    <button id="quotation-management-button" class="admin-panel-button bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-lg transition-all duration-200 transform hover:scale-105">
+                        Báo giá
+                    </button>
+                    <button id="debt-management-button" class="admin-panel-button bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-4 px-6 rounded-lg text-xl shadow-lg transition-all duration-200 transform hover:scale-105">
+                        Quản Lý Công Nợ
+                    </button>
+                </div>
             </div>
         </main>
     </div>
@@ -347,6 +362,11 @@
         const mainSidebar = document.getElementById('main-sidebar');
         const menuButton = document.getElementById('menu-button');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+        // New DOM elements for Admin sidebar toggle
+        const adminSidebar = document.getElementById('admin-sidebar');
+        const adminMenuButton = document.getElementById('admin-menu-button');
+        const adminSidebarOverlay = document.getElementById('admin-sidebar-overlay');
 
 
         // --- State Management ---
@@ -516,9 +536,13 @@
         function showChatView() {
             chatView.classList.remove('hidden');
             adminPanelView.classList.add('hidden');
-            // Close sidebar if it's open (for mobile view)
+            // Close main sidebar if it's open (for mobile view)
             if (!mainSidebar.classList.contains('-translate-x-full')) {
                 toggleSidebar();
+            }
+            // Ensure admin sidebar is hidden when switching back to chat view
+            if (!adminSidebar.classList.contains('-translate-x-full')) {
+                toggleAdminSidebar();
             }
             console.log("Showing Chat View.");
         }
@@ -527,7 +551,7 @@
         function showAdminPanelView() {
             chatView.classList.add('hidden');
             adminPanelView.classList.remove('hidden');
-            // Close sidebar if it's open (for mobile view)
+            // Close main sidebar if it's open (for mobile view)
             if (!mainSidebar.classList.contains('-translate-x-full')) {
                 toggleSidebar();
             }
@@ -1058,15 +1082,26 @@
         });
 
         // --- Sidebar Toggle Logic ---
-        // Function to toggle sidebar visibility on mobile
+        // Function to toggle main sidebar visibility on mobile
         function toggleSidebar() {
             mainSidebar.classList.toggle('-translate-x-full');
             sidebarOverlay.classList.toggle('hidden');
         }
 
-        // Event listeners for sidebar toggle
+        // Event listeners for main sidebar toggle
         menuButton.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        // --- Admin Sidebar Toggle Logic ---
+        // Function to toggle admin sidebar visibility on mobile
+        function toggleAdminSidebar() {
+            adminSidebar.classList.toggle('-translate-x-full');
+            adminSidebarOverlay.classList.toggle('hidden');
+        }
+
+        // Event listeners for admin sidebar toggle
+        adminMenuButton.addEventListener('click', toggleAdminSidebar);
+        adminSidebarOverlay.addEventListener('click', toggleAdminSidebar);
 
 
         // --- App Initialization ---
