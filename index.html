@@ -1428,8 +1428,7 @@
             }
 
             // Initial greeting message from the bot
-            appendMessage({ text: "Dạ thưa, tôi là trợ lý ảo đa năng. Tôi có thể dịch thuật, tính giá, hoặc trích xuất văn bản từ ảnh.  Hãy Nhập "hướng dẫn xài ai của trợ lý" Để Được Hướng Dẫn Đầy Đủ Tính Năng Đang Có " }, 'bot');
-            
+            appendMessage({ text: "Dạ thưa, tôi là trợ lý ảo đa năng. Tôi có thể dịch thuật, tính giá, hoặc trích xuất văn bản từ ảnh. Tôi Có Thể Giúp Gì Cho Bạn" }, 'bot');
             try {
                 // Parse Firebase config from global variable
                 const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : null;
