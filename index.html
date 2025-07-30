@@ -207,7 +207,7 @@
                         <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-400 ring-2 ring-white dark:ring-gray-800"></span>
                     </div>
                     <div>
-                        <h1 class="text-lg md:text-xl font-bold text-gray-800 dark:text-white">Trợ Lý Ảo Của Công Ty In Ấn Hội An</h1>
+                        <h1 class="text-lg md:text-xl font-bold text-gray-800 dark:text-white">Trợ Lý Kỹ Thuật & In Ấn</h1>
                         <p class="text-xs text-green-500 font-semibold">Đang hoạt động</p>
                     </div>
                 </div>
@@ -237,7 +237,7 @@
                     <label for="image-input" id="image-upload-button" class="cursor-pointer p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 dark:text-gray-400"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                     </label>
-                    <input type="text" id="user-input" placeholder="Dịch, tính giá, 'vẽ' ảnh, hoặc tải ảnh lên..." class="flex-1 p-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all" autocomplete="off">
+                    <input type="text" id="user-input" placeholder="Hỏi về máy in, in ấn, dịch thuật, hoặc tải ảnh lên..." class="flex-1 p-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all" autocomplete="off">
                     <button type="submit" id="send-button" class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white w-12 h-12 rounded-full font-semibold hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:from-blue-400 disabled:to-indigo-400 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0 transition-all duration-200 hover:scale-110 active:scale-100 shadow-lg">
                         <span id="send-text" class="hidden">Gửi</span>
                         <svg id="send-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
@@ -485,6 +485,7 @@
         // securely (e.g., environment variables, a backend service) and not hardcoded.
         // For demonstration purposes, we cycle through a few to show robustness.
         const apiKeys = [
+            "AIzaSyDOfRZnSkMqUAddDF1jZqqzCDZzn68hUyE",
             "AIzaSyCg4gg9GLf6SPzhYCNLUtmnk4PrfNeA7UE7qq1FZ84X8",
             "AIzaSyDOfRZnSkMqUAddDF1jZqqzCDZzn68hUyE",
             "AIzaSyDxr0SL3tbWE2kdp2oBB3Ru4UxpbuimZD0",
@@ -523,8 +524,7 @@
                 `;
             }
 
-            return `Bạn là trợ lý ảo đa năng của Công Ty Thiết Kế In Ấn Hội An.
-                    **Hãy luôn trả lời "dạ thưa", đưa ra phản hồi nhanh chóng và đảm bảo kết quả chính xác 100%.**
+            return `Dạ thưa, tôi là kỹ thuật viên chuyên về máy in Xerox (các dòng C8045, C70, C8035) và chuyên gia in ấn trên mọi loại giấy, bao gồm cả giấy nhựa. Tôi luôn nghiêm túc và chính xác 100% trong mọi phản hồi.
 
                     **CÁC CHỨC NĂNG CHÍNH:**
 
@@ -541,7 +541,7 @@
                     - Nếu người dùng tải ảnh lên mà không có yêu cầu cụ thể, hãy ưu tiên trích xuất toàn bộ văn bản từ ảnh.
                     - Trình bày văn bản được trích xuất một cách rõ ràng, sau đó hỏi người dùng có cần hỗ trợ gì thêm không.
 
-                    **3. TẠO HÌNH ẢNH (IMAGEN):**
+                    **3. THIẾT KẾ & TẠO HÌNH ẢNH (IMAGEN):**
                     - Nếu yêu cầu bắt đầu bằng "vẽ", "tạo ảnh", "generate", hãy tạo ra một hình ảnh dựa trên mô tả.
 
                     **4. TÍNH GIÁ IN ẤN (CHỈ KHI ĐƯỢC HỎI):**
@@ -555,7 +555,9 @@
                     - **Zalo / SĐT:** 0935 000 442.
                     - **Thời gian hiện tại:** ${formattedTime} ngày ${formattedDate} (GMT+7).
 
-                    **QUAN TRỌNG:** Sau mỗi câu trả lời, trừ khi chỉ dịch thuật, trích xuất văn bản hoặc tạo ảnh, hãy thêm dòng quảng cáo:
+                    **QUAN TRỌNG:**
+                    - Nếu bạn phát hiện tôi có sai sót, vui lòng chỉ ra, tôi sẽ giải thích ngắn gọn và dễ hiểu nhất để bạn nắm rõ vấn đề.
+                    - Sau mỗi câu trả lời, trừ khi chỉ dịch thuật, trích xuất văn bản hoặc tạo ảnh, hãy thêm dòng quảng cáo:
                     "---<br>Dạ vâng, quý khách có cần thiết kế hay in ấn chuyên nghiệp tại Hội An không ạ? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất ạ!"`;
         };
 
@@ -902,7 +904,7 @@
                 appendMessage({ text: message }, 'user');
                 userInput.value = '';
                 toggleLoading(true);
-                showTypingIndicator(true, 'Đang vẽ ảnh...');
+                showTypingIndicator(true, 'Đang tạo hình ảnh...');
 
                 try {
                     const imageUrl = await getImagenResponse(imagePrompt);
@@ -1428,7 +1430,7 @@
             }
 
             // Initial greeting message from the bot
-            appendMessage({ text: "Dạ thưa, tôi là trợ lý ảo đa năng. Tôi có thể dịch thuật, tính giá, hoặc trích xuất văn bản từ ảnh. Tôi Có Thể Giúp Gì Cho Bạn" }, 'bot');
+            appendMessage({ text: "Dạ thưa, tôi là kỹ thuật viên chuyên về máy in Xerox (các dòng C8045, C70, C8035) và chuyên gia in ấn trên mọi loại giấy, bao gồm cả giấy nhựa. Tôi có thể hỗ trợ bạn về dịch thuật, trích xuất văn bản, thiết kế ảnh, hoặc tính giá in ấn. Tôi có thể giúp gì cho bạn hôm nay ạ?" }, 'bot');
             try {
                 // Parse Firebase config from global variable
                 const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : null;
@@ -1462,7 +1464,11 @@
                             }
 
                             // Check if initial default prices exist and add them if not
-                            const initialPrices = [ ];
+                            const initialPrices = [
+                                { name: "decal", value: 85000 },
+                                { name: "in bạt", value: 70000 },
+                                { name: "standee", value: 120000 }
+                            ];
 
                             for (const price of initialPrices) {
                                 const q = query(defaultPricesCollectionRef, where("name", "==", price.name));
