@@ -133,7 +133,7 @@
           authDomain: "data-chung-a62ee.firebaseapp.com",
           databaseURL: "https://data-chung-a62ee-default-rtdb.asia-southeast1.firebasedatabase.app",
           projectId: "data-chung-a62ee",
-          storageBucket: "data-chung-a62ee.firebasestorage.app",
+          storageBucket: "data-chung-a62ee.appspot.com",
           messagingSenderId: "453115303161",
           appId: "1:4531115303161:web:d40a0ec5a38ab7d4863e28",
           measurementId: "G-WNVH78VY1Z"
@@ -168,8 +168,7 @@
     <div id="chat-view" class="flex h-screen">
         <!-- Sidebar -->
         <aside id="main-sidebar" class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col justify-between
-                                 fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50
-                                 md:relative md:translate-x-0 md:flex">
+                                        fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50 flex">
             <div class="p-4">
                 <div class="flex items-center mb-6">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
@@ -189,7 +188,7 @@
         </aside>
 
         <!-- Overlay for mobile sidebar -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
 
         <!-- Main Chat Area -->
         <main class="flex-1 flex flex-col bg-white dark:bg-gray-800">
@@ -197,7 +196,7 @@
             <header class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-800 shadow-sm z-10">
                 <div class="flex items-center">
                     <!-- Hamburger menu button for mobile -->
-                    <button id="menu-button" class="md:hidden p-2 mr-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="menu-button" class="p-2 mr-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </button>
                     <div class="relative mr-4">
@@ -207,7 +206,7 @@
                         <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-400 ring-2 ring-white dark:ring-gray-800"></span>
                     </div>
                     <div>
-                        <h1 class="text-lg md:text-xl font-bold text-gray-800 dark:text-white">Trợ Lý Kỹ Thuật & In Ấn</h1>
+                        <h1 class="text-lg md:text-xl font-bold text-gray-800 dark:text-white">Công Ty Thiết Kế In Ấn Hội An</h1>
                         <p class="text-xs text-green-500 font-semibold">Đang hoạt động</p>
                     </div>
                 </div>
@@ -252,8 +251,8 @@
     <div id="admin-panel-view" class="flex h-screen hidden">
         <!-- Admin Sidebar -->
         <aside id="admin-sidebar" class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col justify-between
-                                 fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50
-                                 md:relative md:translate-x-0 md:flex">
+                                        fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50
+                                        md:relative md:translate-x-0 md:flex">
             <div class="p-4">
                 <div class="flex items-center mb-6">
                     <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
@@ -341,6 +340,94 @@
                         Quay lại Quản Lý Giá
                     </button>
                 </div>
+                
+                <!-- NEW: Sales Management Section (Initially Hidden) -->
+                <div id="sales-management-section" class="hidden">
+                    <!-- Sales Form -->
+                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg shadow-md mb-8">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Tạo Đơn Hàng Mới</h3>
+                        <form id="sales-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Customer Info -->
+                            <div class="md:col-span-1">
+                                <label for="customer-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tên khách hàng:</label>
+                                <input type="text" id="customer-name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white" required>
+                            </div>
+                            <div class="md:col-span-1">
+                                <label for="customer-phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Số điện thoại:</label>
+                                <input type="text" id="customer-phone" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                            </div>
+
+                            <!-- Item Entry -->
+                            <div class="md:col-span-2 border-t border-gray-200 dark:border-gray-600 pt-6">
+                                <h4 class="text-lg font-medium mb-2 text-gray-800 dark:text-gray-200">Thêm mục vào đơn hàng</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
+                                    <div class="sm:col-span-3">
+                                        <label for="item-name" class="block text-sm font-medium">Tên mục:</label>
+                                        <input type="text" id="item-name" list="default-items-list" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                                        <datalist id="default-items-list"></datalist>
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label for="item-width" class="block text-sm font-medium">Rộng (m):</label>
+                                        <input type="number" id="item-width" step="0.01" min="0" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label for="item-height" class="block text-sm font-medium">Dài (m):</label>
+                                        <input type="number" id="item-height" step="0.01" min="0" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                                    </div>
+                                    <div class="sm:col-span-1">
+                                        <label for="item-quantity" class="block text-sm font-medium">SL:</label>
+                                        <input type="number" id="item-quantity" value="1" min="1" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                                    </div>
+                                     <div class="sm:col-span-2">
+                                        <label for="item-price" class="block text-sm font-medium">Đơn giá:</label>
+                                        <input type="number" id="item-price" min="0" placeholder="VNĐ/m² hoặc /cái" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <button type="button" id="add-order-item-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg transition-colors flex items-center justify-center">
+                                            <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Thêm
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="mt-6">
+                            <h4 class="text-lg font-medium mb-2 text-gray-800 dark:text-gray-200">Các mục trong đơn hàng:</h4>
+                            <div id="current-order-items" class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                                <p class="text-gray-500 dark:text-gray-400">Chưa có mục nào.</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 border-t border-gray-200 dark:border-gray-600 pt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                            <div>
+                                <label for="order-deposit" class="block text-sm font-medium">Cọc trước (VNĐ):</label>
+                                <input type="number" id="order-deposit" min="0" value="0" class="w-full mt-1 max-w-xs px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div class="text-right space-y-2">
+                                <p class="text-gray-600 dark:text-gray-300">Tổng cộng: <span id="order-total" class="font-bold text-xl text-gray-900 dark:text-white">0 VNĐ</span></p>
+                                <p class="text-gray-600 dark:text-gray-300">Còn lại: <span id="order-remaining" class="font-bold text-2xl text-green-600 dark:text-green-400">0 VNĐ</span></p>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 flex justify-end gap-4">
+                            <button type="button" id="clear-order-button" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Xóa Đơn</button>
+                            <button type="button" id="save-order-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Lưu Đơn Hàng</button>
+                        </div>
+                    </div>
+                    
+                    <div id="recent-orders-section" class="mt-8">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Đơn Hàng Gần Đây</h3>
+                        <div id="recent-orders-list" class="space-y-4">
+                            <p class="text-gray-500 dark:text-gray-400">Đang tải đơn hàng...</p>
+                        </div>
+                    </div>
+                    
+                    <button id="back-to-admin-dashboard-from-sales-button" class="mt-8 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center">
+                        <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                        Quay lại Bảng Điều Khiển
+                    </button>
+                </div>
+
             </div>
         </main>
     </div>
@@ -380,7 +467,7 @@
         // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc, getDocs, query, where, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc, getDocs, query, where, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- DOM Element Selection ---
         const chatContainer = document.querySelector('.chat-container');
@@ -442,7 +529,7 @@
         const priceListContainer = document.getElementById('price-list');
         const noPricesMessage = document.getElementById('no-prices-message');
 
-        // New DOM elements for Price Management CRUD
+        // Price Management CRUD Elements
         const priceFormModal = document.getElementById('price-form-modal');
         const priceFormTitle = document.getElementById('price-form-title');
         const priceForm = document.getElementById('price-form');
@@ -452,13 +539,30 @@
         const savePriceButton = document.getElementById('save-price-button');
         const cancelPriceButton = document.getElementById('cancel-price-button');
 
+        // Sales Management Section Elements
+        const salesManagementSection = document.getElementById('sales-management-section');
+        const customerNameInput = document.getElementById('customer-name');
+        const customerPhoneInput = document.getElementById('customer-phone');
+        const itemNameInput = document.getElementById('item-name');
+        const defaultItemsDatalist = document.getElementById('default-items-list');
+        const itemWidthInput = document.getElementById('item-width');
+        const itemHeightInput = document.getElementById('item-height');
+        const itemQuantityInput = document.getElementById('item-quantity');
+        const itemPriceInput = document.getElementById('item-price');
+        const addOrderItemButton = document.getElementById('add-order-item-button');
+        const currentOrderItemsContainer = document.getElementById('current-order-items');
+        const orderDepositInput = document.getElementById('order-deposit');
+        const orderTotalSpan = document.getElementById('order-total');
+        const orderRemainingSpan = document.getElementById('order-remaining');
+        const clearOrderButton = document.getElementById('clear-order-button');
+        const saveOrderButton = document.getElementById('save-order-button');
+        const recentOrdersListContainer = document.getElementById('recent-orders-list');
+        const backToAdminDashboardFromSalesButton = document.getElementById('back-to-admin-dashboard-from-sales-button');
 
-        // New DOM elements for sidebar toggle
+        // Sidebar Toggle Elements
         const mainSidebar = document.getElementById('main-sidebar');
         const menuButton = document.getElementById('menu-button');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
-
-        // New DOM elements for Admin sidebar toggle
         const adminSidebar = document.getElementById('admin-sidebar');
         const adminMenuButton = document.getElementById('admin-menu-button');
         const adminSidebarOverlay = document.getElementById('admin-sidebar-overlay');
@@ -470,20 +574,20 @@
         let uploadedImages = []; // Single source of truth for all images (uploaded or captured)
         let currentApiKeyIndex = 0;
         let isAdminLoggedIn = false; // New state for admin login
-        let currentDefaultPrices = {}; // Stores prices fetched from Firestore for AI system instruction
+        let currentDefaultPrices = {}; // Stores prices fetched from Firestore for AI system instruction and sales form
+        let currentOrder = { items: [], totalAmount: 0, deposit: 0, remainingAmount: 0 };
 
-        // Firebase State (simplified)
+
+        // Firebase State
         let app, db, auth, userId;
         let isAuthReady = false;
-        let defaultPricesCollectionRef; // Reference to the Firestore collection for default prices
-        let adminSettingsDocRef; // Reference to the Firestore document for admin settings
+        let defaultPricesCollectionRef;
+        let adminSettingsDocRef;
+        let salesOrdersCollectionRef;
 
         // ===================================================================================
         // !!! API KEY CONFIGURATION !!!
         // ===================================================================================
-        // These are placeholder API keys. In a real application, these should be managed
-        // securely (e.g., environment variables, a backend service) and not hardcoded.
-        // For demonstration purposes, we cycle through a few to show robustness.
         const apiKeys = [
             "AIzaSyDOfRZnSkMqUAddDF1jZqqzCDZzn68hUyE",
             "AIzaSyCg4gg9GLf6SPzhYCNLUtmnk4PrfNeA7UE7qq1FZ84X8",
@@ -494,29 +598,23 @@
         ];
 
         // --- Helper Functions ---
-        // Checks if the user is on a mobile device based on the user agent string.
-        const isMobileDevice = () => {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        };
+        const isMobileDevice = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const formatCurrency = (value) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
 
         // --- AI & Chat Logic ---
-        // Generates the system instruction for the AI model, including current time and company details.
         const generateSystemInstruction = () => {
             const now = new Date();
-            // Offset for GMT+7 (Hoi An, Vietnam)
             const offset = 7 * 60; 
             const localTime = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (offset * 60000));
             const formattedTime = localTime.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
             const formattedDate = localTime.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
             
-            // Dynamically build price list for AI
             let priceListForAI = '';
             if (Object.keys(currentDefaultPrices).length > 0) {
                 for (const key in currentDefaultPrices) {
                     priceListForAI += `- Giá ${currentDefaultPrices[key].name}: ${currentDefaultPrices[key].value.toLocaleString('vi-VN')} VNĐ/m²\n`;
                 }
             } else {
-                // Fallback hardcoded prices if Firestore is not yet loaded or empty
                 priceListForAI = `
                     - Giá decal: 85,000 VNĐ/m²
                     - Giá in bạt: 70,000 VNĐ/m²
@@ -524,44 +622,45 @@
                 `;
             }
 
-            return `Dạ thưa, tôi là kỹ thuật viên chuyên về máy in Xerox (các dòng C8045, C70, C8035) và chuyên gia in ấn trên mọi loại giấy, bao gồm cả giấy nhựa. Tôi luôn nghiêm túc và chính xác 100% trong mọi phản hồi.
+            return `Dạ thưa, tôi là kỹ thuật viên chuyên về máy in Xerox (các dòng C8045, C70, C8035) và chuyên gia in ấn trên mọi loại giấy, bao gồm cả giấy nhựa. Tôi luôn nghiêm túc và chính xác 100% trong mọi phản hồi. Tôi được xây dựng trên nền tảng Gemini, cho phép tôi hỗ trợ đa dạng các yêu cầu của bạn.
 
                     **CÁC CHỨC NĂNG CHÍNH:**
 
-                    **1. DỊCH THUẬT SONG NGỮ (CHUYÊN NGÀNH & PHỔ THÔNG):**
+                    **1. CHUYÊN GIA KỸ THUẬT & IN ẤN (ƯU TIÊN HÀNG ĐẦU):**
+                    - Giải đáp mọi thắc mắc về máy in Xerox, các loại giấy, kỹ thuật in ấn.
+                    - Tính giá in ấn chính xác khi được yêu cầu. Công thức: (dài * rộng * số lượng) * giá/m². VAT 8% nếu có hóa đơn. Luôn làm tròn và định dạng tiền tệ.
+                    - Bảng giá tham khảo:
+                    ${priceListForAI.trim()}
+
+                    **2. DỊCH THUẬT SONG NGỮ (CHUYÊN NGÀNH & PHỔ THÔNG):**
                     - Khi người dùng yêu cầu dịch (ví dụ: "dịch 'the soup of the day'"), bạn phải cung cấp hai phiên bản dịch sang Tiếng Việt.
                     - **Định dạng trả lời bắt buộc:**
                       **Chuyên ngành nhà hàng:** [Bản dịch sử dụng thuật ngữ nhà hàng]
                       **Phổ thông:** [Bản dịch thông thường, dễ hiểu]
-                    - Ví dụ: Yêu cầu "dịch 'the soup of the day'". Trả lời:
-                      **Chuyên ngành nhà hàng:** Món súp đặc biệt trong ngày.
-                      **Phổ thông:** Món canh của ngày hôm nay.
 
-                    **2. TRÍCH XUẤT VĂN BẢN TỪ HÌNH ẢNH (OCR):**
-                    - Nếu người dùng tải ảnh lên mà không có yêu cầu cụ thể, hãy ưu tiên trích xuất toàn bộ văn bản từ ảnh.
-                    - Trình bày văn bản được trích xuất một cách rõ ràng, sau đó hỏi người dùng có cần hỗ trợ gì thêm không.
+                    **3. XỬ LÝ HÌNH ẢNH THÔNG MINH:**
+                    - **Trích xuất văn bản (OCR):** Nếu người dùng tải ảnh lên mà không có yêu cầu cụ thể, hãy ưu tiên trích xuất toàn bộ văn bản từ ảnh.
+                    - **Mô tả hình ảnh:** Nếu được yêu cầu, hãy mô tả chi tiết nội dung của hình ảnh.
+                    - **Tạo hình ảnh (Imagen):** Nếu yêu cầu bắt đầu bằng "vẽ", "tạo ảnh", "generate", hãy tạo ra một hình ảnh dựa trên mô tả.
 
-                    **3. THIẾT KẾ & TẠO HÌNH ẢNH (IMAGEN):**
-                    - Nếu yêu cầu bắt đầu bằng "vẽ", "tạo ảnh", "generate", hãy tạo ra một hình ảnh dựa trên mô tả.
-
-                    **4. TÍNH GIÁ IN ẤN (CHỈ KHI ĐƯỢC HỎI):**
-                    ${priceListForAI.trim()}
-                    - Công thức: (dài * rộng * số lượng) * giá/m².
-                    - VAT 8% nếu có hóa đơn.
-                    - Luôn làm tròn và định dạng tiền tệ.
+                    **4. TRỢ LÝ ĐA NĂNG (GEMINI):**
+                    - **Hỏi đáp & Kiến thức:** Trả lời các câu hỏi về nhiều chủ đề khác nhau.
+                    - **Hỗ trợ viết lách:** Soạn thảo email, tóm tắt văn bản, viết nội dung sáng tạo (thơ, truyện ngắn).
+                    - **Tư duy & Logic:** Hỗ trợ giải quyết các bài toán logic, toán học.
+                    - **Lập trình:** Cung cấp các đoạn mã code đơn giản khi được yêu cầu.
 
                     **5. THÔNG TIN CÔNG TY (CHỈ KHI ĐƯỢC HỎI):**
                     - **Địa chỉ:** 69 Đào Duy Từ, Hội An.
                     - **Zalo / SĐT:** 0935 000 442.
                     - **Thời gian hiện tại:** ${formattedTime} ngày ${formattedDate} (GMT+7).
 
-                    **QUAN TRỌNG:**
+                    **QUY TẮC QUAN TRỌNG:**
+                    - Luôn ưu tiên trả lời các câu hỏi về kỹ thuật, in ấn, và dịch thuật trước tiên.
                     - Nếu bạn phát hiện tôi có sai sót, vui lòng chỉ ra, tôi sẽ giải thích ngắn gọn và dễ hiểu nhất để bạn nắm rõ vấn đề.
-                    - Sau mỗi câu trả lời, trừ khi chỉ dịch thuật, trích xuất văn bản hoặc tạo ảnh, hãy thêm dòng quảng cáo:
+                    - Sau mỗi câu trả lời (trừ dịch thuật, OCR, tạo ảnh), hãy thêm dòng quảng cáo:
                     "---<br>Dạ vâng, quý khách có cần thiết kế hay in ấn chuyên nghiệp tại Hội An không ạ? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất ạ!"`;
         };
 
-        // Fetches a response from the Gemini API. Includes API key cycling for robustness.
         const getGeminiResponse = async (retryCount = 0) => {
             if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) {
                 throw new Error("Vui lòng cấu hình API key.");
@@ -572,7 +671,6 @@
             const apiKey = apiKeys[currentApiKeyIndex];
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             
-            // Construct the payload for the API request
             const payload = { 
                 contents: chatHistory, 
                 systemInstruction: { parts: [{ text: generateSystemInstruction() }] } 
@@ -589,25 +687,20 @@
                     throw new Error(`Lỗi API: ${err.error.message}`);
                 }
                 const result = await response.json();
-                // Check for valid content in the response
                 if (result.candidates?.[0]?.content?.parts) {
                     return result.candidates[0].content.parts[0].text;
                 }
-                // Handle cases where the prompt was blocked by safety settings
-                // This might happen if the prompt contains sensitive content.
                 if (result.promptFeedback?.blockReason) {
                     return `Yêu cầu bị chặn: ${result.promptFeedback.blockReason}.`;
                 }
                 throw new Error("Không nhận được phản hồi hợp lệ từ API.");
             } catch (error) {
                 console.error(`API key ${currentApiKeyIndex} thất bại:`, error.message);
-                // Cycle to the next API key and retry
                 currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
                 return getGeminiResponse(retryCount + 1);
             }
         };
 
-        // Fetches an image from the Imagen API based on a text prompt. Includes API key cycling.
         const getImagenResponse = async (prompt, retryCount = 0) => {
             if (apiKeys.length === 0 || apiKeys.every(k => k.startsWith("YOUR_API_KEY"))) {
                 throw new Error("Vui lòng cấu hình API key.");
@@ -646,60 +739,62 @@
         };
 
         // --- View Control Functions ---
-        // Shows the main chat interface and hides the admin panel.
         function showChatView() {
             chatView.classList.remove('hidden');
             adminPanelView.classList.add('hidden');
-            // Close main sidebar if it's open (for mobile view)
             if (!mainSidebar.classList.contains('-translate-x-full')) {
                 toggleSidebar();
             }
-            // Ensure admin sidebar is hidden when switching back to chat view
             if (!adminSidebar.classList.contains('-translate-x-full')) {
                 toggleAdminSidebar();
             }
             console.log("Showing Chat View.");
         }
 
-        // Shows the admin panel and hides the chat interface.
         function showAdminPanelView() {
             chatView.classList.add('hidden');
             adminPanelView.classList.remove('hidden');
-            // Close main sidebar if it's open (for mobile view)
             if (!mainSidebar.classList.contains('-translate-x-full')) {
                 toggleSidebar();
             }
-            // Reset admin panel to dashboard view
             showAdminDashboard();
             console.log("Showing Admin Panel View.");
         }
-
-        // Shows the admin dashboard and hides other admin sections
+        
         function showAdminDashboard() {
             adminPanelTitle.textContent = 'Bảng Điều Khiển Admin';
             adminDashboard.classList.remove('hidden');
             priceManagementSection.classList.add('hidden');
             defaultPriceDisplaySection.classList.add('hidden');
+            salesManagementSection.classList.add('hidden');
         }
-
-        // Shows the price management section and hides the dashboard
+        
         function showPriceManagementSection() {
             adminPanelTitle.textContent = 'Quản Lý Giá';
             adminDashboard.classList.add('hidden');
             priceManagementSection.classList.remove('hidden');
             defaultPriceDisplaySection.classList.add('hidden');
+            salesManagementSection.classList.add('hidden');
         }
 
-        // Shows the default price display section and hides other price management sections
         function showDefaultPriceDisplaySection() {
             adminPanelTitle.textContent = 'Giá Mặc Định';
             adminDashboard.classList.add('hidden');
             priceManagementSection.classList.add('hidden');
             defaultPriceDisplaySection.classList.remove('hidden');
+            salesManagementSection.classList.add('hidden');
+        }
+
+        function showSalesManagementSection() {
+            adminPanelTitle.textContent = 'Bán Hàng';
+            adminDashboard.classList.add('hidden');
+            priceManagementSection.classList.add('hidden');
+            defaultPriceDisplaySection.classList.add('hidden');
+            salesManagementSection.classList.remove('hidden');
+            resetOrderForm();
         }
 
         // --- Camera Functions ---
-        // Stops the camera stream and resets related UI elements.
         async function stopCamera() {
             if (mediaStream) {
                 mediaStream.getTracks().forEach(track => track.stop());
@@ -717,9 +812,7 @@
             }
         }
 
-        // Starts the camera stream, preferring a specific device if provided, otherwise the environment camera.
         async function startCamera(deviceId = null) {
-            // Stop any existing camera stream before starting a new one
             if (mediaStream) { 
                 mediaStream.getTracks().forEach(track => track.stop());
             }
@@ -734,7 +827,6 @@
             if (deviceId) {
                 constraints.video.deviceId = { exact: deviceId };
             } else {
-                // Try to get the rear camera first
                 constraints.video.facingMode = { exact: 'environment' }; 
             }
 
@@ -746,7 +838,7 @@
                 captureSendButton.disabled = false;
                 captureSendButton.textContent = 'Chụp Ảnh';
                 
-                await enumerateCameras(); // Re-enumerate cameras after starting stream
+                await enumerateCameras();
                 if (availableVideoDevices.length > 1) {
                     switchCameraButton.classList.remove('hidden');
                     switchCameraButton.disabled = false;
@@ -758,7 +850,6 @@
                 showCustomMessage('Camera đã bật.', 'info');
             } catch (err) {
                 console.error('Lỗi khi truy cập camera:', err);
-                // If 'environment' camera fails, try 'user' (front) camera
                 if (!deviceId && constraints.video.facingMode && err.name === 'OverconstrainedError') {
                     try {
                         constraints.video.facingMode = { exact: 'user' }; // Try front camera
@@ -789,7 +880,6 @@
             }
         }
 
-        // Enumerates available video input devices (cameras) and updates the list.
         async function enumerateCameras() {
             availableVideoDevices = [];
             currentCameraIndex = -1; 
@@ -801,31 +891,26 @@
                     availableVideoDevices.push(device);
                 }
             });
-
-            // Try to find the currently active camera in the enumerated list
+            
             if (mediaStream && mediaStream.getVideoTracks().length > 0) {
                 const activeTrack = mediaStream.getVideoTracks()[0];
                 const activeDeviceId = activeTrack.getSettings().deviceId;
-                const activeLabel = activeTrack.label; // Fallback for devices without deviceId
-
+                const activeLabel = activeTrack.label; 
                 let foundIndex = availableVideoDevices.findIndex(dev => dev.deviceId === activeDeviceId);
                 if (foundIndex === -1) {
                     foundIndex = availableVideoDevices.findIndex(dev => dev.label === activeLabel);
                 }
-
                 if (foundIndex !== -1) {
                     currentCameraIndex = foundIndex;
                     foundCurrentCamera = true;
                 }
             }
 
-            // If no current camera was found or no stream is active, default to the first available camera
             if (!foundCurrentCamera && availableVideoDevices.length > 0) {
                 currentCameraIndex = 0;
             }
         }
 
-        // Event listener for the "Start Camera" button. Toggles camera on/off.
         startCameraButton.addEventListener('click', async () => {
             if (mediaStream && mediaStream.active) {
                 stopCamera();
@@ -834,7 +919,6 @@
             }
         });
 
-        // Event listener for the "Switch Camera" button. Cycles through available cameras.
         switchCameraButton.addEventListener('click', async () => {
             if (availableVideoDevices.length > 1) {
                 currentCameraIndex = (currentCameraIndex + 1) % availableVideoDevices.length;
@@ -845,20 +929,17 @@
             }
         });
 
-        // Event listener for the "Capture and Send" button. Captures an image from the camera feed.
         captureSendButton.addEventListener('click', () => {
             if (mediaStream && mediaStream.active) {
                 if (uploadedImages.length >= MAX_IMAGES) {
                     showCustomMessage(`Bạn đã đạt đến giới hạn tối đa ${MAX_IMAGES} ảnh.`);
                     return;
                 }
-
                 const context = cameraCanvas.getContext('2d');
                 cameraCanvas.width = cameraFeed.videoWidth;
                 cameraCanvas.height = cameraFeed.videoHeight;
                 context.drawImage(cameraFeed, 0, 0, cameraCanvas.width, cameraCanvas.height);
                 
-                // Convert canvas content to a File object
                 const filename = `captured_${Date.now()}.jpeg`;
                 const capturedFile = dataURLtoFile(cameraCanvas.toDataURL('image/jpeg', 0.8), filename);
                 
@@ -872,7 +953,6 @@
             }
         });
 
-        // Converts a data URL to a File object.
         function dataURLtoFile(dataurl, filename) {
             var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
                 bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
@@ -883,7 +963,6 @@
         }
 
         // --- UI & Event Handlers ---
-        // Handles the submission of the chat form (text and/or images).
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             let message = userInput.value.trim();
@@ -894,11 +973,9 @@
                 return;
             }
 
-            // Check if the message is an image generation request
             const imageGenKeywords = ['vẽ ', 'tạo ảnh ', 'generate '];
             const imageGenKeyword = imageGenKeywords.find(kw => message.toLowerCase().startsWith(kw));
 
-            // --- Image Generation Logic ---
             if (imageGenKeyword && imagesToSubmit.length === 0) {
                 const imagePrompt = message.substring(imageGenKeyword.length);
                 appendMessage({ text: message }, 'user');
@@ -916,16 +993,13 @@
                     toggleLoading(false);
                 }
 
-            // --- Text/OCR/Translation Logic ---
             } else {
-                // If only images are uploaded, set a default message for OCR
                 if (imagesToSubmit.length > 0 && !message) {
                     message = "Vui lòng trích xuất toàn bộ văn bản từ (các) hình ảnh này.";
                 }
 
                 appendMessage({ text: message, images: imagesToSubmit }, 'user');
                 
-                // Clear input fields and image previews
                 userInput.value = '';
                 imagePreviewContainer.innerHTML = '';
                 uploadedImages = [];
@@ -937,7 +1011,6 @@
                 const userPartsForAPI = [];
                 if (message) userPartsForAPI.push({ text: message });
 
-                // Convert uploaded images to base64 for API submission
                 const imageConversionPromises = imagesToSubmit.map(file => {
                     return new Promise((resolve, reject) => {
                         const reader = new FileReader();
@@ -945,7 +1018,7 @@
                             userPartsForAPI.push({
                                 inlineData: {
                                     mimeType: file.type,
-                                    data: e.target.result.split(',')[1] // Get base64 data part
+                                    data: e.target.result.split(',')[1]
                                 }
                             });
                             resolve();
@@ -956,7 +1029,7 @@
                 });
 
                 try {
-                    await Promise.all(imageConversionPromises); // Wait for all images to be converted
+                    await Promise.all(imageConversionPromises);
                     chatHistory.push({ role: "user", parts: userPartsForAPI });
                     const botResponse = await getGeminiResponse();
                     appendMessage({ text: botResponse }, 'bot');
@@ -970,15 +1043,12 @@
             }
         });
         
-        // Callback storage for custom message modal
         let currentCustomMessageCallback = null;
 
-        // Displays a custom message modal.
         function showCustomMessage(message, type = 'info', onConfirm = null) {
             customMessageText.textContent = message;
             customMessageModal.classList.remove('hidden');
             
-            // Reset buttons visibility
             customMessageOkButton.classList.remove('hidden');
             customMessageCancelButton.classList.add('hidden');
 
@@ -990,22 +1060,19 @@
             }
         }
 
-        // Global event listeners for custom message modal buttons
         customMessageOkButton.addEventListener('click', () => {
             customMessageModal.classList.add('hidden');
             if (currentCustomMessageCallback) {
                 currentCustomMessageCallback();
-                currentCustomMessageCallback = null; // Clear callback after use
+                currentCustomMessageCallback = null;
             }
         });
 
         customMessageCancelButton.addEventListener('click', () => {
             customMessageModal.classList.add('hidden');
-            currentCustomMessageCallback = null; // Clear callback
+            currentCustomMessageCallback = null;
         });
 
-
-        // Processes files from input or drag-and-drop.
         function processFiles(files) {        
             if (!files || files.length === 0) return;        
             const newImageCount = uploadedImages.length + files.length;
@@ -1014,26 +1081,19 @@
                 return;        
             }        
             for (const file of Array.from(files).filter(f => f.type.startsWith('image/'))) {        
-                // Prevent duplicate files based on name and size
                 if (uploadedImages.some(img => img.name === file.name && img.size === file.size)) continue;        
                 uploadedImages.push(file);        
                 createImagePreview(URL.createObjectURL(file), file);        
             }        
             updateImageCount();        
         }
-        // Event listener for image input change.
         imageInput.addEventListener('change', (e) => { processFiles(e.target.files); e.target.value = ''; });
-        // Event listener for pasting files.
         userInput.addEventListener('paste', (e) => { processFiles(e.clipboardData?.files); });
-        // Prevent default drag-and-drop behavior.
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => inputArea.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); }));
-        // Add/remove 'drag-over' class for visual feedback.
         ['dragenter', 'dragover'].forEach(evt => inputArea.addEventListener(evt, () => inputArea.classList.add('drag-over')));
         ['dragleave', 'drop'].forEach(evt => inputArea.addEventListener(evt, () => inputArea.classList.remove('drag-over')));
-        // Handle dropped files.
         inputArea.addEventListener('drop', (e) => { processFiles(e.dataTransfer?.files); });
         
-        // Creates and appends an image preview to the UI.
         function createImagePreview(dataUrl, file) {        
             const pWrap = document.createElement('div');        
             pWrap.className = 'relative';        
@@ -1052,13 +1112,11 @@
             pWrap.appendChild(rBtn);        
             imagePreviewContainer.appendChild(pWrap);        
         }
-        // Updates the displayed count of uploaded images.
         function updateImageCount() {        
             const totalImages = uploadedImages.length;
             imageInfo.textContent = totalImages > 0 ? `Đã chọn ${totalImages}/${MAX_IMAGES} ảnh.` : '';        
         }
         
-        // Shows or hides the typing indicator.
         function showTypingIndicator(show, customText = '') {
             let indicator = document.getElementById('typing-indicator');
             if (show) {
@@ -1090,7 +1148,6 @@
             }
         }
 
-        // Appends a message (user or bot) to the chat interface.
         function appendMessage(data, sender, isError = false) {        
             const { text, images, generatedImage, prompt } = data;        
             const msgWrap = document.createElement('div');        
@@ -1122,7 +1179,6 @@
                 }
             }
             
-            // If a generated image is present, display it
             if (generatedImage) {
                 const genImgContainer = document.createElement('div');
                 genImgContainer.className = 'mt-2';
@@ -1134,7 +1190,6 @@
                 msgContent.appendChild(genImgContainer);
             }
 
-            // If images are present, display them in a grid
             if (images?.length) {        
                 const grid = document.createElement('div');        
                 grid.className = `grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-lg overflow-hidden ${generatedImage ? 'mt-3' : ''}`;        
@@ -1142,22 +1197,19 @@
                     const img = document.createElement('img');        
                     img.src = URL.createObjectURL(imgData);
                     img.className = 'w-full h-auto object-cover rounded-md aspect-square';        
-                    img.onload = () => URL.revokeObjectURL(img.src); // Clean up object URL after image loads        
+                    img.onload = () => URL.revokeObjectURL(img.src);
                     grid.appendChild(img);        
                 });        
                 msgContent.appendChild(grid);        
             }        
             
-            // If text is present, display it
             if (text) {        
                 const p = document.createElement('p');        
                 p.className = `text-sm leading-relaxed ${(images?.length || generatedImage) ? 'mt-3' : ''}`;        
-                // Replace newlines with <br> for proper display and bold text with **
                 p.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');        
                 msgContent.appendChild(p);        
             }        
             
-            // Add timestamp
             const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
             const timeEl = document.createElement('div');
             timeEl.className = `text-xs mt-2 ${sender === 'user' ? 'text-blue-200' : 'text-gray-400'}`;
@@ -1166,14 +1218,12 @@
             msgContainer.appendChild(msgContent);
             msgContainer.appendChild(timeEl);
 
-            // Append avatar and message content based on sender
             if (sender === 'user') {        
                 msgWrap.append(msgContainer, avatar);        
             } else {        
                 msgWrap.append(avatar, msgContainer);        
             }        
             
-            // Add fade-in animation and append to chat container
             const fullMessageWrapper = document.createElement('div');
             fullMessageWrapper.className = 'message-fade-in w-full';
             fullMessageWrapper.appendChild(msgWrap);
@@ -1181,7 +1231,6 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;        
         }
 
-        // Toggles the loading state of the input area and send button.
         function toggleLoading(isLoading) {        
             sendButton.disabled = isLoading;        
             userInput.disabled = isLoading;        
@@ -1190,7 +1239,6 @@
             sendIcon.classList.toggle('hidden', isLoading);
             loadingSpinner.classList.toggle('hidden', !isLoading);        
 
-            // Disable camera buttons during loading on mobile
             if (isMobileDevice()) {
                 startCameraButton.disabled = isLoading;        
                 captureSendButton.disabled = isLoading || !mediaStream || !mediaStream.active;        
@@ -1201,28 +1249,23 @@
         }
 
         // --- Admin Login Logic ---
-        // Shows the admin login modal.
         adminLoginButton.addEventListener('click', () => {
             adminLoginModal.classList.remove('hidden');
-            // Pre-fill username and password with 'admin'
             adminUsernameInput.value = 'admin';
             adminPasswordInput.value = 'admin';
             adminLoginError.classList.add('hidden');
             adminUsernameInput.focus();
         });
 
-        // New: Handles the cancel button in the admin login modal
         cancelAdminLoginButton.addEventListener('click', () => {
             adminLoginModal.classList.add('hidden');
         });
 
-        // Handles the admin login form submission.
         adminLoginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = adminUsernameInput.value;
             const password = adminPasswordInput.value;
-
-            adminLoginError.classList.add('hidden'); // Hide any previous error
+            adminLoginError.classList.add('hidden');
 
             try {
                 const adminDoc = await getDoc(adminSettingsDocRef);
@@ -1232,7 +1275,7 @@
                         isAdminLoggedIn = true;
                         adminLoginModal.classList.add('hidden');
                         showCustomMessage('Đăng nhập Admin thành công!', 'success');
-                        showAdminPanelView(); // Switch to admin panel view on successful login
+                        showAdminPanelView();
                         console.log("Admin logged in!");
                     } else {
                         adminLoginError.classList.remove('hidden');
@@ -1249,50 +1292,36 @@
         });
 
         // --- Admin Panel Button Handlers ---
-        // Function to display the "under development" message
         const showUnderDevelopmentMessage = () => {
-            showCustomMessage('Chức năng đang trong giai đoạn phát triển và đang thử nghiệm sẽ cho phép hoạt động sớm nhất', 'info');
+            showCustomMessage('Chức năng đang trong giai đoạn phát triển và sẽ hoạt động sớm nhất.', 'info');
         };
 
-        // Event listener for Price Management Button
         priceManagementButton.addEventListener('click', showPriceManagementSection);
-
-        // Event listener for Default Price Button
+        salesManagementButton.addEventListener('click', showSalesManagementSection);
         defaultPriceButton.addEventListener('click', showDefaultPriceDisplaySection);
-
-        // Event listener for Custom Price Button
-        customPriceButton.addEventListener('click', showUnderDevelopmentMessage); // Still under development
-
-        // Event listener for Back to Admin Dashboard Button
+        customPriceButton.addEventListener('click', showUnderDevelopmentMessage);
         backToAdminDashboardButton.addEventListener('click', showAdminDashboard);
-
-        // Event listeners for other admin panel buttons (still under development)
-        salesManagementButton.addEventListener('click', showUnderDevelopmentMessage);
         quotationManagementButton.addEventListener('click', showUnderDevelopmentMessage);
         debtManagementButton.addEventListener('click', showUnderDevelopmentMessage);
 
-        // Logout functionality for admin panel
         logoutButton.addEventListener('click', () => {
             isAdminLoggedIn = false;
-            showChatView(); // Switch back to chat view on logout
+            showChatView();
             showCustomMessage('Đã đăng xuất khỏi Admin Panel.', 'info');
             console.log("Admin logged out!");
         });
 
-        // New: Event listener for "Back to Chat" button in admin panel
         backToChatButton.addEventListener('click', () => {
             showChatView();
-            showCustomMessage('Đã quay lại Chat.', 'info');
         });
 
-        // Event listener for Back to Price Management Button
         backToPriceManagementButton.addEventListener('click', showPriceManagementSection);
+        backToAdminDashboardFromSalesButton.addEventListener('click', showAdminDashboard);
+
 
         // --- Price Management Logic (CRUD) ---
-
-        // Function to render default prices in the UI
         function renderDefaultPrices(prices) {
-            priceListContainer.innerHTML = ''; // Clear existing prices
+            priceListContainer.innerHTML = '';
             if (prices.length === 0) {
                 noPricesMessage.classList.remove('hidden');
                 priceListContainer.appendChild(noPricesMessage);
@@ -1318,26 +1347,21 @@
                     priceListContainer.appendChild(priceItem);
                 });
 
-                // Attach event listeners to newly created buttons
                 document.querySelectorAll('.edit-price-button').forEach(button => {
                     button.addEventListener('click', (e) => {
-                        const id = e.currentTarget.dataset.id;
-                        const name = e.currentTarget.dataset.name;
-                        const value = parseFloat(e.currentTarget.dataset.value);
-                        openPriceForm(id, name, value);
+                        const { id, name, value } = e.currentTarget.dataset;
+                        openPriceForm(id, name, parseFloat(value));
                     });
                 });
 
                 document.querySelectorAll('.delete-price-button').forEach(button => {
                     button.addEventListener('click', (e) => {
-                        const id = e.currentTarget.dataset.id;
-                        deleteDefaultPrice(id);
+                        deleteDefaultPrice(e.currentTarget.dataset.id);
                     });
                 });
             }
         }
 
-        // Open the add/edit price form modal
         function openPriceForm(id = '', name = '', value = '') {
             priceFormModal.classList.remove('hidden');
             priceIdInput.value = id;
@@ -1347,16 +1371,13 @@
             savePriceButton.textContent = id ? 'Cập Nhật' : 'Lưu';
         }
 
-        // Close the add/edit price form modal
         cancelPriceButton.addEventListener('click', () => {
             priceFormModal.classList.add('hidden');
             priceForm.reset();
         });
 
-        // Event listener for "Add New Price" button
         addNewPriceButton.addEventListener('click', () => openPriceForm());
 
-        // Handle price form submission (Add/Edit)
         priceForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = priceIdInput.value;
@@ -1370,11 +1391,9 @@
 
             try {
                 if (id) {
-                    // Update existing price
                     await updateDoc(doc(defaultPricesCollectionRef, id), { name, value });
                     showCustomMessage('Giá đã được cập nhật thành công!', 'success');
                 } else {
-                    // Add new price
                     await addDoc(defaultPricesCollectionRef, { name, value });
                     showCustomMessage('Giá mới đã được thêm thành công!', 'success');
                 }
@@ -1386,7 +1405,6 @@
             }
         });
 
-        // Delete price function
         async function deleteDefaultPrice(id) {
             showCustomMessage('Bạn có chắc chắn muốn xóa mục giá này không?', 'confirm', async () => {
                 try {
@@ -1398,78 +1416,229 @@
                 }
             });
         }
+        
+        // --- Sales Management Logic ---
+        function resetOrderForm() {
+            currentOrder = { items: [], totalAmount: 0, deposit: 0, remainingAmount: 0 };
+            customerNameInput.value = '';
+            customerPhoneInput.value = '';
+            orderDepositInput.value = 0;
+            renderOrderItems();
+            updateOrderTotals();
+        }
+
+        function updateOrderTotals() {
+            const totalAmount = currentOrder.items.reduce((sum, item) => sum + item.total, 0);
+            const deposit = parseFloat(orderDepositInput.value) || 0;
+            const remainingAmount = totalAmount - deposit;
+            
+            currentOrder.totalAmount = totalAmount;
+            currentOrder.deposit = deposit;
+            currentOrder.remainingAmount = remainingAmount;
+
+            orderTotalSpan.textContent = formatCurrency(totalAmount);
+            orderRemainingSpan.textContent = formatCurrency(remainingAmount);
+        }
+
+        function renderOrderItems() {
+            currentOrderItemsContainer.innerHTML = '';
+            if (currentOrder.items.length === 0) {
+                currentOrderItemsContainer.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Chưa có mục nào.</p>';
+            } else {
+                currentOrder.items.forEach((item, index) => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md text-sm';
+                    itemEl.innerHTML = `
+                        <span class="font-medium">${item.name} (${item.quantity}x, ${item.width || '-'}m x ${item.height || '-'}m)</span>
+                        <div class="flex items-center gap-4">
+                             <span class="font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(item.total)}</span>
+                             <button data-index="${index}" class="remove-order-item-button text-red-500 hover:text-red-700">&times;</button>
+                        </div>
+                    `;
+                    currentOrderItemsContainer.appendChild(itemEl);
+                });
+
+                document.querySelectorAll('.remove-order-item-button').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = parseInt(e.currentTarget.dataset.index, 10);
+                        currentOrder.items.splice(index, 1);
+                        renderOrderItems();
+                        updateOrderTotals();
+                    });
+                });
+            }
+        }
+        
+        function populateDefaultItemsDatalist(prices) {
+            defaultItemsDatalist.innerHTML = '';
+            Object.values(prices).forEach(price => {
+                const option = document.createElement('option');
+                option.value = price.name;
+                defaultItemsDatalist.appendChild(option);
+            });
+        }
+
+        itemNameInput.addEventListener('change', () => {
+            const selectedName = itemNameInput.value.toLowerCase();
+            const priceData = currentDefaultPrices[selectedName];
+            if (priceData) {
+                itemPriceInput.value = priceData.value;
+            }
+        });
+
+        addOrderItemButton.addEventListener('click', () => {
+            const name = itemNameInput.value.trim();
+            const width = parseFloat(itemWidthInput.value) || 0;
+            const height = parseFloat(itemHeightInput.value) || 0;
+            const quantity = parseInt(itemQuantityInput.value, 10) || 1;
+            const pricePerUnit = parseFloat(itemPriceInput.value) || 0;
+
+            if (!name || quantity <= 0 || pricePerUnit <= 0) {
+                showCustomMessage('Vui lòng nhập tên, số lượng và đơn giá hợp lệ.', 'warning');
+                return;
+            }
+
+            let total;
+            if (width > 0 && height > 0) {
+                total = width * height * quantity * pricePerUnit;
+            } else {
+                total = quantity * pricePerUnit;
+            }
+
+            currentOrder.items.push({ name, width, height, quantity, pricePerUnit, total });
+            renderOrderItems();
+            updateOrderTotals();
+            
+            // Clear item input fields
+            itemNameInput.value = '';
+            itemWidthInput.value = '';
+            itemHeightInput.value = '';
+            itemQuantityInput.value = '1';
+            itemPriceInput.value = '';
+            itemNameInput.focus();
+        });
+
+        orderDepositInput.addEventListener('input', updateOrderTotals);
+        clearOrderButton.addEventListener('click', () => {
+             showCustomMessage('Bạn có chắc muốn xóa toàn bộ đơn hàng hiện tại không?', 'confirm', () => {
+                resetOrderForm();
+                showCustomMessage('Đơn hàng đã được xóa.', 'info');
+            });
+        });
+
+        saveOrderButton.addEventListener('click', async () => {
+            const customerName = customerNameInput.value.trim();
+            if (!customerName) {
+                showCustomMessage('Vui lòng nhập tên khách hàng.', 'warning');
+                return;
+            }
+            if (currentOrder.items.length === 0) {
+                showCustomMessage('Vui lòng thêm ít nhất một mục vào đơn hàng.', 'warning');
+                return;
+            }
+
+            const finalOrder = {
+                ...currentOrder,
+                customerName: customerName,
+                customerPhone: customerPhoneInput.value.trim(),
+                createdAt: serverTimestamp(),
+                status: 'pending'
+            };
+
+            try {
+                await addDoc(salesOrdersCollectionRef, finalOrder);
+                showCustomMessage('Đơn hàng đã được lưu thành công!', 'success');
+                resetOrderForm();
+            } catch (error) {
+                 console.error("Lỗi khi lưu đơn hàng:", error);
+                 showCustomMessage(`Lỗi khi lưu đơn hàng: ${error.message}`, 'error');
+            }
+        });
+        
+        function renderRecentOrders(orders) {
+            recentOrdersListContainer.innerHTML = '';
+            if (orders.length === 0) {
+                recentOrdersListContainer.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Chưa có đơn hàng nào.</p>';
+                return;
+            }
+            orders.forEach(order => {
+                const orderCard = document.createElement('div');
+                orderCard.className = 'p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm';
+                const orderDate = order.createdAt?.toDate().toLocaleString('vi-VN') || 'N/A';
+                
+                orderCard.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                         <h4 class="font-bold text-lg">${order.customerName}</h4>
+                         <span class="text-sm text-gray-500 dark:text-gray-400">${orderDate}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">SĐT: ${order.customerPhone || 'N/A'}</p>
+                    <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 text-right">
+                        <p>Tổng cộng: <span class="font-semibold">${formatCurrency(order.totalAmount)}</span></p>
+                        <p>Còn lại: <span class="font-bold text-green-600">${formatCurrency(order.remainingAmount)}</span></p>
+                    </div>
+                `;
+                recentOrdersListContainer.appendChild(orderCard);
+            });
+        }
 
         // --- Sidebar Toggle Logic ---
-        // Function to toggle main sidebar visibility on mobile
         function toggleSidebar() {
             mainSidebar.classList.toggle('-translate-x-full');
             sidebarOverlay.classList.toggle('hidden');
         }
-
-        // Event listeners for main sidebar toggle
         menuButton.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
 
-        // --- Admin Sidebar Toggle Logic ---
-        // Function to toggle admin sidebar visibility on mobile
         function toggleAdminSidebar() {
             adminSidebar.classList.toggle('-translate-x-full');
             adminSidebarOverlay.classList.toggle('hidden');
         }
-
-        // Event listeners for admin sidebar toggle
         adminMenuButton.addEventListener('click', toggleAdminSidebar);
         adminSidebarOverlay.addEventListener('click', toggleAdminSidebar);
 
 
-        // --- App Initialization (updated) ---
+        // --- App Initialization ---
         const main = async () => {
-            // Hide camera controls if not on a mobile device
             if (!isMobileDevice()) {
                 cameraControls.style.display = 'none';
             }
 
-            // Initial greeting message from the bot
             appendMessage({ text: "Dạ thưa, tôi là kỹ thuật viên chuyên về máy in Xerox (các dòng C8045, C70, C8035) và chuyên gia in ấn trên mọi loại giấy, bao gồm cả giấy nhựa. Tôi có thể hỗ trợ bạn về dịch thuật, trích xuất văn bản, thiết kế ảnh, hoặc tính giá in ấn. Tôi có thể giúp gì cho bạn hôm nay ạ?" }, 'bot');
             try {
-                // Parse Firebase config from global variable
                 const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : null;
                 
-                if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId) {
-                    console.warn("Firebase config is incomplete or invalid. Chat will function without Firestore features.");
+                if (!firebaseConfig || !firebaseConfig.apiKey) {
+                    console.warn("Firebase config is incomplete. Firestore features will be disabled.");
                 } else {
                     app = initializeApp(firebaseConfig);
                     auth = getAuth(app); 
-                    db = getFirestore(app); // Initialize Firestore
+                    db = getFirestore(app);
 
                     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                     defaultPricesCollectionRef = collection(db, `artifacts/${appId}/public/data/defaultPrices`);
-                    adminSettingsDocRef = doc(db, `artifacts/${appId}/public/data/adminSettings`, 'mainAdmin'); // Single doc for admin credentials
+                    adminSettingsDocRef = doc(db, `artifacts/${appId}/public/data/adminSettings`, 'mainAdmin');
+                    salesOrdersCollectionRef = collection(db, `artifacts/${appId}/public/data/salesOrders`);
 
-                    // Listen for authentication state changes
                     onAuthStateChanged(auth, async user => {
                         userId = user?.uid;
                         isAuthReady = !!user;
                         if (isAuthReady) {
                             console.log("Firebase Auth sẵn sàng. User ID:", userId);
 
-                            // Check and create default admin credentials if they don't exist
                             const adminDocSnapshot = await getDoc(adminSettingsDocRef);
                             if (!adminDocSnapshot.exists()) {
                                 await setDoc(adminSettingsDocRef, {
                                     username: 'admin',
-                                    password: 'admin' // In a real app, hash this password!
+                                    password: 'admin'
                                 });
                                 console.log("Default admin credentials created in Firestore.");
                             }
 
-                            // Check if initial default prices exist and add them if not
                             const initialPrices = [
                                 { name: "decal", value: 85000 },
                                 { name: "in bạt", value: 70000 },
                                 { name: "standee", value: 120000 }
                             ];
-
                             for (const price of initialPrices) {
                                 const q = query(defaultPricesCollectionRef, where("name", "==", price.name));
                                 const querySnapshot = await getDocs(q);
@@ -1479,26 +1648,32 @@
                                 }
                             }
 
-                            // Set up real-time listener for default prices
                             onSnapshot(defaultPricesCollectionRef, (snapshot) => {
                                 const prices = [];
-                                const pricesMap = {}; // For easy lookup by name
+                                const pricesMap = {};
                                 snapshot.forEach(doc => {
                                     const data = doc.data();
                                     prices.push({ id: doc.id, ...data });
                                     pricesMap[data.name.toLowerCase()] = { id: doc.id, ...data };
                                 });
-                                currentDefaultPrices = pricesMap; // Update global state for AI
-                                renderDefaultPrices(prices); // Render all prices in the admin panel
-                            }, (error) => {
-                                console.error("Lỗi khi tải giá mặc định:", error);
-                                showCustomMessage(`Lỗi khi tải giá mặc định: ${error.message}`, 'error');
-                            });
-
+                                currentDefaultPrices = pricesMap;
+                                renderDefaultPrices(prices);
+                                populateDefaultItemsDatalist(pricesMap);
+                            }, (error) => console.error("Lỗi khi tải giá mặc định:", error));
+                            
+                            // Listener for recent sales orders
+                            onSnapshot(salesOrdersCollectionRef, (snapshot) => {
+                                let orders = [];
+                                snapshot.forEach(doc => {
+                                    orders.push({ id: doc.id, ...doc.data() });
+                                });
+                                // Sort by date client-side as per instructions
+                                orders.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+                                renderRecentOrders(orders.slice(0, 10)); // Display latest 10
+                            }, (error) => console.error("Lỗi khi tải đơn hàng:", error));
                         }
                     });
 
-                    // Attempt to sign in with a custom token if provided, otherwise anonymously
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                         try {
                             await signInWithCustomToken(auth, __initial_auth_token);
@@ -1510,19 +1685,19 @@
                         }
                     } else {
                         await signInAnonymously(auth);
-                        console.log("Signed in anonymously (no custom token provided).");
+                        console.log("Signed in anonymously.");
                     }
                 }
             } catch (error) {
                 console.error("Lỗi khởi tạo Firebase:", error);
-                appendMessage({ text: `Lỗi: Không thể kết nối đến dịch vụ Firebase. Vui lòng kiểm tra console để biết chi tiết. (${error.message})` }, 'bot', true);
+                appendMessage({ text: `Lỗi: Không thể kết nối đến dịch vụ Firebase. (${error.message})` }, 'bot', true);
             }
 
-            showChatView(); // Ensure chat view is visible initially
+            showChatView();
         };
 
-        // Start the application
         main();
     </script>
 </body>
 </html>
+
