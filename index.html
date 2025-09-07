@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/vanilla-telex@1/vanilla-telex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Base styles for the body and scrollbar */
         body {
@@ -125,22 +126,6 @@
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23374151' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
     </style>
-
-    <script>
-        // Firebase configuration (replace with your actual config if deploying)
-        const firebaseConfig = {
-          apiKey: "AIzaSyDJBY6U0LUtmnk4PrfNeA7UE7qq1FZ84X8",
-          authDomain: "data-chung-a62ee.firebaseapp.com",
-          databaseURL: "https://data-chung-a62ee-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "data-chung-a62ee",
-          storageBucket: "data-chung-a62ee.appspot.com",
-          messagingSenderId: "453115303161",
-          appId: "1:4531115303161:web:d40a0ec5a38ab7d4863e28",
-          measurementId: "G-WNVH78VY1Z"
-        };
-        // Expose Firebase config to the global scope for the module script
-        window.__firebase_config = JSON.stringify(firebaseConfig);
-    </script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 
@@ -168,7 +153,7 @@
     <div id="chat-view" class="flex h-screen">
         <!-- Sidebar -->
         <aside id="main-sidebar" class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col justify-between
-                                        fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50 flex">
+                                           fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50 flex">
             <div class="p-4">
                 <div class="flex items-center mb-6">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
@@ -176,13 +161,12 @@
                     </div>
                     <h2 class="font-bold text-lg text-gray-800 dark:text-white">In Ấn Hội An</h2>
                 </div>
-                <button id="admin-login-button" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center mb-2">
+                 <button id="admin-login-button" class="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center mb-2">
                     <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                     Admin Đăng Nhập
                 </button>
             </div>
             <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
-                
                 <p>&copy; 2025 Công Ty In Thiết Kế Ấn Hội An</p>
             </div>
         </aside>
@@ -209,6 +193,16 @@
                         <h1 class="text-lg md:text-xl font-bold text-gray-800 dark:text-white">Công Ty Thiết Kế In Ấn Hội An</h1>
                         <p class="text-xs text-green-500 font-semibold">Đang hoạt động</p>
                     </div>
+                </div>
+                 <div class="flex items-center gap-2">
+                    <button id="new-chat-button" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Trò chuyện mới
+                    </button>
+                    <button id="share-button" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                        Chia sẻ
+                    </button>
                 </div>
             </header>
 
@@ -251,8 +245,8 @@
     <div id="admin-panel-view" class="flex h-screen hidden">
         <!-- Admin Sidebar -->
         <aside id="admin-sidebar" class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col justify-between
-                                        fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50
-                                        md:relative md:translate-x-0 md:flex">
+                                           fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-50
+                                           md:relative md:translate-x-0 md:flex">
             <div class="p-4">
                 <div class="flex items-center mb-6">
                     <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
@@ -464,15 +458,64 @@
     </div>
 
     <script type="module">
-        // Firebase Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, addDoc, updateDoc, deleteDoc, getDocs, query, where, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        /*
+        ----------------------------------------------------------------
+        --- HƯỚNG DẪN CẤU HÌNH SUPABASE ---
+        ----------------------------------------------------------------
+        ... (Giữ nguyên các bước 1-3) ...
+
+        4. TẠO BẢNG TRONG SUPABASE:
+           - Trong Project Supabase, đi đến "SQL Editor".
+           - Nhấn "New query" và dán LẦN LƯỢT từng đoạn mã SQL sau đây, sau đó nhấn "RUN" cho mỗi đoạn.
+
+           -- Bảng 1: Lịch sử trò chuyện
+           CREATE TABLE chat_history (
+             id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+             session_id TEXT NOT NULL,
+             created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+             role TEXT,
+             parts JSONB
+           );
+           CREATE INDEX idx_chat_history_session_id ON chat_history(session_id);
+
+           -- Bảng 2: Thông tin đăng nhập Admin
+           CREATE TABLE admin_settings (
+             id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+             username TEXT NOT NULL UNIQUE,
+             password TEXT NOT NULL,
+             created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+           );
+
+           -- Bảng 3: Bảng giá mặc định
+            CREATE TABLE prices (
+              id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+              name TEXT NOT NULL,
+              value NUMERIC NOT NULL,
+              created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+            );
+
+           -- Bảng 4: Đơn hàng
+            CREATE TABLE sales_orders (
+              id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+              customer_name TEXT NOT NULL,
+              customer_phone TEXT,
+              total_amount NUMERIC NOT NULL,
+              deposit NUMERIC NOT NULL,
+              remaining_amount NUMERIC NOT NULL,
+              status TEXT,
+              items JSONB,
+              created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+            );
+
+        SAU KHI HOÀN TẤT, CÁC TÍNH NĂNG SẼ HOẠT ĐỘNG.
+        */
+
+        const { createClient } = supabase;
 
         // --- DOM Element Selection ---
         const chatContainer = document.querySelector('.chat-container');
-        const chatView = document.getElementById('chat-view'); // Get chat view container
-        const adminPanelView = document.getElementById('admin-panel-view'); // Get admin panel container
+        const chatView = document.getElementById('chat-view'); 
+        const adminPanelView = document.getElementById('admin-panel-view');
 
         const chatForm = document.getElementById('chat-form'), userInput = document.getElementById('user-input'),
               sendButton = document.getElementById('send-button'), sendText = document.getElementById('send-text'),
@@ -496,7 +539,7 @@
         const customMessageModal = document.getElementById('custom-message-modal');
         const customMessageText = document.getElementById('custom-message-text');
         const customMessageOkButton = document.getElementById('custom-message-ok');
-        const customMessageCancelButton = document.getElementById('custom-message-cancel'); // New cancel button for custom message modal
+        const customMessageCancelButton = document.getElementById('custom-message-cancel');
         const adminLoginModal = document.getElementById('admin-login-modal');
         const adminLoginForm = document.getElementById('admin-login-form');
         const adminUsernameInput = document.getElementById('admin-username');
@@ -505,16 +548,15 @@
         const adminLoginButton = document.getElementById('admin-login-button');
         const cancelAdminLoginButton = document.getElementById('cancel-admin-login-button');
 
-
         // Admin Panel Buttons
-        const adminDashboard = document.getElementById('admin-dashboard'); // Main admin dashboard grid
+        const adminDashboard = document.getElementById('admin-dashboard');
         const priceManagementButton = document.getElementById('price-management-button');
         const salesManagementButton = document.getElementById('sales-management-button');
         const quotationManagementButton = document.getElementById('quotation-management-button');
         const debtManagementButton = document.getElementById('debt-management-button');
         const logoutButton = document.getElementById('logout-button');
         const backToChatButton = document.getElementById('back-to-chat-button');
-        const adminPanelTitle = document.getElementById('admin-panel-title'); // Admin panel title
+        const adminPanelTitle = document.getElementById('admin-panel-title');
 
         // Price Management Section Elements
         const priceManagementSection = document.getElementById('price-management-section');
@@ -559,31 +601,28 @@
         const recentOrdersListContainer = document.getElementById('recent-orders-list');
         const backToAdminDashboardFromSalesButton = document.getElementById('back-to-admin-dashboard-from-sales-button');
 
-        // Sidebar Toggle Elements
+
+        // Sidebar and Header Elements
         const mainSidebar = document.getElementById('main-sidebar');
         const menuButton = document.getElementById('menu-button');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
         const adminSidebar = document.getElementById('admin-sidebar');
         const adminMenuButton = document.getElementById('admin-menu-button');
         const adminSidebarOverlay = document.getElementById('admin-sidebar-overlay');
-
+        const shareButton = document.getElementById('share-button');
+        const newChatButton = document.getElementById('new-chat-button');
 
         // --- State Management ---
         const MAX_IMAGES = 100;        
         let chatHistory = [];
-        let uploadedImages = []; // Single source of truth for all images (uploaded or captured)
+        let uploadedImages = [];
         let currentApiKeyIndex = 0;
-        let isAdminLoggedIn = false; // New state for admin login
-        let currentDefaultPrices = {}; // Stores prices fetched from Firestore for AI system instruction and sales form
+        let isAdminLoggedIn = false;
+        let supabaseClient = null;
+        let currentSessionId = null;
+        let currentDefaultPrices = {};
         let currentOrder = { items: [], totalAmount: 0, deposit: 0, remainingAmount: 0 };
 
-
-        // Firebase State
-        let app, db, auth, userId;
-        let isAuthReady = false;
-        let defaultPricesCollectionRef;
-        let adminSettingsDocRef;
-        let salesOrdersCollectionRef;
 
         // ===================================================================================
         // !!! API KEY CONFIGURATION !!!
@@ -601,6 +640,20 @@
         // --- Helper Functions ---
         const isMobileDevice = () => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const formatCurrency = (value) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showCustomMessage('Đã sao chép liên kết phiên trò chuyện!', 'info');
+            } catch (err) {
+                console.error('Không thể sao chép:', err);
+                showCustomMessage('Lỗi! Không thể sao chép liên kết.', 'error');
+            }
+            document.body.removeChild(textarea);
+        }
 
         // --- AI & Chat Logic ---
         const generateSystemInstruction = () => {
@@ -625,41 +678,41 @@
 
             return `Dạ thưa, tôi là kỹ thuật viên chuyên về máy in Xerox (các dòng C8045, C70, C8035) và chuyên gia in ấn trên mọi loại giấy, bao gồm cả giấy nhựa. Tôi luôn nghiêm túc và chính xác 100% trong mọi phản hồi. Tôi được xây dựng trên nền tảng Gemini, cho phép tôi hỗ trợ đa dạng các yêu cầu của bạn.
 
-                    **CÁC CHỨC NĂNG CHÍNH:**
+                        **CÁC CHỨC NĂNG CHÍNH:**
 
-                    **1. CHUYÊN GIA KỸ THUẬT & IN ẤN (ƯU TIÊN HÀNG ĐẦU):**
-                    - Giải đáp mọi thắc mắc về máy in Xerox, các loại giấy, kỹ thuật in ấn.
-                    - Tính giá in ấn chính xác khi được yêu cầu. Công thức: (dài * rộng * số lượng) * giá/m². VAT 8% nếu có hóa đơn. Luôn làm tròn và định dạng tiền tệ.
-                    - Bảng giá tham khảo:
-                    ${priceListForAI.trim()}
+                        **1. CHUYÊN GIA KỸ THUẬT & IN ẤN (ƯU TIÊN HÀNG ĐẦU):**
+                        - Giải đáp mọi thắc mắc về máy in Xerox, các loại giấy, kỹ thuật in ấn.
+                        - Tính giá in ấn chính xác khi được yêu cầu. Công thức: (dài * rộng * số lượng) * giá/m². VAT 8% nếu có hóa đơn. Luôn làm tròn và định dạng tiền tệ.
+                        - Bảng giá tham khảo:
+                        ${priceListForAI.trim()}
 
-                    **2. DỊCH THUẬT SONG NGỮ (CHUYÊN NGÀNH & PHỔ THÔNG):**
-                    - Khi người dùng yêu cầu dịch (ví dụ: "dịch 'the soup of the day'"), bạn phải cung cấp hai phiên bản dịch sang Tiếng Việt.
-                    - **Định dạng trả lời bắt buộc:**
-                      **Chuyên ngành nhà hàng:** [Bản dịch sử dụng thuật ngữ nhà hàng]
-                      **Phổ thông:** [Bản dịch thông thường, dễ hiểu]
+                        **2. DỊCH THUẬT SONG NGỮ (CHUYÊN NGÀNH & PHỔ THÔNG):**
+                        - Khi người dùng yêu cầu dịch (ví dụ: "dịch 'the soup of the day'"), bạn phải cung cấp hai phiên bản dịch sang Tiếng Việt.
+                        - **Định dạng trả lời bắt buộc:**
+                          **Chuyên ngành nhà hàng:** [Bản dịch sử dụng thuật ngữ nhà hàng]
+                          **Phổ thông:** [Bản dịch thông thường, dễ hiểu]
 
-                    **3. XỬ LÝ HÌNH ẢNH THÔNG MINH:**
-                    - **Trích xuất văn bản (OCR):** Nếu người dùng tải ảnh lên mà không có yêu cầu cụ thể, hãy ưu tiên trích xuất toàn bộ văn bản từ ảnh.
-                    - **Mô tả hình ảnh:** Nếu được yêu cầu, hãy mô tả chi tiết nội dung của hình ảnh.
-                    - **Tạo hình ảnh (Imagen):** Nếu yêu cầu bắt đầu bằng "vẽ", "tạo ảnh", "generate", hãy tạo ra một hình ảnh dựa trên mô tả.
+                        **3. XỬ LÝ HÌNH ẢNH THÔNG MINH:**
+                        - **Trích xuất văn bản (OCR):** Nếu người dùng tải ảnh lên mà không có yêu cầu cụ thể, hãy ưu tiên trích xuất toàn bộ văn bản từ ảnh.
+                        - **Mô tả hình ảnh:** Nếu được yêu cầu, hãy mô tả chi tiết nội dung của hình ảnh.
+                        - **Tạo hình ảnh (Imagen):** Nếu yêu cầu bắt đầu bằng "vẽ", "tạo ảnh", "generate", hãy tạo ra một hình ảnh dựa trên mô tả.
 
-                    **4. TRỢ LÝ ĐA NĂNG (GEMINI):**
-                    - **Hỏi đáp & Kiến thức:** Trả lời các câu hỏi về nhiều chủ đề khác nhau.
-                    - **Hỗ trợ viết lách:** Soạn thảo email, tóm tắt văn bản, viết nội dung sáng tạo (thơ, truyện ngắn).
-                    - **Tư duy & Logic:** Hỗ trợ giải quyết các bài toán logic, toán học.
-                    - **Lập trình:** Cung cấp các đoạn mã code đơn giản khi được yêu cầu.
+                        **4. TRỢ LÝ ĐA NĂNG (GEMINI):**
+                        - **Hỏi đáp & Kiến thức:** Trả lời các câu hỏi về nhiều chủ đề khác nhau.
+                        - **Hỗ trợ viết lách:** Soạn thảo email, tóm tắt văn bản, viết nội dung sáng tạo (thơ, truyện ngắn).
+                        - **Tư duy & Logic:** Hỗ trợ giải quyết các bài toán logic, toán học.
+                        - **Lập trình:** Cung cấp các đoạn mã code đơn giản khi được yêu cầu.
 
-                    **5. THÔNG TIN CÔNG TY (CHỈ KHI ĐƯỢC HỎI):**
-                    - **Địa chỉ:** 69 Đào Duy Từ, Hội An.
-                    - **Zalo / SĐT:** 0935 000 442.
-                    - **Thời gian hiện tại:** ${formattedTime} ngày ${formattedDate} (GMT+7).
+                        **5. THÔNG TIN CÔNG TY (CHỈ KHI ĐƯỢC HỎI):**
+                        - **Địa chỉ:** 69 Đào Duy Từ, Hội An.
+                        - **Zalo / SĐT:** 0935 000 442.
+                        - **Thời gian hiện tại:** ${formattedTime} ngày ${formattedDate} (GMT+7).
 
-                    **QUY TẮC QUAN TRỌNG:**
-                    - Luôn ưu tiên trả lời các câu hỏi về kỹ thuật, in ấn, và dịch thuật trước tiên.
-                    - Nếu bạn phát hiện tôi có sai sót, vui lòng chỉ ra, tôi sẽ giải thích ngắn gọn và dễ hiểu nhất để bạn nắm rõ vấn đề.
-                    - Sau mỗi câu trả lời (trừ dịch thuật, OCR, tạo ảnh), hãy thêm dòng quảng cáo:
-                    "---<br>Dạ vâng, quý khách có cần thiết kế hay in ấn chuyên nghiệp tại Hội An không ạ? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất ạ!"`;
+                        **QUY TẮC QUAN TRỌNG:**
+                        - Luôn ưu tiên trả lời các câu hỏi về kỹ thuật, in ấn, và dịch thuật trước tiên.
+                        - Nếu bạn phát hiện tôi có sai sót, vui lòng chỉ ra, tôi sẽ giải thích ngắn gọn và dễ hiểu nhất để bạn nắm rõ vấn đề.
+                        - Sau mỗi câu trả lời (trừ dịch thuật, OCR, tạo ảnh), hãy thêm dòng quảng cáo:
+                        "---<br>Dạ vâng, quý khách có cần thiết kế hay in ấn chuyên nghiệp tại Hội An không ạ? Hãy liên hệ Công Ty Thiết Kế In Ấn Hội An tại 69 Đào Duy Từ, Zalo/SĐT: 0935 000 442 để được tư vấn và hỗ trợ tốt nhất ạ!"`;
         };
 
         const getGeminiResponse = async (retryCount = 0) => {
@@ -734,32 +787,80 @@
                 throw new Error("Không nhận được hình ảnh hợp lệ từ API Imagen.");
             } catch (error) {
                 console.error(`API key ${currentApiKeyIndex} cho Imagen thất bại:`, error.message);
-                currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length; // Cycle to the next key
-                return getImagenResponse(prompt, retryCount + 1); // Retry with the next key
+                currentApiKeyIndex = (currentApiKeyIndex + 1) % apiKeys.length;
+                return getImagenResponse(prompt, retryCount + 1);
             }
         };
+
+        // --- Supabase Functions ---
+        async function saveMessageToSupabase(role, parts) {
+            if (!supabaseClient || !currentSessionId) return;
+
+            const sanitizedParts = parts.map(part => {
+                if (part.inlineData) {
+                    return { text: `[Dữ liệu ảnh: ${part.inlineData.mimeType}]` };
+                }
+                return part;
+            });
+
+            try {
+                const { error } = await supabaseClient
+                    .from('chat_history')
+                    .insert([{ session_id: currentSessionId, role, parts: sanitizedParts }]);
+                if (error) throw error;
+            } catch (error) {
+                console.error('Lỗi khi lưu tin nhắn lên Supabase:', error.message);
+            }
+        }
+
+        async function loadChatHistoryFromSupabase() {
+            if (!supabaseClient || !currentSessionId) {
+                appendWelcomeMessage();
+                return;
+            }
+
+            showTypingIndicator(true, 'Đang tải lịch sử trò chuyện...');
+            try {
+                const { data, error } = await supabaseClient
+                    .from('chat_history')
+                    .select('role, parts')
+                    .eq('session_id', currentSessionId)
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+                
+                chatContainer.innerHTML = ''; 
+                if (data && data.length > 0) {
+                    chatHistory = data.map(item => ({ role: item.role, parts: item.parts })); 
+                    data.forEach(record => {
+                        const combinedText = record.parts.map(p => p.text).join('\n');
+                        appendMessage({ text: combinedText }, record.role);
+                    });
+                } else {
+                    appendWelcomeMessage();
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải lịch sử trò chuyện:', error.message);
+                appendMessage({ text: `Lỗi: Không thể tải lịch sử trò chuyện từ Supabase. (${error.message})` }, 'bot', true);
+            } finally {
+                showTypingIndicator(false);
+            }
+        }
+        
+        function appendWelcomeMessage() {
+             appendMessage({ text: "Dạ thưa, tôi là kỹ thuật viên chuyên về máy in Xerox (các dòng C8045, C70, C8035) và chuyên gia in ấn trên mọi loại giấy, bao gồm cả giấy nhựa. Tôi có thể hỗ trợ bạn về dịch thuật, trích xuất văn bản, thiết kế ảnh, hoặc tính giá in ấn. Tôi có thể giúp gì cho bạn hôm nay ạ?" }, 'bot');
+        }
 
         // --- View Control Functions ---
         function showChatView() {
             chatView.classList.remove('hidden');
             adminPanelView.classList.add('hidden');
-            if (!mainSidebar.classList.contains('-translate-x-full')) {
-                toggleSidebar();
-            }
-            if (!adminSidebar.classList.contains('-translate-x-full')) {
-                toggleAdminSidebar();
-            }
-            console.log("Showing Chat View.");
         }
 
         function showAdminPanelView() {
             chatView.classList.add('hidden');
             adminPanelView.classList.remove('hidden');
-            if (!mainSidebar.classList.contains('-translate-x-full')) {
-                toggleSidebar();
-            }
             showAdminDashboard();
-            console.log("Showing Admin Panel View.");
         }
         
         function showAdminDashboard() {
@@ -803,164 +904,326 @@
                 cameraFeed.style.display = 'none';
                 startCameraButton.textContent = 'Bật Camera';
                 captureSendButton.disabled = true;
-                captureSendButton.textContent = 'Chụp Ảnh';
                 switchCameraButton.classList.add('hidden'); 
-                switchCameraButton.disabled = true;
                 mediaStream = null;
-                availableVideoDevices = []; 
-                currentCameraIndex = -1; 
-                showCustomMessage('Camera đã tắt.', 'info');
             }
         }
 
         async function startCamera(deviceId = null) {
-            if (mediaStream) { 
-                mediaStream.getTracks().forEach(track => track.stop());
-            }
-
-            const constraints = {
-                video: {
-                    width: { ideal: 640 }, 
-                    height: { ideal: 480 }
-                }
-            };
-
+            stopCamera();
+            const constraints = { video: { width: { ideal: 640 }, height: { ideal: 480 } } };
             if (deviceId) {
                 constraints.video.deviceId = { exact: deviceId };
             } else {
-                constraints.video.facingMode = { exact: 'environment' }; 
+                constraints.video.facingMode = 'environment';
             }
-
             try {
                 mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
                 cameraFeed.srcObject = mediaStream;
                 cameraFeed.style.display = 'block';
                 startCameraButton.textContent = 'Tắt Camera';
                 captureSendButton.disabled = false;
-                captureSendButton.textContent = 'Chụp Ảnh';
-                
                 await enumerateCameras();
-                if (availableVideoDevices.length > 1) {
-                    switchCameraButton.classList.remove('hidden');
-                    switchCameraButton.disabled = false;
-                } else {
-                    switchCameraButton.classList.add('hidden');
-                    switchCameraButton.disabled = true;
-                }
-
-                showCustomMessage('Camera đã bật.', 'info');
+                switchCameraButton.classList.toggle('hidden', availableVideoDevices.length <= 1);
+                switchCameraButton.disabled = availableVideoDevices.length <= 1;
             } catch (err) {
-                console.error('Lỗi khi truy cập camera:', err);
-                if (!deviceId && constraints.video.facingMode && err.name === 'OverconstrainedError') {
-                    try {
-                        constraints.video.facingMode = { exact: 'user' }; // Try front camera
-                        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-                        cameraFeed.srcObject = mediaStream;
-                        cameraFeed.style.display = 'block';
-                        startCameraButton.textContent = 'Tắt Camera';
-                        captureSendButton.disabled = false;
-                        captureSendButton.textContent = 'Chụp Ảnh';
-                        await enumerateCameras(); 
-                        if (availableVideoDevices.length > 1) {
-                            switchCameraButton.classList.remove('hidden');
-                            switchCameraButton.disabled = false;
-                        } else {
-                            switchCameraButton.classList.add('hidden');
-                            switchCameraButton.disabled = true;
-                        }
-                        showCustomMessage('Camera đã bật (camera trước).', 'info');
-                    } catch (userErr) {
-                        console.error('Lỗi khi truy cập camera trước:', userErr);
-                        showCustomMessage(`Không thể truy cập camera: ${userErr.message}. Vui lòng kiểm tra quyền truy cập.`, 'error');
-                        stopCamera(); 
-                    }
-                } else {
-                    showCustomMessage(`Không thể truy cập camera: ${err.message}. Vui lòng kiểm tra quyền truy cập.`, 'error');
-                    stopCamera(); 
-                }
-            }
-        }
-
-        async function enumerateCameras() {
-            availableVideoDevices = [];
-            currentCameraIndex = -1; 
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            let foundCurrentCamera = false;
-
-            devices.forEach((device) => {
-                if (device.kind === 'videoinput') {
-                    availableVideoDevices.push(device);
-                }
-            });
-            
-            if (mediaStream && mediaStream.getVideoTracks().length > 0) {
-                const activeTrack = mediaStream.getVideoTracks()[0];
-                const activeDeviceId = activeTrack.getSettings().deviceId;
-                const activeLabel = activeTrack.label; 
-                let foundIndex = availableVideoDevices.findIndex(dev => dev.deviceId === activeDeviceId);
-                if (foundIndex === -1) {
-                    foundIndex = availableVideoDevices.findIndex(dev => dev.label === activeLabel);
-                }
-                if (foundIndex !== -1) {
-                    currentCameraIndex = foundIndex;
-                    foundCurrentCamera = true;
-                }
-            }
-
-            if (!foundCurrentCamera && availableVideoDevices.length > 0) {
-                currentCameraIndex = 0;
-            }
-        }
-
-        startCameraButton.addEventListener('click', async () => {
-            if (mediaStream && mediaStream.active) {
+                console.error('Lỗi camera:', err);
+                showCustomMessage(`Không thể truy cập camera: ${err.name}`, 'error');
                 stopCamera();
-            } else {
-                await startCamera(); 
             }
-        });
+        }
+        
+        async function enumerateCameras() {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            availableVideoDevices = devices.filter(d => d.kind === 'videoinput');
+        }
 
-        switchCameraButton.addEventListener('click', async () => {
-            if (availableVideoDevices.length > 1) {
-                currentCameraIndex = (currentCameraIndex + 1) % availableVideoDevices.length;
-                const nextDeviceId = availableVideoDevices[currentCameraIndex].deviceId;
-                await startCamera(nextDeviceId);
-            } else {
-                showCustomMessage('Chỉ có một camera khả dụng.', 'info');
+        startCameraButton.addEventListener('click', () => mediaStream ? stopCamera() : startCamera());
+        switchCameraButton.addEventListener('click', () => {
+            if(availableVideoDevices.length > 1) {
+                const currentDeviceId = mediaStream.getVideoTracks()[0].getSettings().deviceId;
+                const currentIndex = availableVideoDevices.findIndex(d => d.deviceId === currentDeviceId);
+                const nextIndex = (currentIndex + 1) % availableVideoDevices.length;
+                startCamera(availableVideoDevices[nextIndex].deviceId);
             }
         });
 
         captureSendButton.addEventListener('click', () => {
-            if (mediaStream && mediaStream.active) {
+            if (mediaStream) {
                 if (uploadedImages.length >= MAX_IMAGES) {
-                    showCustomMessage(`Bạn đã đạt đến giới hạn tối đa ${MAX_IMAGES} ảnh.`);
+                    showCustomMessage(`Đã đạt giới hạn ${MAX_IMAGES} ảnh.`);
                     return;
                 }
-                const context = cameraCanvas.getContext('2d');
-                cameraCanvas.width = cameraFeed.videoWidth;
-                cameraCanvas.height = cameraFeed.videoHeight;
-                context.drawImage(cameraFeed, 0, 0, cameraCanvas.width, cameraCanvas.height);
-                
-                const filename = `captured_${Date.now()}.jpeg`;
-                const capturedFile = dataURLtoFile(cameraCanvas.toDataURL('image/jpeg', 0.8), filename);
-                
-                uploadedImages.push(capturedFile);
-                createImagePreview(URL.createObjectURL(capturedFile), capturedFile);
+                const canvas = cameraCanvas;
+                canvas.width = cameraFeed.videoWidth;
+                canvas.height = cameraFeed.videoHeight;
+                canvas.getContext('2d').drawImage(cameraFeed, 0, 0);
+                const filename = `capture_${Date.now()}.jpeg`;
+                const file = dataURLtoFile(canvas.toDataURL('image/jpeg', 0.8), filename);
+                uploadedImages.push(file);
+                createImagePreview(URL.createObjectURL(file), file);
                 updateImageCount();
-                showCustomMessage('Đã chụp ảnh. Bạn có thể chụp thêm hoặc gửi đi.', 'info');
-
-            } else {
-                showCustomMessage('Vui lòng bật camera trước khi chụp ảnh.', 'warning');
             }
         });
 
         function dataURLtoFile(dataurl, filename) {
             var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
                 bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-            while(n--){
-                u8arr[n] = bstr.charCodeAt(n);
-            }
+            while(n--){ u8arr[n] = bstr.charCodeAt(n); }
             return new File([u8arr], filename, {type:mime});
+        }
+        
+        // --- Admin Login Logic ---
+        adminLoginButton.addEventListener('click', () => {
+            adminLoginModal.classList.remove('hidden');
+            adminUsernameInput.value = 'admin';
+            adminPasswordInput.value = 'admin';
+            adminLoginError.classList.add('hidden');
+            adminPasswordInput.focus();
+        });
+
+        cancelAdminLoginButton.addEventListener('click', () => adminLoginModal.classList.add('hidden'));
+
+        adminLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = adminUsernameInput.value;
+            const password = adminPasswordInput.value;
+            adminLoginError.classList.add('hidden');
+            if (!supabaseClient) {
+                 adminLoginError.textContent = 'Lỗi kết nối cơ sở dữ liệu.';
+                 adminLoginError.classList.remove('hidden');
+                 return;
+            }
+            try {
+                const { data, error } = await supabaseClient
+                    .from('admin_settings')
+                    .select('password')
+                    .eq('username', username)
+                    .single();
+
+                if (error || !data) {
+                    adminLoginError.classList.remove('hidden');
+                    return;
+                }
+                
+                if (data.password === password) {
+                    isAdminLoggedIn = true;
+                    adminLoginModal.classList.add('hidden');
+                    showAdminPanelView();
+                } else {
+                    adminLoginError.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Lỗi đăng nhập Admin:", error);
+                adminLoginError.textContent = `Lỗi hệ thống.`;
+                adminLoginError.classList.remove('hidden');
+            }
+        });
+
+        logoutButton.addEventListener('click', () => {
+            isAdminLoggedIn = false;
+            showChatView();
+        });
+
+        // --- Admin Panel Button Handlers ---
+        priceManagementButton.addEventListener('click', showPriceManagementSection);
+        salesManagementButton.addEventListener('click', showSalesManagementSection);
+        defaultPriceButton.addEventListener('click', showDefaultPriceDisplaySection);
+        backToAdminDashboardButton.addEventListener('click', showAdminDashboard);
+        backToPriceManagementButton.addEventListener('click', showPriceManagementSection);
+        backToAdminDashboardFromSalesButton.addEventListener('click', showAdminDashboard);
+        backToChatButton.addEventListener('click', showChatView);
+        quotationManagementButton.addEventListener('click', () => showCustomMessage('Chức năng đang phát triển.'));
+        debtManagementButton.addEventListener('click', () => showCustomMessage('Chức năng đang phát triển.'));
+        customPriceButton.addEventListener('click', () => showCustomMessage('Chức năng đang phát triển.'));
+
+        // --- Price Management Logic (CRUD) ---
+        function renderDefaultPrices(prices) {
+            priceListContainer.innerHTML = '';
+            if (!prices || prices.length === 0) {
+                priceListContainer.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Chưa có giá nào được thêm.</p>';
+            } else {
+                prices.forEach(price => {
+                    const priceItem = document.createElement('div');
+                    priceItem.className = 'flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm';
+                    priceItem.innerHTML = `
+                        <div>
+                            <strong class="text-gray-800 dark:text-gray-100">${price.name}:</strong> 
+                            <span class="text-gray-700 dark:text-gray-200">${formatCurrency(price.value)}/m²</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button data-id="${price.id}" data-name="${price.name}" data-value="${price.value}" class="edit-price-button bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>
+                            <button data-id="${price.id}" class="delete-price-button bg-red-500 hover:bg-red-600 text-white p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                        </div>`;
+                    priceListContainer.appendChild(priceItem);
+                });
+                document.querySelectorAll('.edit-price-button').forEach(b => b.addEventListener('click', e => openPriceForm(e.currentTarget.dataset.id, e.currentTarget.dataset.name, e.currentTarget.dataset.value)));
+                document.querySelectorAll('.delete-price-button').forEach(b => b.addEventListener('click', e => deleteDefaultPrice(e.currentTarget.dataset.id)));
+            }
+        }
+        function openPriceForm(id = '', name = '', value = '') {
+            priceFormModal.classList.remove('hidden');
+            priceIdInput.value = id;
+            priceNameInput.value = name;
+            priceValueInput.value = value;
+            priceFormTitle.textContent = id ? 'Sửa Giá' : 'Thêm Giá Mới';
+        }
+        cancelPriceButton.addEventListener('click', () => priceFormModal.classList.add('hidden'));
+        addNewPriceButton.addEventListener('click', () => openPriceForm());
+
+        priceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = priceIdInput.value;
+            const name = priceNameInput.value.trim();
+            const value = parseFloat(priceValueInput.value);
+            if (!name || isNaN(value)) { showCustomMessage('Vui lòng nhập thông tin hợp lệ.', 'warning'); return; }
+            
+            try {
+                const record = { name, value };
+                let error;
+                if (id) {
+                    ({ error } = await supabaseClient.from('prices').update(record).eq('id', id));
+                } else {
+                    ({ error } = await supabaseClient.from('prices').insert(record));
+                }
+                if (error) throw error;
+                priceFormModal.classList.add('hidden');
+            } catch (error) {
+                showCustomMessage(`Lỗi lưu giá: ${error.message}`, 'error');
+            }
+        });
+        
+        async function deleteDefaultPrice(id) {
+            showCustomMessage('Bạn có chắc muốn xóa mục này?', 'confirm', async () => {
+                try {
+                    const { error } = await supabaseClient.from('prices').delete().eq('id', id);
+                    if (error) throw error;
+                } catch (error) {
+                    showCustomMessage(`Lỗi xóa giá: ${error.message}`, 'error');
+                }
+            });
+        }
+
+        // --- Sales Management Logic ---
+        function resetOrderForm() {
+            currentOrder = { items: [], totalAmount: 0, deposit: 0, remainingAmount: 0 };
+            customerNameInput.value = '';
+            customerPhoneInput.value = '';
+            orderDepositInput.value = 0;
+            renderOrderItems();
+            updateOrderTotals();
+        }
+
+        function updateOrderTotals() {
+            const totalAmount = currentOrder.items.reduce((sum, item) => sum + item.total, 0);
+            const deposit = parseFloat(orderDepositInput.value) || 0;
+            currentOrder.totalAmount = totalAmount;
+            currentOrder.deposit = deposit;
+            currentOrder.remainingAmount = totalAmount - deposit;
+            orderTotalSpan.textContent = formatCurrency(totalAmount);
+            orderRemainingSpan.textContent = formatCurrency(currentOrder.remainingAmount);
+        }
+
+        function renderOrderItems() {
+            currentOrderItemsContainer.innerHTML = '';
+            if (currentOrder.items.length === 0) {
+                currentOrderItemsContainer.innerHTML = '<p class="text-gray-500">Chưa có mục nào.</p>';
+            } else {
+                currentOrder.items.forEach((item, index) => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md text-sm';
+                    itemEl.innerHTML = `<span>${item.name} (${item.quantity}x)</span> <div class="flex items-center gap-4"><span class="font-semibold">${formatCurrency(item.total)}</span><button data-index="${index}" class="remove-order-item-button text-red-500">&times;</button></div>`;
+                    currentOrderItemsContainer.appendChild(itemEl);
+                });
+                document.querySelectorAll('.remove-order-item-button').forEach(btn => btn.addEventListener('click', e => {
+                    currentOrder.items.splice(parseInt(e.currentTarget.dataset.index, 10), 1);
+                    renderOrderItems();
+                    updateOrderTotals();
+                }));
+            }
+        }
+        
+        function populateDefaultItemsDatalist(prices) {
+            defaultItemsDatalist.innerHTML = '';
+            Object.values(prices).forEach(price => {
+                const option = document.createElement('option');
+                option.value = price.name;
+                defaultItemsDatalist.appendChild(option);
+            });
+        }
+
+        itemNameInput.addEventListener('change', () => {
+            const priceData = currentDefaultPrices[itemNameInput.value.toLowerCase()];
+            if (priceData) itemPriceInput.value = priceData.value;
+        });
+
+        addOrderItemButton.addEventListener('click', () => {
+            const name = itemNameInput.value.trim();
+            const width = parseFloat(itemWidthInput.value) || 0;
+            const height = parseFloat(itemHeightInput.value) || 0;
+            const quantity = parseInt(itemQuantityInput.value, 10) || 1;
+            const pricePerUnit = parseFloat(itemPriceInput.value) || 0;
+
+            if (!name || quantity <= 0 || pricePerUnit <= 0) {
+                showCustomMessage('Vui lòng nhập tên, số lượng và đơn giá hợp lệ.', 'warning');
+                return;
+            }
+            const total = (width > 0 && height > 0) ? (width * height * quantity * pricePerUnit) : (quantity * pricePerUnit);
+            currentOrder.items.push({ name, width, height, quantity, pricePerUnit, total });
+            renderOrderItems();
+            updateOrderTotals();
+            itemNameInput.value = itemWidthInput.value = itemHeightInput.value = itemPriceInput.value = '';
+            itemQuantityInput.value = '1';
+            itemNameInput.focus();
+        });
+
+        orderDepositInput.addEventListener('input', updateOrderTotals);
+        clearOrderButton.addEventListener('click', () => showCustomMessage('Bạn có chắc muốn xóa đơn hàng này?', 'confirm', resetOrderForm));
+
+        saveOrderButton.addEventListener('click', async () => {
+            const customerName = customerNameInput.value.trim();
+            if (!customerName || currentOrder.items.length === 0) {
+                showCustomMessage('Vui lòng nhập tên khách hàng và thêm ít nhất một mục.', 'warning');
+                return;
+            }
+            const finalOrder = {
+                ...currentOrder,
+                customer_name: customerName,
+                customer_phone: customerPhoneInput.value.trim(),
+                status: 'pending',
+                items: currentOrder.items
+            };
+            try {
+                const { error } = await supabaseClient.from('sales_orders').insert(finalOrder);
+                if (error) throw error;
+                showCustomMessage('Đã lưu đơn hàng!', 'success');
+                resetOrderForm();
+            } catch (error) {
+                showCustomMessage(`Lỗi lưu đơn hàng: ${error.message}`, 'error');
+            }
+        });
+        
+        function renderRecentOrders(orders) {
+            recentOrdersListContainer.innerHTML = '';
+            if (!orders || orders.length === 0) {
+                recentOrdersListContainer.innerHTML = '<p class="text-gray-500">Chưa có đơn hàng nào.</p>';
+                return;
+            }
+            orders.forEach(order => {
+                const orderCard = document.createElement('div');
+                orderCard.className = 'p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm';
+                const orderDate = new Date(order.created_at).toLocaleString('vi-VN');
+                orderCard.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-bold text-lg">${order.customer_name}</h4>
+                        <span class="text-sm text-gray-500">${orderDate}</span>
+                    </div>
+                    <div class="mt-2 pt-2 border-t text-right">
+                        <p>Tổng cộng: <span class="font-semibold">${formatCurrency(order.total_amount)}</span></p>
+                        <p>Còn lại: <span class="font-bold text-green-600">${formatCurrency(order.remaining_amount)}</span></p>
+                    </div>`;
+                recentOrdersListContainer.appendChild(orderCard);
+            });
         }
 
         // --- UI & Event Handlers ---
@@ -968,121 +1231,75 @@
             e.preventDefault();
             let message = userInput.value.trim();
             const imagesToSubmit = [...uploadedImages];
+            if (!message && imagesToSubmit.length === 0) return;
 
-            if (!message && imagesToSubmit.length === 0) {
-                showCustomMessage("Vui lòng nhập tin nhắn hoặc tải lên ảnh.", "warning");
-                return;
-            }
-
-            const imageGenKeywords = ['vẽ ', 'tạo ảnh ', 'generate '];
-            const imageGenKeyword = imageGenKeywords.find(kw => message.toLowerCase().startsWith(kw));
-
+            const imageGenKeyword = ['vẽ ', 'tạo ảnh ', 'generate '].find(kw => message.toLowerCase().startsWith(kw));
             if (imageGenKeyword && imagesToSubmit.length === 0) {
                 const imagePrompt = message.substring(imageGenKeyword.length);
                 appendMessage({ text: message }, 'user');
-                userInput.value = '';
                 toggleLoading(true);
                 showTypingIndicator(true, 'Đang tạo hình ảnh...');
-
                 try {
                     const imageUrl = await getImagenResponse(imagePrompt);
                     appendMessage({ generatedImage: imageUrl, prompt: imagePrompt }, 'bot');
                 } catch (error) {
-                    appendMessage({ text: `Rất tiếc, tôi không thể tạo ảnh lúc này. Lỗi: ${error.message}` }, 'bot', true);
+                    appendMessage({ text: `Lỗi tạo ảnh: ${error.message}` }, 'bot', true);
                 } finally {
-                    showTypingIndicator(false);
                     toggleLoading(false);
                 }
-
             } else {
-                if (imagesToSubmit.length > 0 && !message) {
-                    message = "Vui lòng trích xuất toàn bộ văn bản từ (các) hình ảnh này.";
-                }
-
+                if (imagesToSubmit.length > 0 && !message) message = "Trích xuất văn bản từ ảnh.";
                 appendMessage({ text: message, images: imagesToSubmit }, 'user');
-                
-                userInput.value = '';
-                imagePreviewContainer.innerHTML = '';
-                uploadedImages = [];
-                updateImageCount();
-                
                 toggleLoading(true);
-                showTypingIndicator(true);
-
-                const userPartsForAPI = [];
-                if (message) userPartsForAPI.push({ text: message });
-
-                const imageConversionPromises = imagesToSubmit.map(file => {
-                    return new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            userPartsForAPI.push({
-                                inlineData: {
-                                    mimeType: file.type,
-                                    data: e.target.result.split(',')[1]
-                                }
-                            });
-                            resolve();
-                        };
-                        reader.onerror = reject;
-                        reader.readAsDataURL(file);
-                    });
-                });
-
+                const userPartsForAPI = [{ text: message }];
+                const imagePromises = imagesToSubmit.map(file => new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve({ inlineData: { mimeType: file.type, data: e.target.result.split(',')[1] } });
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                }));
                 try {
-                    await Promise.all(imageConversionPromises);
+                    const imageParts = await Promise.all(imagePromises);
+                    userPartsForAPI.push(...imageParts);
                     chatHistory.push({ role: "user", parts: userPartsForAPI });
+                    await saveMessageToSupabase("user", userPartsForAPI);
                     const botResponse = await getGeminiResponse();
+                    const botParts = [{ text: botResponse }];
+                    chatHistory.push({ role: "model", parts: botParts });
+                    await saveMessageToSupabase("model", botParts);
                     appendMessage({ text: botResponse }, 'bot');
-                    chatHistory.push({ role: "model", parts: [{ text: botResponse }] });
                 } catch (error) {
                     appendMessage({ text: `Lỗi: ${error.message}` }, 'bot', true);
                 } finally {
-                    showTypingIndicator(false);
                     toggleLoading(false);
                 }
             }
+            userInput.value = '';
+            imagePreviewContainer.innerHTML = '';
+            uploadedImages = [];
+            updateImageCount();
         });
         
         let currentCustomMessageCallback = null;
-
         function showCustomMessage(message, type = 'info', onConfirm = null) {
             customMessageText.textContent = message;
             customMessageModal.classList.remove('hidden');
-            
-            customMessageOkButton.classList.remove('hidden');
-            customMessageCancelButton.classList.add('hidden');
-
-            if (onConfirm) {
-                currentCustomMessageCallback = onConfirm;
-                customMessageCancelButton.classList.remove('hidden');
-            } else {
-                currentCustomMessageCallback = null;
-            }
+            customMessageCancelButton.classList.toggle('hidden', !onConfirm);
+            currentCustomMessageCallback = onConfirm;
         }
-
         customMessageOkButton.addEventListener('click', () => {
             customMessageModal.classList.add('hidden');
-            if (currentCustomMessageCallback) {
-                currentCustomMessageCallback();
-                currentCustomMessageCallback = null;
-            }
+            if (currentCustomMessageCallback) currentCustomMessageCallback();
         });
-
-        customMessageCancelButton.addEventListener('click', () => {
-            customMessageModal.classList.add('hidden');
-            currentCustomMessageCallback = null;
-        });
+        customMessageCancelButton.addEventListener('click', () => customMessageModal.classList.add('hidden'));
 
         function processFiles(files) {        
-            if (!files || files.length === 0) return;        
             const newImageCount = uploadedImages.length + files.length;
             if (newImageCount > MAX_IMAGES) {        
-                showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh. Bạn đã chọn ${newImageCount} ảnh.`);        
+                showCustomMessage(`Chỉ có thể tải lên tối đa ${MAX_IMAGES} ảnh.`);        
                 return;        
             }        
             for (const file of Array.from(files).filter(f => f.type.startsWith('image/'))) {        
-                if (uploadedImages.some(img => img.name === file.name && img.size === file.size)) continue;        
                 uploadedImages.push(file);        
                 createImagePreview(URL.createObjectURL(file), file);        
             }        
@@ -1104,7 +1321,7 @@
             pWrap.appendChild(img);        
             const rBtn = document.createElement('button');        
             rBtn.innerHTML = '&times;';        
-            rBtn.className = 'absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs shadow-lg';        
+            rBtn.className = 'absolute -top-1 -right-1 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs';        
             rBtn.onclick = () => {        
                 uploadedImages = uploadedImages.filter(item => item !== file);        
                 pWrap.remove();        
@@ -1114,8 +1331,7 @@
             imagePreviewContainer.appendChild(pWrap);        
         }
         function updateImageCount() {        
-            const totalImages = uploadedImages.length;
-            imageInfo.textContent = totalImages > 0 ? `Đã chọn ${totalImages}/${MAX_IMAGES} ảnh.` : '';        
+            imageInfo.textContent = uploadedImages.length > 0 ? `Đã chọn ${uploadedImages.length}/${MAX_IMAGES} ảnh.` : '';        
         }
         
         function showTypingIndicator(show, customText = '') {
@@ -1127,25 +1343,19 @@
                     indicator.className = 'flex items-center gap-3 mb-6 message-fade-in';
                     indicator.innerHTML = `
                         <div class="avatar-container bg-blue-500">
-                            <svg class="text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15 4c-2.23 0-4.14 1.25-5.1 3.05A8.93 8.93 0 0 0 4 9c-2.21 0-4 1.79-4 4s1.79 4 4 4h1v2h-1c-3.31 0-6-2.69-6-6 0-2.95 2.14-5.43 5-5.92V4h1c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2h1v2h-1c1.55 0 2.96.59 4 1.54V4h1c1.1 0 2 .9 2 2v1c.73.55 1.39 1.22 1.92 2H23v-1c0-2.21-1.79-4-4-4h-4zm-2 5h-2v2H9v2h2v2h2v-2h2v-2h-2V9z"/></svg>
+                           <svg class="text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15 4c-2.23 0-4.14 1.25-5.1 3.05A8.93 8.93 0 0 0 4 9c-2.21 0-4 1.79-4 4s1.79 4 4 4h1v2h-1c-3.31 0-6-2.69-6-6 0-2.95 2.14-5.43 5-5.92V4h1c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2h1v2h-1c1.55 0 2.96.59 4 1.54V4h1c1.1 0 2 .9 2 2v1c.73.55 1.39 1.22 1.92 2H23v-1c0-2.21-1.79-4-4-4h-4zm-2 5h-2v2H9v2h2v2h2v-2h2v-2h-2V9z"/></svg>
                         </div>
                         <div class="p-4 rounded-2xl shadow-md bg-gray-100 dark:bg-gray-700 rounded-bl-none flex items-center gap-2">
                             <span id="typing-text" class="text-sm mr-2 text-gray-600 dark:text-gray-300"></span>
-                            <div class="typing-dot"></div>
-                            <div class="typing-dot"></div>
-                            <div class="typing-dot"></div>
-                        </div>
-                    `;
+                            <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+                        </div>`;
                     chatContainer.appendChild(indicator);
                 }
-                const typingText = indicator.querySelector('#typing-text');
-                if (typingText) typingText.textContent = customText;
+                indicator.querySelector('#typing-text').textContent = customText;
                 indicator.style.display = 'flex';
                 chatContainer.scrollTop = chatContainer.scrollHeight;
-            } else {
-                if (indicator) {
-                    indicator.remove();
-                }
+            } else if(indicator) {
+                indicator.remove();
             }
         }
 
@@ -1153,13 +1363,10 @@
             const { text, images, generatedImage, prompt } = data;        
             const msgWrap = document.createElement('div');        
             msgWrap.className = `flex items-start gap-3 mb-2 ${sender === 'user' ? 'justify-end' : ''}`;        
-            
             const msgContainer = document.createElement('div');
             msgContainer.className = `flex flex-col ${sender === 'user' ? 'items-end' : 'items-start'}`;
-
             const avatar = document.createElement('div');
             avatar.className = 'avatar-container';
-            
             const msgContent = document.createElement('div');        
             msgContent.className = `p-4 rounded-2xl shadow-md max-w-xs md:max-w-md lg:max-w-xl`;        
 
@@ -1174,26 +1381,21 @@
                     : `<svg class="text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15 4c-2.23 0-4.14 1.25-5.1 3.05A8.93 8.93 0 0 0 4 9c-2.21 0-4 1.79-4 4s1.79 4 4 4h1v2h-1c-3.31 0-6-2.69-6-6 0-2.95 2.14-5.43 5-5.92V4h1c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2h1v2h-1c1.55 0 2.96.59 4 1.54V4h1c1.1 0 2 .9 2 2v1c.73.55 1.39 1.22 1.92 2H23v-1c0-2.21-1.79-4-4-4h-4zm-2 5h-2v2H9v2h2v2h2v-2h2v-2h-2V9z"/></svg>`;
                 
                 if (isError) {
-                    msgContent.classList.add('bg-red-100', 'dark:bg-red-900', 'text-red-800', 'dark:text-red-200', 'rounded-bl-none');
+                    msgContent.classList.add('bg-red-100', 'dark:bg-red-900', 'text-red-800', 'dark:text-red-200');
                 } else {
-                    msgContent.classList.add('bg-gray-100', 'dark:bg-gray-700', 'rounded-bl-none');
+                    msgContent.classList.add('bg-gray-100', 'dark:bg-gray-700');
                 }
+                msgContent.classList.add('rounded-bl-none');
             }
-            
             if (generatedImage) {
-                const genImgContainer = document.createElement('div');
-                genImgContainer.className = 'mt-2';
                 const img = document.createElement('img');
                 img.src = generatedImage;
-                img.alt = prompt || 'Generated Image';
-                img.className = 'w-full max-w-xs h-auto object-cover rounded-lg shadow-md';
-                genImgContainer.appendChild(img);
-                msgContent.appendChild(genImgContainer);
+                img.className = 'w-full max-w-xs h-auto rounded-lg mt-2';
+                msgContent.appendChild(img);
             }
-
             if (images?.length) {        
                 const grid = document.createElement('div');        
-                grid.className = `grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-lg overflow-hidden ${generatedImage ? 'mt-3' : ''}`;        
+                grid.className = `grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2`;        
                 images.forEach(imgData => {        
                     const img = document.createElement('img');        
                     img.src = URL.createObjectURL(imgData);
@@ -1203,27 +1405,17 @@
                 });        
                 msgContent.appendChild(grid);        
             }        
-            
             if (text) {        
                 const p = document.createElement('p');        
-                p.className = `text-sm leading-relaxed ${(images?.length || generatedImage) ? 'mt-3' : ''}`;        
-                p.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');        
+                p.innerHTML = text.replace(/\n/g, '<br>');        
                 msgContent.appendChild(p);        
             }        
-            
-            const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
             const timeEl = document.createElement('div');
             timeEl.className = `text-xs mt-2 ${sender === 'user' ? 'text-blue-200' : 'text-gray-400'}`;
-            timeEl.textContent = time;
+            timeEl.textContent = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
-            msgContainer.appendChild(msgContent);
-            msgContainer.appendChild(timeEl);
-
-            if (sender === 'user') {        
-                msgWrap.append(msgContainer, avatar);        
-            } else {        
-                msgWrap.append(avatar, msgContainer);        
-            }        
+            msgContainer.append(msgContent, timeEl);
+            msgWrap.append(sender === 'user' ? msgContainer : avatar, sender === 'user' ? avatar : msgContainer);        
             
             const fullMessageWrapper = document.createElement('div');
             fullMessageWrapper.className = 'message-fade-in w-full';
@@ -1235,351 +1427,8 @@
         function toggleLoading(isLoading) {        
             sendButton.disabled = isLoading;        
             userInput.disabled = isLoading;        
-            document.getElementById('image-upload-button').style.pointerEvents = isLoading ? 'none' : 'auto';        
-            
             sendIcon.classList.toggle('hidden', isLoading);
             loadingSpinner.classList.toggle('hidden', !isLoading);        
-
-            if (isMobileDevice()) {
-                startCameraButton.disabled = isLoading;        
-                captureSendButton.disabled = isLoading || !mediaStream || !mediaStream.active;        
-                switchCameraButton.disabled = isLoading || availableVideoDevices.length <= 1;        
-            }
-
-            if (!isLoading) userInput.focus();        
-        }
-
-        // --- Admin Login Logic ---
-        adminLoginButton.addEventListener('click', () => {
-            adminLoginModal.classList.remove('hidden');
-            adminUsernameInput.value = 'admin';
-            adminPasswordInput.value = 'admin';
-            adminLoginError.classList.add('hidden');
-            adminUsernameInput.focus();
-        });
-
-        cancelAdminLoginButton.addEventListener('click', () => {
-            adminLoginModal.classList.add('hidden');
-        });
-
-        adminLoginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = adminUsernameInput.value;
-            const password = adminPasswordInput.value;
-            adminLoginError.classList.add('hidden');
-
-            try {
-                const adminDoc = await getDoc(adminSettingsDocRef);
-                if (adminDoc.exists()) {
-                    const adminData = adminDoc.data();
-                    if (adminData.username === username && adminData.password === password) {
-                        isAdminLoggedIn = true;
-                        adminLoginModal.classList.add('hidden');
-                        showCustomMessage('Đăng nhập Admin thành công!', 'success');
-                        showAdminPanelView();
-                        console.log("Admin logged in!");
-                    } else {
-                        adminLoginError.classList.remove('hidden');
-                    }
-                } else {
-                    adminLoginError.textContent = 'Không tìm thấy thông tin admin. Vui lòng thử lại.';
-                    adminLoginError.classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error("Lỗi khi đăng nhập admin:", error);
-                adminLoginError.textContent = `Lỗi hệ thống: ${error.message}`;
-                adminLoginError.classList.remove('hidden');
-            }
-        });
-
-        // --- Admin Panel Button Handlers ---
-        const showUnderDevelopmentMessage = () => {
-            showCustomMessage('Chức năng đang trong giai đoạn phát triển và sẽ hoạt động sớm nhất.', 'info');
-        };
-
-        priceManagementButton.addEventListener('click', showPriceManagementSection);
-        salesManagementButton.addEventListener('click', showSalesManagementSection);
-        defaultPriceButton.addEventListener('click', showDefaultPriceDisplaySection);
-        customPriceButton.addEventListener('click', showUnderDevelopmentMessage);
-        backToAdminDashboardButton.addEventListener('click', showAdminDashboard);
-        quotationManagementButton.addEventListener('click', showUnderDevelopmentMessage);
-        debtManagementButton.addEventListener('click', showUnderDevelopmentMessage);
-
-        logoutButton.addEventListener('click', () => {
-            isAdminLoggedIn = false;
-            showChatView();
-            showCustomMessage('Đã đăng xuất khỏi Admin Panel.', 'info');
-            console.log("Admin logged out!");
-        });
-
-        backToChatButton.addEventListener('click', () => {
-            showChatView();
-        });
-
-        backToPriceManagementButton.addEventListener('click', showPriceManagementSection);
-        backToAdminDashboardFromSalesButton.addEventListener('click', showAdminDashboard);
-
-
-        // --- Price Management Logic (CRUD) ---
-        function renderDefaultPrices(prices) {
-            priceListContainer.innerHTML = '';
-            if (prices.length === 0) {
-                noPricesMessage.classList.remove('hidden');
-                priceListContainer.appendChild(noPricesMessage);
-            } else {
-                noPricesMessage.classList.add('hidden');
-                prices.forEach(price => {
-                    const priceItem = document.createElement('div');
-                    priceItem.className = 'flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm';
-                    priceItem.innerHTML = `
-                        <div>
-                            <strong class="text-gray-800 dark:text-gray-100">${price.name}:</strong> 
-                            <span class="text-gray-700 dark:text-gray-200">${price.value.toLocaleString('vi-VN')} VNĐ/m²</span>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button data-id="${price.id}" data-name="${price.name}" data-value="${price.value}" class="edit-price-button bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-full text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-                            </button>
-                            <button data-id="${price.id}" class="delete-price-button bg-red-500 hover:bg-red-600 text-white p-2 rounded-full text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                            </button>
-                        </div>
-                    `;
-                    priceListContainer.appendChild(priceItem);
-                });
-
-                document.querySelectorAll('.edit-price-button').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const { id, name, value } = e.currentTarget.dataset;
-                        openPriceForm(id, name, parseFloat(value));
-                    });
-                });
-
-                document.querySelectorAll('.delete-price-button').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        deleteDefaultPrice(e.currentTarget.dataset.id);
-                    });
-                });
-            }
-        }
-
-        function openPriceForm(id = '', name = '', value = '') {
-            priceFormModal.classList.remove('hidden');
-            priceIdInput.value = id;
-            priceNameInput.value = name;
-            priceValueInput.value = value;
-            priceFormTitle.textContent = id ? 'Sửa Giá Vật Liệu' : 'Thêm Giá Vật Liệu Mới';
-            savePriceButton.textContent = id ? 'Cập Nhật' : 'Lưu';
-        }
-
-        cancelPriceButton.addEventListener('click', () => {
-            priceFormModal.classList.add('hidden');
-            priceForm.reset();
-        });
-
-        addNewPriceButton.addEventListener('click', () => openPriceForm());
-
-        priceForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = priceIdInput.value;
-            const name = priceNameInput.value.trim();
-            const value = parseFloat(priceValueInput.value);
-
-            if (!name || isNaN(value) || value < 0) {
-                showCustomMessage('Vui lòng nhập tên mục và giá trị hợp lệ.', 'warning');
-                return;
-            }
-
-            try {
-                if (id) {
-                    await updateDoc(doc(defaultPricesCollectionRef, id), { name, value });
-                    showCustomMessage('Giá đã được cập nhật thành công!', 'success');
-                } else {
-                    await addDoc(defaultPricesCollectionRef, { name, value });
-                    showCustomMessage('Giá mới đã được thêm thành công!', 'success');
-                }
-                priceFormModal.classList.add('hidden');
-                priceForm.reset();
-            } catch (error) {
-                console.error("Lỗi khi lưu giá:", error);
-                showCustomMessage(`Lỗi khi lưu giá: ${error.message}`, 'error');
-            }
-        });
-
-        async function deleteDefaultPrice(id) {
-            showCustomMessage('Bạn có chắc chắn muốn xóa mục giá này không?', 'confirm', async () => {
-                try {
-                    await deleteDoc(doc(defaultPricesCollectionRef, id));
-                    showCustomMessage('Mục giá đã được xóa thành công!', 'success');
-                } catch (error) {
-                    console.error("Lỗi khi xóa giá:", error);
-                    showCustomMessage(`Lỗi khi xóa giá: ${error.message}`, 'error');
-                }
-            });
-        }
-        
-        // --- Sales Management Logic ---
-        function resetOrderForm() {
-            currentOrder = { items: [], totalAmount: 0, deposit: 0, remainingAmount: 0 };
-            customerNameInput.value = '';
-            customerPhoneInput.value = '';
-            orderDepositInput.value = 0;
-            renderOrderItems();
-            updateOrderTotals();
-        }
-
-        function updateOrderTotals() {
-            const totalAmount = currentOrder.items.reduce((sum, item) => sum + item.total, 0);
-            const deposit = parseFloat(orderDepositInput.value) || 0;
-            const remainingAmount = totalAmount - deposit;
-            
-            currentOrder.totalAmount = totalAmount;
-            currentOrder.deposit = deposit;
-            currentOrder.remainingAmount = remainingAmount;
-
-            orderTotalSpan.textContent = formatCurrency(totalAmount);
-            orderRemainingSpan.textContent = formatCurrency(remainingAmount);
-        }
-
-        function renderOrderItems() {
-            currentOrderItemsContainer.innerHTML = '';
-            if (currentOrder.items.length === 0) {
-                currentOrderItemsContainer.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Chưa có mục nào.</p>';
-            } else {
-                currentOrder.items.forEach((item, index) => {
-                    const itemEl = document.createElement('div');
-                    itemEl.className = 'flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-md text-sm';
-                    itemEl.innerHTML = `
-                        <span class="font-medium">${item.name} (${item.quantity}x, ${item.width || '-'}m x ${item.height || '-'}m)</span>
-                        <div class="flex items-center gap-4">
-                             <span class="font-semibold text-blue-600 dark:text-blue-400">${formatCurrency(item.total)}</span>
-                             <button data-index="${index}" class="remove-order-item-button text-red-500 hover:text-red-700">&times;</button>
-                        </div>
-                    `;
-                    currentOrderItemsContainer.appendChild(itemEl);
-                });
-
-                document.querySelectorAll('.remove-order-item-button').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const index = parseInt(e.currentTarget.dataset.index, 10);
-                        currentOrder.items.splice(index, 1);
-                        renderOrderItems();
-                        updateOrderTotals();
-                    });
-                });
-            }
-        }
-        
-        function populateDefaultItemsDatalist(prices) {
-            defaultItemsDatalist.innerHTML = '';
-            Object.values(prices).forEach(price => {
-                const option = document.createElement('option');
-                option.value = price.name;
-                defaultItemsDatalist.appendChild(option);
-            });
-        }
-
-        itemNameInput.addEventListener('change', () => {
-            const selectedName = itemNameInput.value.toLowerCase();
-            const priceData = currentDefaultPrices[selectedName];
-            if (priceData) {
-                itemPriceInput.value = priceData.value;
-            }
-        });
-
-        addOrderItemButton.addEventListener('click', () => {
-            const name = itemNameInput.value.trim();
-            const width = parseFloat(itemWidthInput.value) || 0;
-            const height = parseFloat(itemHeightInput.value) || 0;
-            const quantity = parseInt(itemQuantityInput.value, 10) || 1;
-            const pricePerUnit = parseFloat(itemPriceInput.value) || 0;
-
-            if (!name || quantity <= 0 || pricePerUnit <= 0) {
-                showCustomMessage('Vui lòng nhập tên, số lượng và đơn giá hợp lệ.', 'warning');
-                return;
-            }
-
-            let total;
-            if (width > 0 && height > 0) {
-                total = width * height * quantity * pricePerUnit;
-            } else {
-                total = quantity * pricePerUnit;
-            }
-
-            currentOrder.items.push({ name, width, height, quantity, pricePerUnit, total });
-            renderOrderItems();
-            updateOrderTotals();
-            
-            // Clear item input fields
-            itemNameInput.value = '';
-            itemWidthInput.value = '';
-            itemHeightInput.value = '';
-            itemQuantityInput.value = '1';
-            itemPriceInput.value = '';
-            itemNameInput.focus();
-        });
-
-        orderDepositInput.addEventListener('input', updateOrderTotals);
-        clearOrderButton.addEventListener('click', () => {
-             showCustomMessage('Bạn có chắc muốn xóa toàn bộ đơn hàng hiện tại không?', 'confirm', () => {
-                resetOrderForm();
-                showCustomMessage('Đơn hàng đã được xóa.', 'info');
-            });
-        });
-
-        saveOrderButton.addEventListener('click', async () => {
-            const customerName = customerNameInput.value.trim();
-            if (!customerName) {
-                showCustomMessage('Vui lòng nhập tên khách hàng.', 'warning');
-                return;
-            }
-            if (currentOrder.items.length === 0) {
-                showCustomMessage('Vui lòng thêm ít nhất một mục vào đơn hàng.', 'warning');
-                return;
-            }
-
-            const finalOrder = {
-                ...currentOrder,
-                customerName: customerName,
-                customerPhone: customerPhoneInput.value.trim(),
-                createdAt: serverTimestamp(),
-                status: 'pending'
-            };
-
-            try {
-                await addDoc(salesOrdersCollectionRef, finalOrder);
-                showCustomMessage('Đơn hàng đã được lưu thành công!', 'success');
-                resetOrderForm();
-            } catch (error) {
-                 console.error("Lỗi khi lưu đơn hàng:", error);
-                 showCustomMessage(`Lỗi khi lưu đơn hàng: ${error.message}`, 'error');
-            }
-        });
-        
-        function renderRecentOrders(orders) {
-            recentOrdersListContainer.innerHTML = '';
-            if (orders.length === 0) {
-                recentOrdersListContainer.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Chưa có đơn hàng nào.</p>';
-                return;
-            }
-            orders.forEach(order => {
-                const orderCard = document.createElement('div');
-                orderCard.className = 'p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm';
-                const orderDate = order.createdAt?.toDate().toLocaleString('vi-VN') || 'N/A';
-                
-                orderCard.innerHTML = `
-                    <div class="flex justify-between items-center mb-2">
-                         <h4 class="font-bold text-lg">${order.customerName}</h4>
-                         <span class="text-sm text-gray-500 dark:text-gray-400">${orderDate}</span>
-                    </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">SĐT: ${order.customerPhone || 'N/A'}</p>
-                    <div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 text-right">
-                        <p>Tổng cộng: <span class="font-semibold">${formatCurrency(order.totalAmount)}</span></p>
-                        <p>Còn lại: <span class="font-bold text-green-600">${formatCurrency(order.remainingAmount)}</span></p>
-                    </div>
-                `;
-                recentOrdersListContainer.appendChild(orderCard);
-            });
         }
 
         // --- Sidebar Toggle Logic ---
@@ -1587,115 +1436,93 @@
             mainSidebar.classList.toggle('-translate-x-full');
             sidebarOverlay.classList.toggle('hidden');
         }
-        menuButton.addEventListener('click', toggleSidebar);
-        sidebarOverlay.addEventListener('click', toggleSidebar);
-
         function toggleAdminSidebar() {
             adminSidebar.classList.toggle('-translate-x-full');
             adminSidebarOverlay.classList.toggle('hidden');
         }
+        menuButton.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
         adminMenuButton.addEventListener('click', toggleAdminSidebar);
         adminSidebarOverlay.addEventListener('click', toggleAdminSidebar);
-
+        
+        shareButton.addEventListener('click', () => copyToClipboard(window.location.href));
+        newChatButton.addEventListener('click', () => { window.location.href = window.location.href.split('?')[0]; });
 
         // --- App Initialization ---
         const main = async () => {
-            if (!isMobileDevice()) {
-                cameraControls.style.display = 'none';
-            }
-
-            appendMessage({ text: "Dạ thưa, tôi là kỹ thuật viên chuyên về máy in Xerox (các dòng C8045, C70, C8035) và chuyên gia in ấn trên mọi loại giấy, bao gồm cả giấy nhựa. Tôi có thể hỗ trợ bạn về dịch thuật, trích xuất văn bản, thiết kế ảnh, hoặc tính giá in ấn. Tôi có thể giúp gì cho bạn hôm nay ạ?" }, 'bot');
-            try {
-                const firebaseConfig = typeof window.__firebase_config !== 'undefined' ? JSON.parse(window.__firebase_config) : null;
-                
-                if (!firebaseConfig || !firebaseConfig.apiKey) {
-                    console.warn("Firebase config is incomplete. Firestore features will be disabled.");
-                } else {
-                    app = initializeApp(firebaseConfig);
-                    auth = getAuth(app); 
-                    db = getFirestore(app);
-
-                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                    defaultPricesCollectionRef = collection(db, `artifacts/${appId}/public/data/defaultPrices`);
-                    adminSettingsDocRef = doc(db, `artifacts/${appId}/public/data/adminSettings`, 'mainAdmin');
-                    salesOrdersCollectionRef = collection(db, `artifacts/${appId}/public/data/salesOrders`);
-
-                    onAuthStateChanged(auth, async user => {
-                        userId = user?.uid;
-                        isAuthReady = !!user;
-                        if (isAuthReady) {
-                            console.log("Firebase Auth sẵn sàng. User ID:", userId);
-
-                            const adminDocSnapshot = await getDoc(adminSettingsDocRef);
-                            if (!adminDocSnapshot.exists()) {
-                                await setDoc(adminSettingsDocRef, {
-                                    username: 'admin',
-                                    password: 'admin'
-                                });
-                                console.log("Default admin credentials created in Firestore.");
-                            }
-
-                            const initialPrices = [
-                                { name: "decal", value: 85000 },
-                                { name: "in bạt", value: 70000 },
-                                { name: "standee", value: 120000 }
-                            ];
-                            for (const price of initialPrices) {
-                                const q = query(defaultPricesCollectionRef, where("name", "==", price.name));
-                                const querySnapshot = await getDocs(q);
-                                if (querySnapshot.empty) {
-                                    await addDoc(defaultPricesCollectionRef, price);
-                                    console.log(`Added initial price for ${price.name}`);
-                                }
-                            }
-
-                            onSnapshot(defaultPricesCollectionRef, (snapshot) => {
-                                const prices = [];
-                                const pricesMap = {};
-                                snapshot.forEach(doc => {
-                                    const data = doc.data();
-                                    prices.push({ id: doc.id, ...data });
-                                    pricesMap[data.name.toLowerCase()] = { id: doc.id, ...data };
-                                });
-                                currentDefaultPrices = pricesMap;
-                                renderDefaultPrices(prices);
-                                populateDefaultItemsDatalist(pricesMap);
-                            }, (error) => console.error("Lỗi khi tải giá mặc định:", error));
-                            
-                            // Listener for recent sales orders
-                            onSnapshot(salesOrdersCollectionRef, (snapshot) => {
-                                let orders = [];
-                                snapshot.forEach(doc => {
-                                    orders.push({ id: doc.id, ...doc.data() });
-                                });
-                                // Sort by date client-side as per instructions
-                                orders.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
-                                renderRecentOrders(orders.slice(0, 10)); // Display latest 10
-                            }, (error) => console.error("Lỗi khi tải đơn hàng:", error));
-                        }
-                    });
-
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        try {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                            console.log("Signed in with custom token.");
-                        } catch (tokenError) {
-                            console.warn("Custom token sign-in failed, attempting anonymous sign-in:", tokenError);
-                            await signInAnonymously(auth);
-                            console.log("Signed in anonymously as fallback.");
-                        }
-                    } else {
-                        await signInAnonymously(auth);
-                        console.log("Signed in anonymously.");
-                    }
+            if (!isMobileDevice()) cameraControls.style.display = 'none';
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            let sessionId = urlParams.get('session');
+            if (!sessionId) {
+                sessionId = crypto.randomUUID();
+                const newUrl = `${window.location.pathname}?session=${sessionId}`;
+                try {
+                    window.history.replaceState({ path: newUrl }, '', newUrl);
+                } catch (e) {
+                    console.warn("Could not update URL:", e.message);
                 }
-            } catch (error) {
-                console.error("Lỗi khởi tạo Firebase:", error);
-                appendMessage({ text: `Lỗi: Không thể kết nối đến dịch vụ Firebase. (${error.message})` }, 'bot', true);
             }
+            currentSessionId = sessionId;
 
+            const supabaseUrl = 'https://awsktvetlkdzfpdurjep.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3c2t0dmV0bGtkemZwZHVyamVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMDI5MDEsImV4cCI6MjA3Mjc3ODkwMX0.M8fQPpD_kTWO93Z4bX5zkcH4X3qiwio7jA2Iih0REJQ';
+            
+            if (supabaseUrl && supabaseAnonKey) {
+                supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+                
+                // Initialize Admin Account
+                const { data } = await supabaseClient.from('admin_settings').select('id').eq('username', 'admin').single();
+                if (!data) {
+                    await supabaseClient.from('admin_settings').insert({ username: 'admin', password: 'admin' });
+                }
+
+                // Initialize Prices
+                const { data: pricesData } = await supabaseClient.from('prices').select('id').limit(1);
+                if (!pricesData || pricesData.length === 0) {
+                     const initialPrices = [ { name: "decal", value: 85000 }, { name: "in bạt", value: 70000 }, { name: "standee", value: 120000 }];
+                     await supabaseClient.from('prices').insert(initialPrices);
+                }
+                
+                // Set up real-time listeners
+                supabaseClient.channel('prices').on('postgres_changes', { event: '*', schema: 'public', table: 'prices' }, fetchAndRenderPrices).subscribe();
+                supabaseClient.channel('sales_orders').on('postgres_changes', { event: '*', schema: 'public', table: 'sales_orders' }, fetchAndRenderOrders).subscribe();
+                
+                fetchAndRenderPrices();
+                fetchAndRenderOrders();
+
+            } else {
+                 console.warn("Supabase not configured.");
+            }
+            
+            await loadChatHistoryFromSupabase();
             showChatView();
         };
+
+        async function fetchAndRenderPrices() {
+            if (!supabaseClient) return;
+            const { data, error } = await supabaseClient.from('prices').select('*');
+            if(error) {
+                console.error("Error fetching prices:", error);
+                // Don't show an error to the user, just log it. The AI will use fallback prices.
+            } else {
+                renderDefaultPrices(data);
+                currentDefaultPrices = data.reduce((acc, price) => {
+                    acc[price.name.toLowerCase()] = price;
+                    return acc;
+                }, {});
+                populateDefaultItemsDatalist(currentDefaultPrices);
+            }
+        }
+        async function fetchAndRenderOrders() {
+            if (!supabaseClient) return;
+            const { data, error } = await supabaseClient.from('sales_orders').select('*').order('created_at', { ascending: false }).limit(10);
+            if(error) {
+                 console.error("Error fetching orders:", error);
+            } else {
+                 renderRecentOrders(data);
+            }
+        }
 
         main();
     </script>
