@@ -62,7 +62,6 @@
             
             <!-- Cột bên trái -->
             <div class="flex-1 space-y-4 no-print">
-                <!-- Khối Khách hàng & Phân loại -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
@@ -72,24 +71,22 @@
                         <div class="space-y-1.5">
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Loại giá áp dụng</label>
                             <div class="flex gap-1.5 p-1 bg-slate-100 rounded-lg">
-                                <button onclick="app.setCustType('retail')" id="btnTypeRetail" class="flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all bg-white text-blue-600 shadow-sm uppercase">Bán lẻ</button>
+                                <button onclick="app.setCustType('retail')" id="btnTypeRetail" class="flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all bg-white text-blue-600 shadow-sm uppercase">Khách lẻ</button>
                                 <button onclick="app.setCustType('pro')" id="btnTypePro" class="flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:bg-white/50 uppercase">Giá thợ</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Khối Vật tư -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                     <h2 class="text-slate-800 font-bold mb-3 flex items-center gap-2 text-[11px] uppercase tracking-wider">
                         <i data-lucide="package" class="w-4 h-4 text-blue-600"></i> Danh mục vật tư
                     </h2>
-                    <div id="materialButtons" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                    <div id="materialButtons" class="grid grid-cols-3 gap-2">
                         <div class="col-span-full py-6 text-center text-slate-400 text-xs italic">Đang đồng bộ...</div>
                     </div>
                 </div>
 
-                <!-- Khối Thông số & Tùy chọn -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <div id="dimInputs" class="grid grid-cols-2 gap-3 col-span-2">
@@ -115,7 +112,7 @@
                         </label>
                         <label class="flex flex-col items-center justify-center gap-1.5 p-2 bg-slate-50 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
                             <input type="checkbox" id="checkHaoPhi" onchange="app.calculate()" class="w-4 h-4 rounded text-blue-600 border-slate-300">
-                            <span class="text-[9px] font-bold text-slate-500 uppercase">Hao phí VL</span>
+                            <span class="text-[9px] font-bold text-slate-500 uppercase text-center leading-none">Hao phí vật liệu</span>
                         </label>
                         <label class="flex flex-col items-center justify-center gap-1.5 p-2 bg-slate-50 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
                             <input type="checkbox" id="checkVAT" checked onchange="app.updateCartTotals()" class="w-4 h-4 rounded text-blue-600 border-slate-300">
@@ -123,8 +120,8 @@
                         </label>
                     </div>
 
-                    <button onclick="app.addToCart()" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-100 flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-sm">
-                        <i data-lucide="plus" class="w-4 h-4"></i> THÊM HẠNG MỤC
+                    <button onclick="app.addToCart()" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-100 flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-sm uppercase tracking-widest">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Thêm vào phiếu
                     </button>
                 </div>
             </div>
@@ -133,8 +130,8 @@
             <div class="w-full lg:w-[380px] xl:w-[420px]">
                 <div class="bg-slate-900 rounded-2xl shadow-xl p-5 md:p-6 text-white sticky top-20 print:p-0 print:bg-white print:text-black print:shadow-none print:static">
                     
-                    <div class="print-header mb-6 pb-4 border-b-2 border-slate-900">
-                        <h1 class="text-xl font-black uppercase text-slate-900">Thiết Kế In Ấn Hội An</h1>
+                    <div class="print-header mb-6 pb-4 border-b-2 border-slate-900 text-left">
+                        <h1 class="text-xl font-black uppercase text-slate-900 leading-none">Công Ty Thiết Kế In Ấn Hội An</h1>
                         <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">69 Đào Duy Từ, Hội An</p>
                     </div>
 
@@ -145,7 +142,7 @@
 
                     <div class="mb-5">
                         <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1 print:text-slate-500">Kính gửi:</p>
-                        <p id="resCustName" class="text-xl font-bold tracking-tight print:text-slate-900">Khách lẻ</p>
+                        <p id="resCustName" class="text-xl font-bold tracking-tight print:text-slate-900 leading-tight">Khách lẻ</p>
                         <p class="text-[9px] text-slate-500 mt-2 font-mono uppercase" id="resDate"></p>
                     </div>
 
@@ -156,11 +153,11 @@
                     <div class="pt-4 border-t border-white/10 print:border-slate-200 space-y-3">
                         <div class="flex justify-between items-center text-[11px]">
                             <span class="text-slate-400 font-medium uppercase tracking-wider print:text-slate-500">Tạm tính:</span>
-                            <span id="resSubtotalAll" class="font-bold text-slate-200 print:text-slate-900 tracking-tight">0đ</span>
+                            <span id="resSubtotalAll" class="font-bold text-slate-200 print:text-slate-900 tracking-tight text-right">0đ</span>
                         </div>
                         <div class="flex justify-between items-center text-[11px]">
                             <span class="text-slate-400 font-medium uppercase tracking-wider print:text-slate-500">Thuế VAT (8%):</span>
-                            <span id="resVATAll" class="font-bold text-slate-200 print:text-slate-900 tracking-tight">0đ</span>
+                            <span id="resVATAll" class="font-bold text-slate-200 print:text-slate-900 tracking-tight text-right">0đ</span>
                         </div>
                         <div class="py-4 mt-2 bg-emerald-500/5 print:bg-slate-50 rounded-xl px-5 border border-emerald-500/10 print:border-slate-200">
                             <p class="text-[9px] text-emerald-400 font-bold uppercase tracking-widest mb-1 print:text-blue-800 text-center">Tổng thanh toán</p>
@@ -168,7 +165,7 @@
                         </div>
                         <div id="profitContainer" class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 no-print text-center">
                             <p class="text-[9px] text-blue-400 font-bold uppercase tracking-widest mb-0.5">Lợi nhuận gộp</p>
-                            <p id="resProfitAll" class="text-xl font-bold text-blue-400 tracking-tight">0đ</p>
+                            <p id="resProfitAll" class="text-xl font-bold text-blue-400 tracking-tight text-center">0đ</p>
                         </div>
                     </div>
 
@@ -206,7 +203,7 @@
             <div class="flex-1 overflow-y-auto p-4 md:p-6">
                 <!-- TAB VẬT TƯ -->
                 <div id="tabMaterials" class="space-y-6">
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
                         <form id="adminForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                             <div class="sm:col-span-2">
                                 <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Tên sản phẩm</label>
@@ -227,21 +224,21 @@
                             <div>
                                 <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Nhóm khổ</label>
                                 <select id="admLoai" class="w-full border border-slate-200 rounded-lg px-3 py-2 bg-white text-sm">
-                                    <option value="decan">Decan (0.9-1.5m)</option><option value="bat">Bạt (0.6-3.1m)</option><option value="other">In thực tế</option>
+                                    <option value="decan">Decan (0.9-1.5m)</option><option value="bat">Bạt (0.6-3.1m)</option><option value="other">Khác</option>
                                 </select>
                             </div>
                             <div class="flex items-end">
-                                <button type="button" onclick="admin.saveMaterial()" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[11px] font-black shadow-lg uppercase tracking-widest transition-all">Lưu Cloud</button>
+                                <button type="button" onclick="admin.saveMaterial()" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[11px] font-black shadow-lg uppercase tracking-widest transition-all active:scale-95">Lưu Cloud</button>
                             </div>
                         </form>
                     </div>
-                    <div id="adminTableContainer" class="rounded-xl border border-slate-100 overflow-x-auto custom-scroll bg-white"></div>
+                    <div id="adminTableContainer" class="rounded-xl border border-slate-100 overflow-x-auto custom-scroll bg-white shadow-sm"></div>
                 </div>
 
-                <!-- TAB DOANH THU -->
+                <!-- TAB DOANH THU & NHẬT KÝ -->
                 <div id="tabHistory" class="hidden space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
                             <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Tháng báo cáo</label>
                             <input type="month" id="revenueMonth" onchange="admin.fetchHistory()" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-blue-600 outline-none">
                         </div>
@@ -254,8 +251,9 @@
                             <p id="monthTotalProfit" class="text-xl font-black">0đ</p>
                         </div>
                     </div>
-                    <div id="dailySummaryContainer" class="rounded-xl border border-slate-100 overflow-x-auto custom-scroll bg-white"></div>
-                    <div id="historyTableContainer" class="rounded-xl border border-slate-100 overflow-x-auto custom-scroll bg-white"></div>
+                    <div id="dailySummaryContainer" class="rounded-xl border border-slate-100 overflow-x-auto bg-white shadow-sm"></div>
+                    <!-- Nhật ký chi tiết được cập nhật hiển thị rõ ràng -->
+                    <div id="historyTableContainer" class="rounded-xl border border-slate-100 overflow-x-auto bg-white shadow-sm"></div>
                 </div>
             </div>
         </div>
@@ -316,7 +314,10 @@
                 Object.keys(grouped).sort().forEach(muc => {
                     html += `<div class="col-span-full mt-2"><h3 class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><span class="w-4 h-[1px] bg-slate-200"></span>${muc}</h3></div>`;
                     grouped[muc].forEach(({item, idx}) => {
-                        html += `<button id="btn-${idx}" onclick="app.selectMaterial(${idx})" class="text-left px-3 py-2.5 rounded-lg border border-slate-200 bg-white shadow-sm transition-all hover:border-blue-200 focus:outline-none"><div class="font-bold text-slate-700 text-xs leading-tight">${item.ten}</div><div class="text-[9px] text-slate-400 font-bold uppercase mt-0.5 tracking-tighter">${item.don_vi}</div></button>`;
+                        html += `<button id="btn-${idx}" onclick="app.selectMaterial(${idx})" class="flex flex-col items-center justify-center p-2 rounded-lg border border-slate-200 bg-white shadow-sm transition-all hover:border-blue-300 focus:outline-none min-h-[60px]">
+                            <div class="font-bold text-slate-700 text-[10px] text-center leading-tight overflow-hidden text-ellipsis line-clamp-2">${item.ten}</div>
+                            <div class="text-[8px] text-slate-400 font-bold uppercase mt-1 px-1 bg-slate-50 rounded">${item.don_vi}</div>
+                        </button>`;
                     });
                 });
                 container.innerHTML = html;
@@ -328,7 +329,13 @@
                 this.currentIdx = idx;
                 configData.forEach((_, i) => {
                     const btn = document.getElementById(`btn-${i}`);
-                    if (btn) btn.className = (i === idx) ? "text-left px-3 py-2.5 rounded-lg border-2 border-blue-600 bg-blue-50 transition-all shadow-md ring-2 ring-blue-100" : "text-left px-3 py-2.5 rounded-lg border border-slate-200 bg-white transition-all shadow-sm";
+                    if (btn) {
+                        if (i === idx) {
+                            btn.className = "flex flex-col items-center justify-center p-2 rounded-lg border-2 border-blue-600 bg-blue-50 transition-all shadow-md ring-2 ring-blue-100 min-h-[60px]";
+                        } else {
+                            btn.className = "flex flex-col items-center justify-center p-2 rounded-lg border border-slate-200 bg-white shadow-sm transition-all min-h-[60px]";
+                        }
+                    }
                 });
                 const isM2 = configData[idx].don_vi === 'm2';
                 document.getElementById('dimInputs').classList.toggle('hidden', !isM2);
@@ -339,7 +346,7 @@
             setCustType(t) { 
                 this.custType = t; this.updateName(); this.calculate(); 
                 document.getElementById('btnTypeRetail').className = t === 'retail' ? "flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all bg-white text-blue-600 shadow-sm uppercase" : "flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:bg-white/50 uppercase";
-                document.getElementById('btnTypePro').className = t === 'pro' ? "flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all bg-white text-blue-600 shadow-sm uppercase" : "flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:bg-white/50 uppercase";
+                document.getElementById('btnTypePro').className = t === 'pro' ? "flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:bg-white/50 uppercase" : "flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:bg-white/50 uppercase";
             },
 
             updateName() { 
@@ -391,7 +398,7 @@
                     grandSubtotal += it.itemSubtotal; grandProfit += it.profit;
                     html += `<div class="relative group p-3 rounded-xl bg-white/5 border border-white/10 print:bg-white print:border-slate-200 shadow-sm">
                         <button onclick="app.removeFromCart(${i})" class="absolute -right-2 -top-2 w-6 h-6 bg-red-500 text-white rounded-lg no-print flex items-center justify-center text-xs font-bold shadow-lg transition-all active:scale-90">×</button>
-                        <div class="flex justify-between font-bold"><div class="text-emerald-400 print:text-blue-900 leading-tight pr-4 text-xs">${it.name}</div><div class="text-xs">${this.formatCurrency(it.itemSubtotal)}</div></div>
+                        <div class="flex justify-between font-bold"><div class="text-emerald-400 print:text-blue-900 leading-tight pr-4 text-[11px]">${it.name}</div><div class="text-[11px]">${this.formatCurrency(it.itemSubtotal)}</div></div>
                         <div class="flex justify-between text-[9px] text-slate-500 mt-1 font-bold uppercase tracking-tight"><span>QC: ${it.specs}</span><span>${this.formatCurrency(it.unitPrice)}</span></div>
                     </div>`;
                 });
@@ -462,15 +469,22 @@
                 document.getElementById('monthTotalRevenue').textContent = app.formatCurrency(totalRev);
                 document.getElementById('monthTotalProfit').textContent = app.formatCurrency(totalProfit);
 
+                // Tổng hợp theo ngày
                 let dailyHtml = `<table class="w-full text-left text-xs"><thead class="bg-slate-50 text-[8px] uppercase font-black"><tr><th class="px-4 py-4">Ngày</th><th class="px-4 py-4 text-center">Đơn</th><th class="px-4 py-4 text-right">Doanh thu</th></tr></thead><tbody class="divide-y divide-slate-100">`;
                 Object.keys(dailyStats).sort((a,b) => b.localeCompare(a)).forEach(date => {
                     dailyHtml += `<tr><td class="px-4 py-4 font-bold text-slate-700 text-xs">${new Date(date).toLocaleDateString('vi-VN')}</td><td class="px-4 py-4 text-center font-bold text-xs">${dailyStats[date].count}</td><td class="px-4 py-4 text-right font-black text-blue-600 text-xs">${app.formatCurrency(dailyStats[date].rev)}</td></tr>`;
                 });
                 document.getElementById('dailySummaryContainer').innerHTML = dailyHtml + `</tbody></table>`;
 
-                let logHtml = `<table class="w-full text-left text-[10px]"><thead class="bg-slate-50 text-[7px] uppercase font-black"><tr><th class="px-4 py-3">Thời gian</th><th class="px-4 py-3 text-left">Khách hàng</th><th class="px-4 py-3 text-right">Tổng</th></tr></thead><tbody class="divide-y divide-slate-50">`;
+                // Nhật ký chi tiết: Cập nhật hiển thị rõ khách hàng, món hàng và tổng tiền
+                let logHtml = `<table class="w-full text-left text-[10px]"><thead class="bg-slate-50 text-[7px] uppercase font-black"><tr><th class="px-4 py-3">Thời gian</th><th class="px-4 py-3 text-left">Khách hàng</th><th class="px-4 py-3 text-left">Nội dung đơn hàng</th><th class="px-4 py-3 text-right">Tổng tiền</th></tr></thead><tbody class="divide-y divide-slate-50">`;
                 filteredData.forEach(log => {
-                    logHtml += `<tr><td class="px-4 py-3 text-slate-500">${new Date(log.created_at).toLocaleString()}</td><td class="px-4 py-3 font-bold">${log.customer_name}</td><td class="px-4 py-3 text-right font-black text-slate-900">${app.formatCurrency(log.total_amount)}</td></tr>`;
+                    logHtml += `<tr>
+                        <td class="px-4 py-3 text-slate-500 font-mono">${new Date(log.created_at).toLocaleString('vi-VN', {hour:'2-digit', minute:'2-digit'})}<br>${new Date(log.created_at).toLocaleDateString('vi-VN')}</td>
+                        <td class="px-4 py-3 font-bold text-slate-800">${log.customer_name}</td>
+                        <td class="px-4 py-3 text-[10px] text-slate-600 leading-tight">${log.items_summary || 'N/A'}</td>
+                        <td class="px-4 py-3 text-right font-black text-slate-900 whitespace-nowrap">${app.formatCurrency(log.total_amount)}</td>
+                    </tr>`;
                 });
                 document.getElementById('historyTableContainer').innerHTML = logHtml + '</tbody></table>';
                 lucide.createIcons();
