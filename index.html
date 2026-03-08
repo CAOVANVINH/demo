@@ -62,6 +62,7 @@
             
             <!-- Cột bên trái -->
             <div class="flex-1 space-y-4 no-print">
+                <!-- Khối Khách hàng & Phân loại -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
@@ -78,6 +79,7 @@
                     </div>
                 </div>
 
+                <!-- Khối Vật tư: 3 Cột Ngang -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                     <h2 class="text-slate-800 font-bold mb-3 flex items-center gap-2 text-[11px] uppercase tracking-wider">
                         <i data-lucide="package" class="w-4 h-4 text-blue-600"></i> Danh mục vật tư
@@ -87,6 +89,7 @@
                     </div>
                 </div>
 
+                <!-- Khối Thông số & Tùy chọn -->
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <div id="dimInputs" class="grid grid-cols-2 gap-3 col-span-2">
@@ -163,9 +166,10 @@
                             <p class="text-[9px] text-emerald-400 font-bold uppercase tracking-widest mb-1 print:text-blue-800 text-center">Tổng thanh toán</p>
                             <p id="resTotalAll" class="text-3xl font-black print:text-slate-900 tracking-tighter text-center">0đ</p>
                         </div>
-                        <div id="profitContainer" class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 no-print text-center">
+                        <!-- Cập nhật logic hiển thị Lợi nhuận -->
+                        <div id="profitContainer" class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 no-print text-center hidden">
                             <p class="text-[9px] text-blue-400 font-bold uppercase tracking-widest mb-0.5">Lợi nhuận gộp</p>
-                            <p id="resProfitAll" class="text-xl font-bold text-blue-400 tracking-tight text-center">0đ</p>
+                            <p id="resProfitAll" class="text-xl font-bold text-blue-400 tracking-tight">0đ</p>
                         </div>
                     </div>
 
@@ -252,7 +256,6 @@
                         </div>
                     </div>
                     <div id="dailySummaryContainer" class="rounded-xl border border-slate-100 overflow-x-auto bg-white shadow-sm"></div>
-                    <!-- Nhật ký chi tiết được cập nhật hiển thị rõ ràng -->
                     <div id="historyTableContainer" class="rounded-xl border border-slate-100 overflow-x-auto bg-white shadow-sm"></div>
                 </div>
             </div>
@@ -346,7 +349,7 @@
             setCustType(t) { 
                 this.custType = t; this.updateName(); this.calculate(); 
                 document.getElementById('btnTypeRetail').className = t === 'retail' ? "flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all bg-white text-blue-600 shadow-sm uppercase" : "flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:bg-white/50 uppercase";
-                document.getElementById('btnTypePro').className = t === 'pro' ? "flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:bg-white/50 uppercase" : "flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:bg-white/50 uppercase";
+                document.getElementById('btnTypePro').className = t === 'pro' ? "flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all bg-white text-blue-600 shadow-sm uppercase" : "flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all text-slate-500 hover:bg-white/50 uppercase";
             },
 
             updateName() { 
@@ -388,11 +391,15 @@
             renderCart() {
                 const container = document.getElementById('cartDisplay');
                 const isVATEnabled = document.getElementById('checkVAT').checked;
+                const profitEl = document.getElementById('profitContainer');
+                
                 if (this.cart.length === 0) {
                     container.innerHTML = `<div class="text-center py-6 text-slate-600 italic text-xs no-print">Trống...</div>`;
                     document.getElementById('resSubtotalAll').textContent = "0đ"; document.getElementById('resVATAll').textContent = "0đ"; document.getElementById('resTotalAll').textContent = "0đ"; document.getElementById('resProfitAll').textContent = "0đ"; document.getElementById('resItemCount').textContent = "0 đơn hàng";
+                    profitEl.classList.add('hidden'); // Ẩn khi trống
                     return;
                 }
+                
                 let html = '', grandSubtotal = 0, grandProfit = 0;
                 this.cart.forEach((it, i) => {
                     grandSubtotal += it.itemSubtotal; grandProfit += it.profit;
@@ -402,6 +409,7 @@
                         <div class="flex justify-between text-[9px] text-slate-500 mt-1 font-bold uppercase tracking-tight"><span>QC: ${it.specs}</span><span>${this.formatCurrency(it.unitPrice)}</span></div>
                     </div>`;
                 });
+                
                 const grandVAT = isVATEnabled ? (grandSubtotal * 0.08) : 0;
                 container.innerHTML = html;
                 document.getElementById('resItemCount').textContent = this.cart.length + " đơn hàng";
@@ -409,7 +417,13 @@
                 document.getElementById('resVATAll').textContent = this.formatCurrency(grandVAT);
                 document.getElementById('resTotalAll').textContent = this.formatCurrency(grandSubtotal + grandVAT);
                 document.getElementById('resProfitAll').textContent = this.formatCurrency(grandProfit);
-                document.getElementById('profitContainer').style.display = (this.custType === 'retail') ? 'block' : 'none';
+                
+                // Hiển thị lợi nhuận: Phải là khách lẻ VÀ lợi nhuận > 0
+                if (this.custType === 'retail' && grandProfit > 0) {
+                    profitEl.classList.remove('hidden');
+                } else {
+                    profitEl.classList.add('hidden');
+                }
             },
 
             async finishAndSave() {
@@ -469,14 +483,12 @@
                 document.getElementById('monthTotalRevenue').textContent = app.formatCurrency(totalRev);
                 document.getElementById('monthTotalProfit').textContent = app.formatCurrency(totalProfit);
 
-                // Tổng hợp theo ngày
                 let dailyHtml = `<table class="w-full text-left text-xs"><thead class="bg-slate-50 text-[8px] uppercase font-black"><tr><th class="px-4 py-4">Ngày</th><th class="px-4 py-4 text-center">Đơn</th><th class="px-4 py-4 text-right">Doanh thu</th></tr></thead><tbody class="divide-y divide-slate-100">`;
                 Object.keys(dailyStats).sort((a,b) => b.localeCompare(a)).forEach(date => {
                     dailyHtml += `<tr><td class="px-4 py-4 font-bold text-slate-700 text-xs">${new Date(date).toLocaleDateString('vi-VN')}</td><td class="px-4 py-4 text-center font-bold text-xs">${dailyStats[date].count}</td><td class="px-4 py-4 text-right font-black text-blue-600 text-xs">${app.formatCurrency(dailyStats[date].rev)}</td></tr>`;
                 });
                 document.getElementById('dailySummaryContainer').innerHTML = dailyHtml + `</tbody></table>`;
 
-                // Nhật ký chi tiết: Cập nhật hiển thị rõ khách hàng, món hàng và tổng tiền
                 let logHtml = `<table class="w-full text-left text-[10px]"><thead class="bg-slate-50 text-[7px] uppercase font-black"><tr><th class="px-4 py-3">Thời gian</th><th class="px-4 py-3 text-left">Khách hàng</th><th class="px-4 py-3 text-left">Nội dung đơn hàng</th><th class="px-4 py-3 text-right">Tổng tiền</th></tr></thead><tbody class="divide-y divide-slate-50">`;
                 filteredData.forEach(log => {
                     logHtml += `<tr>
