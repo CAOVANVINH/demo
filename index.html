@@ -3,2183 +3,509 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toán & Tiếng Việt Tí Hon (Supabase)</title>
-    <!-- Tải Tailwind CSS -->
+    <title>Công Ty Thiết Kế In Ấn Hội An - Hệ thống Báo giá</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tải Supabase CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Định nghĩa font chữ */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f9fc;
-        }
-        .game-input:focus, .admin-input:focus {
-            border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.4);
-        }
-        .primary-btn {
-            background-color: #ef4444;
-            transition: background-color 0.2s, transform 0.1s;
-        }
-        .primary-btn:hover { background-color: #dc2626; }
-        .primary-btn:active { transform: scale(0.98); }
-        .subject-btn {
-             background-color: #4f46e5; 
-             transition: background-color 0.2s, transform 0.1s;
-        }
-        .subject-btn:hover { background-color: #4338ca; }
-        .select-btn {
-             background-color: #4f46e5;
-             transition: background-color 0.2s, transform 0.1s, opacity 0.3s;
-             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-             word-break: break-word;
-             text-align: left;
-        }
-        .select-btn:hover { opacity: 0.9; }
-        .read-btn {
-            background-color: #10b981;
-            transition: background-color 0.2s, transform 0.1s;
-        }
-        .read-btn:hover { background-color: #059669; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .modal-active { display: flex !important; }
+        .tab-active { color: #2563eb; border-bottom: 3px solid #2563eb; }
+        .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 100; align-items: center; justify-content: center; }
+        .loading-active { display: flex; }
         
-        .admin-nav-btn {
-            background-color: #3b82f6; /* Blue 500 */
-        }
-        .admin-nav-btn:hover {
-            background-color: #2563eb; /* Blue 600 */
-        }
-        .danger-btn {
-            background-color: #f43f5e; /* Rose 500 */
-            transition: background-color 0.2s;
-        }
-        .danger-btn:hover {
-            background-color: #e11d48; /* Rose 600 */
-        }
-        .admin-section-header {
-            font-weight: 700;
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
-            font-size: 1.25rem; /* text-xl */
-            color: #1d4ed8; /* blue-700 */
-            border-bottom: 2px solid #93c5fd; /* blue-300 */
-            padding-bottom: 0.5rem;
-        }
-        /* Style cho nút chữ cái Mẫu Giáo */
-        .alphabet-btn {
-            background-color: #f97316; /* Orange 500 */
-            transition: background-color 0.2s, transform 0.1s;
-            font-size: 2.5rem; /* text-4xl */
-            font-weight: 900;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .alphabet-btn:hover {
-            background-color: #ea580c; /* Orange 600 */
-            transform: scale(1.05);
-        }
-        .alphabet-btn:active {
-            transform: scale(0.98);
-        }
-        /* Style cho Modal */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.75);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background-color: #fff;
-            padding: 2rem;
-            border-radius: 1rem;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        /* NEW: Class để tăng kích thước emoji trong nút chọn học sinh */
-        #student-name-input button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #student-name-input button span {
-            font-size: 1.5rem; /* Tăng kích thước emoji */
-            margin-right: 0.5rem;
-        }
+        .custom-scroll::-webkit-scrollbar { height: 4px; width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* NEW: Style cho nút từ vựng (ENGLISH mode) */
-        .vocab-btn {
-            background-color: #1d4ed8; /* Blue 700 */
-            transition: background-color 0.2s, transform 0.1s, opacity 0.3s;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-align: center;
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .shadow-2xl, .shadow-sm { box-shadow: none !important; border: 1px solid #eee !important; }
+            .print-header { display: block !important; }
+            main { padding: 0 !important; margin: 0 !important; }
         }
-        .vocab-btn:hover {
-            background-color: #1e40af; /* Blue 800 */
-        }
+        .print-header { display: none; }
     </style>
-    
-    <script type="module">
-        // Đánh dấu đã sẵn sàng ngay lập lập tức vì không cần chờ Auth
-        window.isAuthReady = true; 
-    </script>
 </head>
-<body class="p-4 sm:p-8 min-h-screen flex items-center justify-center">
+<body class="bg-slate-50 min-h-screen pb-10 md:pb-0">
 
-    <div id="app" class="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6 sm:p-10 border-b-8 border-red-500">
-        
-        <!-- TIÊU ĐỀ CHUNG -->
-        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 text-center mb-2">
-            🧠 Học Mà Chơi Cùng Tí Hon
-        </h1>
-        <p class="text-center text-sm text-red-500 font-semibold mb-6">Phiên bản lưu trữ Supabase (Cloud)</p>
-
-        <!-- KẾT QUẢ VÀ ĐIỂM SỐ -->
-        <div id="stats-display" class="flex justify-between items-center bg-red-50 p-3 rounded-xl mb-6 shadow-inner hidden">
-            <div class="text-center">
-                <span class="block text-2xl font-bold text-green-700" id="score">0</span>
-                <span class="text-xs font-medium text-gray-600">Đúng</span>
-            </div>
-            <div class="text-center">
-                <span class="block text-2xl font-bold text-red-700" id="missed">0</span>
-                <span class="text-xs font-medium text-gray-600">Sai</span>
-            </div>
-            <div class="text-center">
-                <span class="block text-2xl font-bold text-gray-700" id="current-info">Chọn Lớp</span>
-                <span class="text-xs font-medium text-gray-600">Cấp độ</span>
-            </div>
-        </div>
-        
-        <!-- 0. MÀN HÌNH NHẬP TÊN HỌC SINH (UPDATED) -->
-        <div id="student-name-input" class="space-y-4 mb-8">
-            <h2 class="text-lg font-bold text-gray-700 text-center">Con tên là gì? Chọn tên con để bắt đầu:</h2>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="selectStudentAndGrade('Thảo Huyền', 1)" class="subject-btn w-full p-4 text-lg font-bold text-white rounded-xl shadow-lg hover:shadow-xl bg-pink-500 hover:bg-pink-600">
-                    <span class="text-2xl">🌸</span> Thảo Huyền (Lớp 1)
-                </button>
-                <button onclick="selectStudentAndGrade('Hằng Nga', 2)" class="subject-btn w-full p-4 text-lg font-bold text-white rounded-xl shadow-lg hover:shadow-xl bg-orange-500 hover:bg-orange-600">
-                    <span class="text-2xl">🌈</span> Hằng Nga (Lớp 2)
-                </button>
-            </div>
-            
-            <!-- Re-added: Vinh Quang Button for Mẫu Giáo (Grade 0) -->
-            <button onclick="selectStudentAndGrade('Vinh Quang', 0)" class="subject-btn w-full p-4 text-lg font-bold text-white rounded-xl shadow-lg hover:shadow-xl bg-green-500 hover:bg-green-600">
-                <span class="text-2xl">🚀</span> Vinh Quang (Mẫu Giáo)
-            </button>
-            <!-- END Re-added -->
-            
-            <button onclick="showScreen('login-area')" class="w-full text-sm font-medium text-blue-600 hover:text-blue-800 transition pt-2">
-                🔑 Đăng nhập Admin
-            </button>
-        </div>
-
-        <!-- 0.5. MÀN HÌNH ĐĂNG NHẬP ADMIN -->
-        <div id="login-area" class="hidden space-y-4 mb-8">
-            <h2 class="text-lg font-bold text-gray-700 text-center">Đăng nhập Quản trị</h2>
-            <input type="text" id="admin-user" placeholder="Tên đăng nhập (admin)" value="admin" class="admin-input w-full p-3 border-2 border-gray-300 rounded-xl outline-none transition duration-200">
-            <input type="password" id="admin-pass" placeholder="Mật khẩu (admin)" value="admin" class="admin-input w-full p-3 border-2 border-gray-300 rounded-xl outline-none transition duration-200" onkeydown="if(event.key === 'Enter') adminLogin()">
-            <button onclick="adminLogin()" class="subject-btn w-full p-3 text-lg font-bold text-white rounded-xl shadow-lg hover:shadow-xl">
-                Đăng Nhập
-            </button>
-            <p id="login-error" class="text-sm text-red-500 text-center"></p>
-            <button onclick="showScreen('student-name-input')" class="w-full text-sm font-medium text-indigo-600 hover:text-indigo-800 transition pt-2">
-                Quay lại
-            </button>
-        </div>
-
-        <!-- 1. CHỌN LỚP (PLAYER) (Giờ chỉ dùng cho tên nhập thủ công) -->
-        <div id="grade-selection" class="space-y-4 mb-8 hidden">
-            <h2 class="text-lg font-bold text-gray-700 text-center">Con học Lớp mấy?</h2>
-            <button onclick="selectGrade(1)" class="primary-btn w-full p-4 text-xl font-bold text-white rounded-xl shadow-lg hover:shadow-xl">
-                🌟 Lớp 1
-            </button>
-            <button onclick="selectGrade(2)" class="primary-btn w-full p-4 text-xl font-bold text-white rounded-xl shadow-lg hover:shadow-xl">
-                🚀 Lớp 2
-            </button>
-            <button onclick="showScreen('student-name-input')" class="w-full text-sm font-medium text-red-600 hover:text-red-800 transition pt-2">
-                Quay lại Nhập Tên
-            </button>
-        </div>
-
-        <!-- 2. CHỌN MÔN HỌC (PLAYER) -->
-        <div id="subject-selection" class="hidden space-y-4 mb-8">
-            <h2 class="text-lg font-bold text-gray-700 text-center">Con muốn luyện tập Môn gì?</h2>
-            <button onclick="selectSubject('TOAN')" class="subject-btn w-full p-3 text-lg font-bold text-white rounded-xl shadow-lg hover:shadow-xl">
-                🧮 Toán Học
-            </button>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button onclick="selectSubject('SPELL')" class="subject-btn w-full p-3 text-lg font-bold text-white rounded-xl shadow-lg hover:shadow-xl bg-purple-600 hover:bg-purple-700">
-                    🇻🇳 Chính Tả (Chọn)
-                </button>
-                <button onclick="selectSubject('READ')" class="subject-btn w-full p-3 text-lg font-bold text-white rounded-xl shadow-lg hover:bg-teal-700 bg-teal-600">
-                    🎧 Luyện Đọc (Nghe & Chọn)
-                </button>
-            </div>
-            <!-- ENGLISH BUTTON -->
-            <button onclick="selectSubject('ENGLISH')" class="subject-btn w-full p-3 text-lg font-bold text-white rounded-xl shadow-lg hover:shadow-xl bg-blue-600 hover:bg-blue-700">
-                🇬🇧 Tiếng Anh (Luyện Từ)
-            </button>
-            <!-- END ENGLISH BUTTON -->
-            <button onclick="showScreen('student-name-input')" class="w-full text-sm font-medium text-red-600 hover:text-red-800 transition pt-2">
-                Quay lại Chọn Lớp
-            </button>
-        </div>
-        
-        <!-- 3. KHU VỰC THIẾT LẬP BÀI (PLAYER) -->
-        <div id="setup-area" class="hidden text-center">
-            <h2 class="text-xl font-bold text-gray-700 mb-4" id="setup-title"></h2>
-            
-            <div class="p-4 border border-indigo-200 rounded-xl mb-6 bg-indigo-50">
-                <p class="text-sm text-indigo-700 font-semibold mb-2" id="setup-limit-text">Giới hạn: Mỗi lần luyện tập có 30 câu hỏi.</p>
-                <div class="flex justify-center items-center gap-4">
-                    <div class="flex-1">
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Bài Bắt Đầu:</label>
-                        <select id="start-lesson" class="game-input w-full p-2 text-center border-2 rounded-lg outline-none"></select>
-                    </div>
-                    <div class="flex-1">
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Bài Kết Thúc:</label>
-                        <select id="end-lesson" class="game-input w-full p-2 text-center border-2 rounded-lg outline-none"></select>
-                    </div>
-                </div>
-                <p class="text-xs text-red-500 mt-2" id="lesson-error"></p>
-                <button onclick="checkLessonRange()" class="subject-btn mt-4 w-full p-2 text-md font-bold text-white rounded-xl">
-                    Kiểm tra & Cập nhật
-                </button>
-            </div>
-
-            <button onclick="startLessonSet()" class="primary-btn w-full p-3 text-xl font-bold text-white rounded-xl shadow-lg hover:shadow-xl">
-                ▶️ Bắt Đầu Luyện Tập
-            </button>
-            <button onclick="showScreen('subject-selection')" class="w-full text-sm font-medium text-red-600 hover:text-red-800 transition pt-3">
-                Quay lại Chọn Môn
-            </button>
-        </div>
-
-        <!-- 4. KHU VỰC CHƠI GAME (PLAYER) -->
-        <div id="game-area" class="hidden text-center">
-            
-            <div id="feedback" class="h-8 mb-4 text-center font-bold text-lg"></div>
-
-            <!-- HIỂN THỊ CÂU HỎI -->
-            <div class="bg-yellow-100 p-6 rounded-2xl mb-6 shadow-md border-2 border-dashed border-red-300 min-h-[150px] flex flex-col justify-center">
-                <p class="text-2xl sm:text-3xl font-black text-gray-800 mb-2" id="question-text">
-                    Sẵn sàng...
-                </p>
-                <div id="image-hint" class="text-base font-medium text-gray-600 my-2"></div>
-                
-                <!-- NÚT CHO PHÉP ĐỌC VÀ DỊCH -->
-                <div id="reading-controls" class="hidden mt-4 space-y-2">
-                    <button id="read-button" onclick="playAudio()" class="read-btn p-3 text-lg font-bold text-white rounded-xl shadow-md disabled:bg-gray-400 w-full sm:w-1/2 mx-auto">
-                        🔊 Đọc Lại
-                    </button>
-                    <!-- NEW: Nút Giải thích (chỉ cho Tiếng Anh) -->
-                    <button id="explain-btn" onclick="getVocabularyExplanation()" class="subject-btn p-3 text-sm font-bold text-white rounded-xl shadow-md disabled:bg-gray-400 w-full sm:w-1/2 mx-auto bg-green-600 hover:bg-green-700 hidden items-center justify-center">
-                        <span id="explain-text">🤖 Hỏi AI Giải Thích</span>
-                        <svg id="explain-loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- NEW: Khu vực hiển thị giải thích AI -->
-            <div id="ai-explanation-output" class="p-4 bg-gray-50 rounded-xl mb-6 border border-gray-200 text-left hidden">
-                <!-- Nội dung giải thích từ AI sẽ được chèn vào đây -->
-            </div>
-            <!-- END NEW -->
-
-            <!-- KHU VỰC TRẢ LỜI BẰNG CHỌN NÚT (Sẽ dùng để hiển thị từ vựng trong chế độ ENGLISH) -->
-            <div id="selection-controls" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <!-- Nút đáp án / Nút từ vựng sẽ được chèn ở đây bằng JavaScript -->
-            </div>
-
-            <!-- HIỂN THỊ TRẠNG THÁI BÀI THI (Ẩn cho Tiếng Anh Vocab) -->
-            <p id="lesson-progress" class="text-sm font-bold text-indigo-600 mb-4">
-                Câu: 1 / 30
-            </p>
-
-            <!-- CẬP NHẬT: Thêm ID để nhắm mục tiêu chính xác -->
-            <button id="quit-game-btn" onclick="endLessonSet()" class="w-full text-sm font-medium text-red-600 hover:text-red-800 transition">
-                Dừng Luyện Tập & Quay lại Chọn Bài
-            </button>
-        </div>
-        
-        <!-- 5. MÀN HÌNH ADMIN -->
-        <div id="admin-panel" class="hidden space-y-4 mb-8">
-            <h2 class="text-2xl font-bold text-blue-700 text-center">Bảng Quản Trị Nội Dung</h2>
-            <p class="text-xs text-center text-red-600 font-semibold mb-3">Lưu trữ bằng Supabase (yêu cầu cấu hình)</p>
-
-            <!-- 1. TẠO CẤU TRÚC BÀI HỌC MỚI -->
-            <div class="bg-indigo-50 p-4 rounded-xl shadow-inner">
-                <h3 class="admin-section-header text-indigo-700 border-indigo-300 mt-0">1. Tạo Cấu Trúc Bài Học Mới</h3>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Lớp</label>
-                        <select id="new-lesson-grade" class="admin-input w-full p-2 border-2 rounded-lg">
-                            <option value="1">Lớp 1</option>
-                            <option value="2">Lớp 2</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Môn</label>
-                        <select id="new-lesson-subject" class="admin-input w-full p-2 border-2 rounded-lg">
-                            <option value="TOAN">Toán Học</option>
-                            <option value="SPELL">Chính Tả</option>
-                            <option value="READ">Luyện Đọc</option>
-                            <option value="ENGLISH">Tiếng Anh</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">Số Bài Học</label>
-                    <input type="number" id="new-lesson-number" class="admin-input w-full p-2 border-2 rounded-lg" placeholder="VD: 3">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">Tên Bài Học (VD: Phép cộng có nhớ)</label>
-                    <input type="text" id="new-lesson-name-input" class="admin-input w-full p-2 border-2 rounded-lg" placeholder="Nhập tên bài học">
-                </div>
-                
-                <button onclick="createNewLessonStructure()" class="subject-btn w-full p-3 text-white font-bold rounded-xl flex items-center justify-center">
-                    ➕ Tạo Cấu Trúc Bài Học
-                </button>
-            </div>
-
-
-            <!-- 2. TẠO CÂU HỎI BẰNG AI (VẪN GIỮ NGUYÊN) -->
-            <div class="p-4 border border-blue-400 rounded-xl space-y-3">
-                <h3 class="admin-section-header text-blue-700 border-blue-300">2. Tạo Câu Hỏi Bằng AI (Gemini)</h3>
-                <div class="bg-yellow-50 p-3 rounded-lg text-sm text-yellow-800 font-medium">
-                    <span id="ai-target-info">Vui lòng chọn Bài Học ở mục 3 trước khi tạo câu hỏi.</span>
-                </div>
-                
-                <textarea id="ai-prompt" rows="3" placeholder="Ví dụ: Tạo 30 phép trừ có nhớ trong phạm vi 100. Hoặc: Tạo 30 câu chính tả phân biệt s/x. (Với Tiếng Anh: Chỉ cần nhập 30 từ vựng cơ bản, mỗi từ một dòng)" class="admin-input w-full p-2 border-2 rounded-lg"></textarea>
-                
-                <button onclick="generateAndSaveQuestions()" class="admin-nav-btn w-full p-3 text-white font-bold rounded-xl flex items-center justify-center disabled:bg-gray-400" id="ai-generate-btn">
-                    <span id="ai-generate-text">✨ Tạo & Lưu Câu Hỏi Mới</span>
-                    <svg id="ai-loading-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                </button>
-                <!-- NEW: Thông báo trạng thái AI ngay dưới nút -->
-                <p id="ai-status-message" class="text-sm font-semibold text-center mt-2"></p>
-                <p id="ai-result-preview" class="text-xs text-gray-600 whitespace-pre-wrap mt-2"></p>
-            </div>
-            
-            <!-- 3. QUẢN LÝ NỘI DUNG HIỆN CÓ -->
-             <div class="bg-blue-50 p-4 rounded-xl shadow-inner">
-                <h3 class="admin-section-header text-blue-700 border-blue-300">3. Quản Lý Nội Dung Hiện Có</h3>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Lớp</label>
-                        <select id="admin-grade" class="admin-input w-full p-2 border-2 rounded-lg" onchange="loadLessonOptions()">
-                            <option value="1">Lớp 1</option>
-                            <option value="2">Lớp 2</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Môn</label>
-                        <select id="admin-subject" onchange="loadLessonOptions()" class="admin-input w-full p-2 border-2 rounded-lg">
-                            <option value="TOAN">Toán Học</option>
-                            <option value="SPELL">Chính Tả</option>
-                            <option value="READ">Luyện Đọc</option>
-                            <option value="ENGLISH">Tiếng Anh</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">Bài Học</label>
-                    <div class="flex gap-2">
-                        <select id="admin-lesson" class="admin-input flex-grow p-2 border-2 rounded-lg" onchange="previewLesson()">
-                        </select>
-                    </div>
-                </div>
-
-                <div id="lesson-name-control" class="mb-4 hidden">
-                    <label class="block text-sm font-medium text-gray-700">Tên Bài Học:</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="admin-lesson-name" class="admin-input flex-grow p-2 border-2 rounded-lg" placeholder="Nhập tên bài học (VD: Phép cộng có nhớ)">
-                        <button onclick="updateLessonName()" class="admin-nav-btn text-white p-2 rounded-lg text-sm font-bold">Lưu Tên</button>
-                    </div>
-                </div>
-                
-                <p id="lesson-preview" class="text-sm font-medium text-gray-700">Tổng số câu trong bài này: 0</p>
-                <div class="grid grid-cols-2 gap-2 mt-4">
-                    <!-- NEW: Nút Xem Chi Tiết Câu Hỏi -->
-                    <button onclick="showQuestionDetailsModal()" id="detail-question-btn" class="subject-btn p-3 text-white font-bold rounded-xl disabled:bg-gray-400">
-                        📝 Xem Chi Tiết Câu Hỏi
-                    </button>
-                    <button onclick="confirmDeleteLesson()" class="danger-btn p-3 text-white font-bold rounded-xl">
-                        ⚠️ Xóa TOÀN BỘ Bài Học này
-                    </button>
-                </div>
-            </div>
-
-            <!-- 4. LỊCH SỬ LÀM BÀI -->
-            <div id="history-management" class="p-4 border border-green-400 rounded-xl space-y-3 bg-green-50">
-                <h3 class="admin-section-header text-green-700 border-green-300">4. Lịch Sử Làm Bài Của Học Sinh</h3>
-                
-                <!-- NEW: Nút ẩn/hiện Lịch sử -->
-                <button id="history-toggle-btn" onclick="toggleHistoryContent()" class="w-full p-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition duration-150">
-                    ▶️ Hiển thị Lịch Sử
-                </button>
-
-                <!-- NEW: Nội dung Lịch sử được ẩn ban đầu -->
-                <div id="history-content" class="hidden space-y-3 pt-3">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Lọc theo Tên HS:</label>
-                            <select id="history-filter-name" class="admin-input w-full p-2 border-2 rounded-lg" onchange="displayHistory()"></select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Lọc theo Môn:</label>
-                            <select id="history-filter-subject" class="admin-input w-full p-2 border-2 rounded-lg" onchange="displayHistory()">
-                                <option value="ALL">Tất cả</option>
-                                <option value="TOAN">Toán Học</option>
-                                <option value="SPELL">Chính Tả</option>
-                                <option value="READ">Luyện Đọc</option>
-                                <option value="ENGLISH">Tiếng Anh</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div id="history-list" class="space-y-4 pt-4 text-center">
-                        <p class="text-sm text-gray-600">Lịch sử sẽ hiển thị ở đây sau khi học sinh làm bài.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 5. QUẢN LÝ API KEYS GEMINI (NEW) -->
-            <div class="p-4 border border-purple-400 rounded-xl space-y-3 bg-purple-50">
-                <h3 class="admin-section-header text-purple-700 border-purple-300">5. Quản Lý API Keys Gemini</h3>
-                <p class="text-xs text-gray-700">Thêm nhiều keys để có cơ chế tự động chuyển đổi khi một key bị lỗi hoặc quá tải.</p>
-                
-                <div class="flex gap-2 mb-2">
-                    <input type="text" id="gemini-key-input" class="admin-input flex-grow p-2 border-2 rounded-lg" placeholder="Nhập API Key Gemini mới...">
-                    <button onclick="addGeminiKey()" class="admin-nav-btn text-white p-2 rounded-lg text-sm font-bold bg-purple-600 hover:bg-purple-700">Thêm Key</button>
-                </div>
-
-                <div id="gemini-keys-list" class="space-y-2 max-h-48 overflow-y-auto p-2 bg-purple-100 rounded-lg border border-purple-200">
-                    <!-- Danh sách keys sẽ hiển thị ở đây -->
-                </div>
-            </div>
-            
-            <p id="admin-status" class="text-sm text-green-600 font-semibold text-center pt-4"></p>
-
-            <button onclick="adminLogout()" class="w-full text-sm font-medium text-red-600 hover:text-red-800 transition pt-3">
-                Đăng Xuất & Quay lại
-            </button>
-        </div>
-
-    </div>
-
-    <!-- MODAL HIỂN THỊ CHI TIẾT CÂU HỎI -->
-    <div id="question-detail-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3 class="text-xl font-bold text-blue-700 mb-4 border-b pb-2" id="modal-lesson-title">Chi Tiết Câu Hỏi Bài X</h3>
-            <div id="modal-questions-list" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-                <!-- Nội dung chi tiết câu hỏi được chèn bởi JavaScript -->
-                <p class="text-gray-500 text-center">Đang tải...</p>
-            </div>
-            <button onclick="closeQuestionDetailsModal()" class="primary-btn w-full p-3 text-white font-bold rounded-xl mt-6">
-                Đóng
-            </button>
+    <div id="loading" class="loading-overlay">
+        <div class="flex flex-col items-center gap-3">
+            <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            <p id="loadingText" class="text-sm font-bold text-slate-700">Đang đồng bộ dữ liệu...</p>
         </div>
     </div>
 
-
-    <script id="script_app_logic">
-        // --- SUPABASE CONFIGURATION ---
-        const SUPABASE_URL = 'https://vuzbzjieuqghneipkprg.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1emJ6amlldXFnaG5laXBrcHJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwNTUwMDIsImV4cCI6MjA3NDYzMTAwMn0.xsPbKPJK74RM6MmqOBjjnyon6z4vVo8vrWmzFFvx4xc'; 
-
-        const supabase = SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase
-                                ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-                                : null;
-
-        if (!supabase) {
-            console.error("Vui lòng cấu hình SUPABASE_URL và SUPABASE_ANON_KEY.");
-        }
-        
-        // --- BIẾN TOÀN CỤC ---
-        const TOTAL_QUESTIONS = 30;
-        let score = 0;
-        let missed = 0;
-        let currentGrade = 0;
-        let currentSubject = '';
-        let currentAnswer = null; 
-        let currentMode = ''; 
-        let currentTextToRead = ''; 
-        let studentName = ''; 
-        let incorrectQuestions = []; 
-        
-        let lessonStart = 1;
-        let lessonEnd = 5;
-        let lessonsAvailable = {}; 
-        let learningHistory = []; 
-        
-        let questionCount = 0; 
-        let isLessonSetMode = false;
-        let lessonSetQuestions = []; 
-        let currentQuestionIndex = 0; 
-        let currentVocabWord = ''; // NEW: Từ vựng hiện tại đang được chọn
-
-        // BIẾN CHO GEMINI
-        let geminiKeys = [];
-        let currentKeyIndex = 0;
-        
-        // --- ELEMENTS ---
-        const scoreEl = document.getElementById('score');
-        const missedEl = document.getElementById('missed');
-        const currentInfoEl = document.getElementById('current-info');
-        const questionTextEl = document.getElementById('question-text');
-        const feedbackEl = document.getElementById('feedback');
-        const imageHintEl = document.getElementById('image-hint');
-        const readingControlsEl = document.getElementById('reading-controls'); 
-        const readButtonEl = document.getElementById('read-button'); 
-        const statsDisplayEl = document.getElementById('stats-display');
-        
-        const selectionControlsEl = document.getElementById('selection-controls'); 
-
-        const studentNameInputScreen = document.getElementById('student-name-input');
-
-        const loginAreaEl = document.getElementById('login-area');
-        const gradeSelectionEl = document.getElementById('grade-selection');
-        const subjectSelectionEl = document.getElementById('subject-selection');
-        const setupAreaEl = document.getElementById('setup-area');
-        const gameAreaEl = document.getElementById('game-area');
-
-        const setupTitleEl = document.getElementById('setup-title');
-        const startLessonEl = document.getElementById('start-lesson'); 
-        const endLessonEl = document.getElementById('end-lesson'); 
-        const lessonErrorEl = document.getElementById('lesson-error');
-        const lessonProgressEl = document.getElementById('lesson-progress');
-        const quitGameBtn = document.getElementById('quit-game-btn'); 
-        const setupLimitTextEl = document.getElementById('setup-limit-text'); // New Element
-
-        // Admin Elements
-        const adminPanelEl = document.getElementById('admin-panel');
-        const adminGradeEl = document.getElementById('admin-grade');
-        const adminSubjectEl = document.getElementById('admin-subject');
-        const adminLessonEl = document.getElementById('admin-lesson');
-        const adminLessonNameEl = document.getElementById('admin-lesson-name');
-        const lessonNameControlEl = document.getElementById('lesson-name-control');
-        const lessonPreviewEl = document.getElementById('lesson-preview');
-        const adminStatusEl = document.getElementById('admin-status');
-        
-        const aiPromptEl = document.getElementById('ai-prompt');
-        const aiGenerateBtn = document.getElementById('ai-generate-btn');
-        const aiGenerateTextEl = document.getElementById('ai-generate-text');
-        const aiLoadingSpinnerEl = document.getElementById('ai-loading-spinner');
-        const aiResultPreviewEl = document.getElementById('ai-result-preview');
-        const aiTargetInfoEl = document.getElementById('ai-target-info');
-        const aiStatusMessageEl = document.getElementById('ai-status-message');
-
-        const newLessonGradeEl = document.getElementById('new-lesson-grade');
-        const newLessonSubjectEl = document.getElementById('new-lesson-subject');
-        const newLessonNumberEl = document.getElementById('new-lesson-number');
-        const newLessonNameInputEl = document.getElementById('new-lesson-name-input');
-        
-        const historyFilterNameEl = document.getElementById('history-filter-name');
-        const historyFilterSubjectEl = document.getElementById('history-filter-subject');
-        const historyListEl = document.getElementById('history-list');
-        const historyContentEl = document.getElementById('history-content');
-        const historyToggleButton = document.getElementById('history-toggle-btn');
-        
-        // GEMINI ADMIN ELEMENTS
-        const geminiKeyInputEl = document.getElementById('gemini-key-input');
-        const geminiKeysListEl = document.getElementById('gemini-keys-list');
-
-        // Modal Elements
-        const questionDetailModalEl = document.getElementById('question-detail-modal');
-        const modalLessonTitleEl = document.getElementById('modal-lesson-title');
-        const modalQuestionsListEl = document.getElementById('modal-questions-list');
-        const detailQuestionBtn = document.getElementById('detail-question-btn');
-        
-        // NEW: Explanation Elements
-        const explainBtn = document.getElementById('explain-btn');
-        const explainTextEl = document.getElementById('explain-text');
-        const explainLoadingEl = document.getElementById('explain-loading');
-        const aiExplanationOutputEl = document.getElementById('ai-explanation-output');
-
-        
-        // Bảng chữ cái Mẫu Giáo 
-        const ALPHABET_QUESTIONS = [
-            { q: "A", a: "A", options: ["A"], text: "a", type: "ALPHABET" },
-            { q: "B", a: "B", options: ["B"], text: "bờ", type: "ALPHABET" },
-            { q: "C", a: "C", options: ["C"], text: "cờ", type: "ALPHABET" },
-            { q: "D", a: "D", options: ["D"], text: "dờ", type: "ALPHABET" },
-            { q: "Đ", a: "Đ", options: ["Đ"], text: "đờ", type: "ALPHABET" },
-            { q: "E", a: "E", options: ["E"], text: "e", type: "ALPHABET" },
-            { q: "Ê", a: "Ê", options: ["Ê"], text: "ê", type: "ALPHABET" },
-            { q: "G", a: "G", options: ["G"], text: "gờ", type: "ALPHABET" },
-            { q: "H", a: "H", options: ["H"], text: "hờ", type: "ALPHABET" },
-            { q: "I", a: "I", options: ["I"], text: "i", type: "ALPHABET" },
-            { q: "K", a: "K", options: ["K"], text: "ca", type: "ALPHABET" },
-            { q: "L", a: "L", options: ["L"], text: "lờ", type: "ALPHABET" },
-            { q: "M", a: "M", options: ["M"], text: "mờ", type: "ALPHABET" },
-            { q: "N", a: "N", options: ["N"], text: "nờ", type: "ALPHABET" },
-            { q: "O", a: "O", options: ["O"], text: "o", type: "ALPHABET" },
-            { q: "Ô", a: "Ô", options: ["Ô"], text: "ô", type: "ALPHABET" }, 
-            { q: "Ơ", a: "Ơ", options: ["Ơ"], text: "ơ", type: "ALPHABET" }, 
-            { q: "P", a: "P", options: ["P"], text: "phờ", type: "ALPHABET" },
-            { q: "Q", a: "Q", options: ["Q"], text: "quờ", type: "ALPHABET" },
-            { q: "R", a: "R", options: ["R"], text: "rờ", type: "ALPHABET" },
-            { q: "S", a: "S", options: ["S"], text: "sờ", type: "ALPHABET" },
-            { q: "T", a: "T", options: ["T"], text: "tờ", type: "ALPHABET" },
-            { q: "U", a: "U", options: ["U"], text: "u", type: "ALPHABET" },
-            { q: "Ư", a: "Ư", options: ["Ư"], text: "ư", type: "ALPHABET" }, 
-            { q: "V", a: "V", options: ["V"], text: "vê", type: "ALPHABET" },
-            { q: "X", a: "X", options: ["X"], text: "xờ", type: "ALPHABET" },
-            { q: "Y", a: "Y", options: ["Y"], text: "i dài", type: "ALPHABET" },
-        ];
-        const ALPHABET_LETTERS = ALPHABET_QUESTIONS.map(q => q.q);
-        
-        // --- TTS (CHUYỂN VĂN BẢN THÀNH GIỌNG NÓI CỦA TRÌNH DUYỆT) ---
-
-        let englishVoice = null;
-        let vietnameseVoice = null;
-
-        // Function để tìm giọng đọc phù hợp
-        function loadVoices() {
-            const voices = window.speechSynthesis.getVoices();
-            // Ưu tiên giọng US chất lượng cao
-            englishVoice = voices.find(v => v.lang === 'en-US' && (v.name.includes('Google') || v.name.includes('Microsoft') || v.name.includes('Zira') || v.name.includes('Samantha')));
-            if (!englishVoice) {
-                englishVoice = voices.find(v => v.lang === 'en-US');
-            }
-            
-            // Ưu tiên giọng VN chất lượng cao
-            vietnameseVoice = voices.find(v => v.lang === 'vi-VN' && v.name.includes('Google'));
-            if (!vietnameseVoice) {
-                vietnameseVoice = voices.find(v => v.lang === 'vi-VN');
-            }
-        }
-
-        // Load voices ban đầu và khi có thay đổi
-        if ('speechSynthesis' in window) {
-            loadVoices();
-            window.speechSynthesis.onvoiceschanged = loadVoices;
-        }
-
-
-        function speakText(text, lang = 'vi-VN') {
-            if (!text || !('speechSynthesis' in window)) return; 
-            
-            window.speechSynthesis.cancel(); 
-            const utterance = new SpeechSynthesisUtterance(text);
-            
-            utterance.lang = lang;
-            
-            if (lang === 'en-US') {
-                utterance.voice = englishVoice;
-                utterance.rate = 0.9;
-                utterance.pitch = 1.0; 
-            } else { // vi-VN
-                utterance.voice = vietnameseVoice;
-                utterance.rate = 0.8; // Hơi nhanh hơn để không bị chậm
-                utterance.pitch = 1.1; 
-            }
-            
-            window.speechSynthesis.speak(utterance);
-            
-            // Vô hiệu hóa nút trong khi đang nói
-            readButtonEl.disabled = true;
-            utterance.onend = () => {
-                readButtonEl.disabled = false;
-            };
-        }
-
-        function playAudio() {
-            const lang = (currentSubject === 'ENGLISH') ? 'en-US' : 'vi-VN';
-            if (currentMode && currentTextToRead) {
-                speakText(currentTextToRead, lang);
-            }
-        }
-        // --- END TTS FUNCTIONS ---
-
-        // --- CHUYỂN MÀN HÌNH & CHỌN MÔN ---
-        function showScreen(screenId) {
-            // Hide all screens
-            const screens = [studentNameInputScreen, loginAreaEl, gradeSelectionEl, subjectSelectionEl, setupAreaEl, gameAreaEl, adminPanelEl];
-            screens.forEach(screen => screen.classList.add('hidden'));
-            
-            // Show target screen
-            document.getElementById(screenId).classList.remove('hidden');
-            
-            // Hiển thị thống kê chỉ trong chế độ Player
-            // Luôn ẩn score/missed/progress cho chế độ Tiếng Anh Vocab
-            const isGameMode = screenId === 'game-area';
-            const isVocabMode = currentSubject === 'ENGLISH' && isGameMode;
-            const isAlphabetMode = currentSubject === 'ALPHABET' && isGameMode;
-
-            if (isVocabMode || isAlphabetMode) {
-                statsDisplayEl.classList.add('hidden');
-                lessonProgressEl.classList.add('hidden');
-            } else if (screenId === 'grade-selection' || screenId === 'subject-selection' || screenId === 'setup-area' || isGameMode) {
-                statsDisplayEl.classList.remove('hidden');
-                lessonProgressEl.classList.remove('hidden');
-            } else {
-                statsDisplayEl.classList.add('hidden');
-            }
-            
-            // Tải dữ liệu cần thiết khi vào Admin Panel
-            if (screenId === 'admin-panel') {
-                loadGeminiKeys();
-                loadLessonOptions();
-                loadHistoryNames(); 
-            }
-        }
-        
-        function selectStudentAndGrade(name, grade) {
-            studentName = name;
-            currentGrade = grade;
-            currentInfoEl.textContent = `Lớp ${grade === 0 ? 'Mẫu Giáo' : grade} | ${studentName}`;
-            score = 0;
-            missed = 0;
-            updateScoreDisplay();
-            
-            if (grade === 0) {
-                currentSubject = 'ALPHABET';
-                startAlphabetLesson();
-            } else {
-                showScreen('subject-selection');
-            }
-        }
-
-        // --- ADMIN LOGIN LOGIC ---
-        function adminLogin() {
-            const user = document.getElementById('admin-user').value;
-            const pass = document.getElementById('admin-pass').value;
-            const errorEl = document.getElementById('login-error');
-
-            if (user === 'admin' && pass === 'admin') {
-                errorEl.textContent = 'Đăng nhập thành công!';
-                errorEl.className = 'text-sm text-green-600 text-center';
-                showScreen('admin-panel');
-                loadLessonOptions();
-            } else {
-                errorEl.textContent = 'Sai tên đăng nhập hoặc mật khẩu. Vui lòng thử lại.';
-                errorEl.className = 'text-sm text-red-500 text-center';
-            }
-        }
-        
-        function adminLogout() {
-             adminStatusEl.textContent = '';
-             showScreen('student-name-input'); 
-        }
-
-        // --- PLAYER MODE LOGIC ---
-        function selectGrade(grade) {
-            currentGrade = grade;
-            currentInfoEl.textContent = `Lớp ${grade} | ${studentName}`; 
-            score = 0;
-            missed = 0;
-            updateScoreDisplay();
-            showScreen('subject-selection');
-        }
-
-        function selectSubject(subject) {
-            currentSubject = subject;
-            let subjectName = '';
-
-            if (subject === 'ALPHABET') {
-                startAlphabetLesson();
-                return; 
-            }
-            
-            if (subject === 'TOAN') { subjectName = 'Toán Học'; setupTitleEl.textContent = 'Thiết Lập Bài Tập Toán'; setupLimitTextEl.textContent = 'Giới hạn: Mỗi lần luyện tập có 30 câu hỏi.'; }
-            else if (subject === 'SPELL') { subjectName = 'Chính Tả (Chọn)'; setupTitleEl.textContent = 'Thiết Lập Bài Tập Chính Tả'; setupLimitTextEl.textContent = 'Giới hạn: Mỗi lần luyện tập có 30 câu hỏi.'; }
-            else if (subject === 'READ') { subjectName = 'Luyện Đọc (Nghe & Chọn)'; setupTitleEl.textContent = 'Thiết Lập Bài Tập Luyện Đọc'; setupLimitTextEl.textContent = 'Giới hạn: Mỗi lần luyện tập có 30 câu hỏi.'; }
-            else if (subject === 'ENGLISH') { 
-                subjectName = 'Tiếng Anh (Luyện Từ)'; 
-                setupTitleEl.textContent = 'Thiết Lập Bài Tập Tiếng Anh';
-                setupLimitTextEl.textContent = 'Lưu ý: Môn Tiếng Anh ở chế độ này là Luyện Từ Vựng tương tác, không có tính điểm.'; 
-            } 
-            
-            currentInfoEl.textContent = `${subjectName} (Lớp ${currentGrade}) | ${studentName}`;
-            lessonErrorEl.textContent = '';
-            
-            startLessonEl.value = 1; 
-            endLessonEl.value = 5;
-
-            checkLessonRange(false); 
-            showScreen('setup-area');
-        }
-
-        // Re-added Alphabet Functions
-        function startAlphabetLesson() {
-            currentMode = 'ALPHABET';
-            isLessonSetMode = false;
-            questionTextEl.className = 'text-2xl sm:text-3xl font-black text-gray-800 mb-2'; 
-            questionTextEl.textContent = 'Chọn chữ cái bé muốn luyện đọc:'; 
-            imageHintEl.textContent = '(Nhấp vào chữ cái để nghe phát âm)';
-            imageHintEl.className = 'text-base font-medium text-gray-600 my-2';
-            readingControlsEl.classList.add('hidden');
-            aiExplanationOutputEl.classList.add('hidden'); // Ensure AI area is hidden
-
-            setupAlphabetButtons();
-            
-            selectionControlsEl.classList.remove('hidden');
-            lessonProgressEl.classList.add('hidden');
-            statsDisplayEl.classList.add('hidden');
-
-            showScreen('game-area');
-
-            quitGameBtn.onclick = () => {
-                isLessonSetMode = false;
-                showScreen('student-name-input');
-            };
-        }
-
-        function setupAlphabetButtons() {
-            selectionControlsEl.innerHTML = '';
-            selectionControlsEl.className = 'grid grid-cols-4 sm:grid-cols-6 gap-3 mb-6';
-
-            ALPHABET_LETTERS.forEach(letter => {
-                const button = document.createElement('button');
-                button.textContent = letter.toUpperCase(); 
-                button.className = 'alphabet-btn text-white rounded-xl shadow-lg';
-                
-                const phonemeData = ALPHABET_QUESTIONS.find(q => q.q === letter.toUpperCase());
-                const textToSpeak = phonemeData ? phonemeData.text : letter.toLowerCase();
-
-                button.onclick = () => {
-                    currentTextToRead = textToSpeak; 
-                    speakText(textToSpeak, 'vi-VN'); // Always read Vietnamese phonemes
-                    
-                    feedbackEl.textContent = `Đang đọc: ${textToSpeak.toUpperCase()}`;
-                    feedbackEl.className = 'h-8 mb-4 text-center font-bold text-2xl text-orange-600 animate-pulse'; 
-                    setTimeout(() => {
-                        feedbackEl.textContent = "";
-                        feedbackEl.className = 'h-8 mb-4 text-center font-bold text-lg';
-                    }, 1000);
-                };
-                selectionControlsEl.appendChild(button);
-            });
-        }
-        
-        async function endAlphabetLesson() {
-            isLessonSetMode = false;
-            showScreen('student-name-input');
-        }
-        // End Re-added Alphabet Functions
-
-        async function checkLessonRange(showFeedback = true) {
-             const grade = currentGrade;
-             const subject = currentSubject;
-             
-             let maxLessonFromDB = 0;
-             
-             await fetchLessonsFromSupabase(); 
-             
-             if (lessonsAvailable[grade] && lessonsAvailable[grade][subject] && lessonsAvailable[grade][subject].length > 0) {
-                 maxLessonFromDB = Math.max(...lessonsAvailable[grade][subject].map(l => l.lessonNumber));
-             }
-
-             startLessonEl.innerHTML = '';
-             endLessonEl.innerHTML = '';
-             let maxNumber = maxLessonFromDB > 0 ? maxLessonFromDB : 1;
-             
-             // Tạo options cho dropdown
-             for (let i = 1; i <= maxNumber; i++) {
-                 const startOption = document.createElement('option');
-                 startOption.value = i;
-                 startOption.textContent = `Bài ${i}`;
-                 startLessonEl.appendChild(startOption);
-
-                 const endOption = document.createElement('option');
-                 endOption.value = i;
-                 endOption.textContent = `Bài ${i}`;
-                 endLessonEl.appendChild(endOption);
-             }
-             
-             if (maxLessonFromDB > 0) {
-                 startLessonEl.disabled = false;
-                 endLessonEl.disabled = false;
-                 startLessonEl.value = 1; // Mặc định từ bài 1
-                 endLessonEl.value = maxNumber; // Mặc định đến bài cuối
-                 
-                 if (showFeedback) {
-                     lessonErrorEl.className = "text-xs text-green-600 mt-2";
-                     lessonErrorEl.textContent = `✅ Đã tìm thấy các bài học từ 1 đến ${maxLessonFromDB}.`;
-                 }
-             } else {
-                 startLessonEl.disabled = true;
-                 endLessonEl.disabled = true;
-                 lessonErrorEl.className = "text-xs text-red-500 mt-2";
-                 lessonErrorEl.textContent = "⚠️ Không tìm thấy bài học nào. Vui lòng tạo bài mới trong chế độ Admin.";
-                 startLessonEl.innerHTML = '<option value="1">Bài 1</option>';
-                 endLessonEl.innerHTML = '<option value="1">Bài 1</option>';
-             }
-        }
-
-        async function startLessonSet() {
-            lessonStart = parseInt(startLessonEl.value);
-            lessonEnd = parseInt(endLessonEl.value);
-
-            if (isNaN(lessonStart) || isNaN(lessonEnd) || lessonStart < 1 || lessonEnd < 1 || lessonStart > lessonEnd) {
-                lessonErrorEl.textContent = "⚠️ Vui lòng chọn đúng phạm vi Bài Bắt Đầu và Bài Kết Thúc.";
-                return;
-            }
-            
-            isLessonSetMode = true;
-            questionCount = 0;
-            score = 0;
-            missed = 0;
-            incorrectQuestions = []; 
-            
-            // Nếu là Tiếng Anh, không dùng chế độ tính điểm/câu hỏi
-            if (currentSubject === 'ENGLISH') {
-                await loadAndShuffleQuestions(true); // Load all questions for vocab list
-                startVocabularyLesson();
-                return;
-            }
-
-            // Chế độ tính điểm (Toán, Tiếng Việt)
-            updateScoreDisplay();
-            lessonProgressEl.classList.remove('hidden');
-            statsDisplayEl.classList.remove('hidden');
-            quitGameBtn.onclick = endLessonSet;
-
-            showScreen('game-area');
-            
-            await loadAndShuffleQuestions(false);
-            currentQuestionIndex = 0;
-            generateQuestion();
-        }
-
-        // NEW: Vocab Mode Start
-        function startVocabularyLesson() {
-            currentMode = 'ENGLISH';
-            aiExplanationOutputEl.classList.add('hidden');
-            aiExplanationOutputEl.innerHTML = '';
-            
-            questionTextEl.className = 'text-2xl sm:text-3xl font-black text-gray-800 mb-2'; 
-            questionTextEl.textContent = 'Chọn từ vựng để luyện đọc và hỏi AI:'; 
-            imageHintEl.textContent = `Bài ${lessonStart} - ${lessonEnd} (${lessonSetQuestions.length} từ)`;
-
-            readingControlsEl.classList.remove('hidden');
-            readButtonEl.textContent = '🔊 Đọc Lại (English)';
-            explainBtn.classList.remove('hidden'); 
-            explainBtn.disabled = true; // Disable until a word is selected
-            
-            statsDisplayEl.classList.add('hidden');
-            lessonProgressEl.classList.add('hidden');
-            selectionControlsEl.classList.remove('hidden'); 
-            
-            currentTextToRead = '';
-            
-            setupVocabularyButtons();
-
-            quitGameBtn.onclick = endLessonSet;
-            showScreen('game-area');
-        }
-
-        // NEW: Setup Vocab Buttons
-        function setupVocabularyButtons() {
-            selectionControlsEl.innerHTML = '';
-            selectionControlsEl.className = 'grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6';
-
-            lessonSetQuestions.forEach(q => {
-                const word = q.q; // Lấy từ vựng từ trường q
-                const button = document.createElement('button');
-                button.textContent = word;
-                button.className = 'vocab-btn p-3 text-lg font-bold text-white rounded-xl shadow-lg hover:shadow-xl w-full';
-                button.onclick = () => handleVocabularyClick(word); 
-                selectionControlsEl.appendChild(button);
-            });
-        }
-
-        // NEW: Handle Vocab Click
-        function handleVocabularyClick(word) {
-            currentVocabWord = word;
-            
-            // 1. Đọc to từ vựng
-            currentTextToRead = word;
-            speakText(word, 'en-US');
-
-            // 2. Cập nhật UI
-            questionTextEl.textContent = `Bạn đã chọn: ${word}`;
-            imageHintEl.textContent = 'Bấm "Hỏi AI Giải Thích" để xem nghĩa và cách dùng.';
-            
-            aiExplanationOutputEl.classList.add('hidden');
-            explainTextEl.textContent = '🤖 Hỏi AI Giải Thích';
-            explainBtn.disabled = false;
-        }
-
-        async function loadAndShuffleQuestions(isVocabMode) {
-            let allQuestions = [];
-            
-            await fetchLessonsFromSupabase(); 
-
-            const lessons = lessonsAvailable[currentGrade]?.[currentSubject] || [];
-            
-            for (let i = 0; i < lessons.length; i++) {
-                const lesson = lessons[i];
-                if (lesson.lessonNumber >= lessonStart && lesson.lessonNumber <= lessonEnd) {
-                    if (lesson.questions_data) {
-                        lesson.questions_data.forEach(q => {
-                            allQuestions.push({...q, lessonNumber: lesson.lessonNumber, lessonName: lesson.lessonName}); 
-                        });
-                    }
-                }
-            }
-            
-            if (allQuestions.length === 0) {
-                 questionTextEl.textContent = "Không tìm thấy câu hỏi/từ vựng trong phạm vi này.";
-                 imageHintEl.textContent = "Vui lòng kiểm tra Admin.";
-                 selectionControlsEl.innerHTML = '';
-                 readingControlsEl.classList.add('hidden');
-                 return;
-            }
-
-            // Nếu là chế độ Trắc nghiệm, trộn và giới hạn 30 câu
-            if (!isVocabMode) {
-                allQuestions.sort(() => Math.random() - 0.5);
-                lessonSetQuestions = allQuestions.slice(0, TOTAL_QUESTIONS);
-            } else {
-                // Nếu là chế độ Từ vựng, giữ tất cả các từ trong phạm vi
-                lessonSetQuestions = allQuestions; 
-            }
-        }
-
-        async function endLessonSet() { 
-            // Nếu là Vocab Mode hoặc Alphabet, chỉ cần quay lại màn hình setup/chọn tên
-            if (currentSubject === 'ENGLISH' || currentSubject === 'ALPHABET') {
-                isLessonSetMode = false;
-                currentSubject = ''; // Reset subject
-                showScreen('subject-selection');
-                return;
-            }
-            
-            // Logic lưu điểm cho Toán/Tiếng Việt
-            let total = score + missed;
-            let accuracy = total > 0 ? (score / total * 100).toFixed(1) : 0;
-            
-            questionTextEl.textContent = `🎉 HOÀN THÀNH (${total} câu)`;
-            imageHintEl.textContent = `✅ Đúng: ${score}, ❌ Sai: ${missed} (${accuracy}%)`;
-            readingControlsEl.classList.add('hidden');
-            selectionControlsEl.classList.add('hidden');
-            
-            if (total > 0 && studentName) {
-                const historyRecord = {
-                    student_name: studentName,
-                    grade: currentGrade,
-                    subject: currentSubject,
-                    score: score,
-                    missed: missed,
-                    total: total,
-                    incorrect_questions: incorrectQuestions,
-                    lesson_range: `${lessonStart} - ${lessonEnd}`
-                };
-                await saveHistoryRecord(historyRecord);
-            }
-            
-            incorrectQuestions = [];
-            isLessonSetMode = false;
-            
-            setTimeout(() => {
-                showScreen('setup-area');
-            }, 3000); 
-        }
-        
-
-
-        // --- LOGIC CHƠI GAME & HỖ TRỢ NGÔN NGỮ (Toán & Tiếng Việt) ---
-
-        function updateScoreDisplay() {
-            scoreEl.textContent = score;
-            missedEl.textContent = missed;
-            if (isLessonSetMode && currentSubject !== 'ALPHABET' && currentSubject !== 'ENGLISH') { 
-                const totalDisplay = lessonSetQuestions.length;
-                questionCount = currentQuestionIndex + 1;
-                lessonProgressEl.textContent = `Câu: ${questionCount} / ${totalDisplay}`;
-            } else {
-                 lessonProgressEl.textContent = `Câu: - / -`;
-            }
-        }
-
-        function generateQuestion() {
-            // Chỉ chạy cho chế độ Trắc nghiệm (Toán, Tiếng Việt)
-            if (currentSubject === 'ENGLISH' || currentSubject === 'ALPHABET') return;
-            
-            if (isLessonSetMode && currentQuestionIndex >= lessonSetQuestions.length) {
-                endLessonSet();
-                return;
-            }
-
-            const qData = lessonSetQuestions[currentQuestionIndex];
-            currentMode = qData.type;
-            
-            // Kích hoạt lại nút đọc và ẩn nút AI
-            if (readButtonEl) readButtonEl.disabled = false; 
-            explainBtn.classList.add('hidden');
-            aiExplanationOutputEl.classList.add('hidden'); 
-            
-            questionTextEl.className = 'text-2xl sm:text-3xl font-black text-gray-800 mb-2';
-            imageHintEl.className = 'text-base font-medium text-gray-600 my-2';
-
-            readingControlsEl.classList.remove('hidden'); 
-            selectionControlsEl.classList.remove('hidden'); 
-            
-            let autoReadLang = 'vi-VN'; 
-            readButtonEl.textContent = '🔊 Đọc Lại';
-            
-            // --- XỬ LÝ LOGIC PHÉP TÍNH ---
-            if (qData.type === 'MATH_OP') {
-                const cleanQ = qData.q.replace(/[=\?]$/, '').trim();
-                const match = cleanQ.match(/(\d+)\s*([+\-x:])\s*(\d+)/); 
-                
-                if (match) {
-                    currentTextToRead = formatMathQuestionForSpeech(parseInt(match[1]), parseInt(match[3]), match[2]);
-                } else {
-                    currentTextToRead = qData.q;
-                }
-                questionTextEl.textContent = qData.q;
-                imageHintEl.textContent = `(Bài ${qData.lessonNumber}: Phép tính)`;
-            } 
-            // --- XỬ LÝ LOGIC ĐỌC VÀ CHÍNH TẢ ---
-            else if (currentMode === 'READ') {
-                questionTextEl.textContent = `👂 Nghe kỹ và CHỌN câu/từ bạn vừa nghe:`; 
-                currentTextToRead = qData.text || qData.q;
-                imageHintEl.textContent = `(Bài ${qData.lessonNumber}: Luyện Nghe)`;
-            }
-            else { // Mặc định cho MATH_WORD, SPELL
-                questionTextEl.textContent = qData.q;
-                currentTextToRead = qData.text || qData.q;
-                imageHintEl.textContent = `(Bài ${qData.lessonNumber}: ${qData.type})`;
-            }
-            
-            currentAnswer = qData.a; 
-            setupSelectionButtons(qData.options);
-            
-            // Tự động đọc trong ngôn ngữ phù hợp (Gọi trực tiếp)
-            speakText(currentTextToRead, autoReadLang); 
-        }
-
-        // --- GEMINI API: GET VOCABULARY EXPLANATION ---
-
-        async function getVocabularyExplanation() {
-            const word = currentVocabWord;
-            
-            if (!word || explainBtn.disabled || geminiKeys.length === 0) return;
-            
-            // 1. UI Loading
-            explainBtn.disabled = true;
-            explainTextEl.textContent = "AI đang giải thích...";
-            explainLoadingEl.classList.remove('hidden');
-            aiExplanationOutputEl.classList.add('hidden');
-            aiExplanationOutputEl.innerHTML = '';
-            
-            feedbackEl.textContent = "🤖 Đang hỏi AI (vui lòng chờ)...";
-            feedbackEl.className = 'h-8 mb-4 text-center font-bold text-lg text-blue-600 animate-pulse';
-
-            imageHintEl.textContent = "Đang chờ AI phản hồi...";
-            
-            const systemPrompt = `Bạn là một giáo viên tiểu học vui vẻ, chuyên giải thích từ vựng Tiếng Anh cho học sinh lớp 1.
-            QUY TẮC:
-            1. Luôn trả lời bằng cấu trúc JSON hợp lệ.
-            2. 'english_explanation' phải cực kỳ đơn giản (dưới 15 từ).
-            3. 'vietnamese_translation' phải là bản dịch Tiếng Việt chính xác của TỪ VỰNG.
-            4. 'usage_example' là một câu ví dụ tiếng Anh siêu đơn giản.
-            5. 'usage_vietnamese' là bản dịch Tiếng Việt của câu ví dụ.`;
-            
-            const userQuery = `Giải thích từ vựng: ${word}`;
-            
-            const jsonSchema = {
-                type: "OBJECT",
-                properties: {
-                    "english_explanation": { "type": "STRING", "description": "Giải thích ngắn gọn bằng Tiếng Anh." },
-                    "vietnamese_translation": { "type": "STRING", "description": "Bản dịch Tiếng Việt của từ." },
-                    "usage_example": { "type": "STRING", "description": "Một câu ví dụ Tiếng Anh." },
-                    "usage_vietnamese": { "type": "STRING", "description": "Bản dịch Tiếng Việt của câu ví dụ." }
-                },
-                required: ["english_explanation", "vietnamese_translation", "usage_example", "usage_vietnamese"]
-            };
-
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: jsonSchema,
-                }
-            };
-
-            let successful = false;
-            let finalOutput = null;
-            let finalError = "Không thể kết nối hoặc tất cả API keys đều bị lỗi.";
-            
-            const MODEL_NAME = 'gemini-2.5-flash-preview-05-20'; 
-
-            for (let i = 0; i < geminiKeys.length; i++) {
-                currentKeyIndex = (i + currentKeyIndex) % geminiKeys.length;
-                const apiKey = geminiKeys[currentKeyIndex];
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
-                
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (response.ok) {
-                        const result = await response.json();
-                        const jsonString = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                        if (jsonString) {
-                            finalOutput = JSON.parse(jsonString);
-                            successful = true;
-                            break; 
-                        }
-                    } else {
-                         const errorBody = await response.json();
-                         finalError = `Key ${currentKeyIndex + 1} lỗi: ${errorBody.error?.message || `HTTP ${response.status}`}`;
-                         console.error(finalError);
-                    }
-                } catch (error) {
-                    console.error("AI Explanation API Error:", error);
-                    finalError = `Key ${currentKeyIndex + 1} lỗi kết nối/mạng: ${error.message}`;
-                }
-            }
-            
-            // 2. UI Update after attempt
-            feedbackEl.textContent = "";
-            feedbackEl.className = 'h-8 mb-4 text-center font-bold text-lg';
-
-            if (successful && finalOutput) {
-                // Render Output
-                aiExplanationOutputEl.innerHTML = `
-                    <p class="font-bold text-lg text-blue-700 mb-2">Từ Vựng: ${word.toUpperCase()}</p>
-                    <p class="text-gray-800 font-medium">1. English Definition: <strong>${finalOutput.english_explanation}</strong></p>
-                    <p class="text-green-600 font-semibold mb-1 mt-1">Nghĩa Tiếng Việt: <strong>${finalOutput.vietnamese_translation}</strong></p>
-                    <hr class="my-2 border-gray-300">
-                    <p class="text-gray-800 font-medium">2. Example: <em class="font-bold text-purple-600">${finalOutput.usage_example}</em></p>
-                    <p class="text-gray-600 text-sm italic">Ví dụ Tiếng Việt: ${finalOutput.usage_vietnamese}</p>
-                `;
-                aiExplanationOutputEl.classList.remove('hidden');
-                imageHintEl.textContent = 'Đã có giải thích từ AI.';
-                
-                // Speak Vietnamese translation
-                speakText(`Nghĩa là: ${finalOutput.vietnamese_translation}. Ví dụ: ${finalOutput.usage_vietnamese}`, 'vi-VN'); 
-
-                explainTextEl.textContent = "✅ Đã giải thích";
-
-            } else {
-                aiExplanationOutputEl.innerHTML = `<p class="text-red-500 font-semibold">⚠️ LỖI: ${finalError}</p>`;
-                aiExplanationOutputEl.classList.remove('hidden');
-                imageHintEl.textContent = 'Đã xảy ra lỗi khi gọi AI. Vui lòng kiểm tra API Key.';
-                explainTextEl.textContent = "⚠️ Lỗi AI";
-            }
-            
-            // Revert UI elements
-            explainLoadingEl.classList.add('hidden');
-            explainBtn.disabled = false;
-        }
-
-        // --- END GEMINI API: GET VOCABULARY EXPLANATION ---
-
-        function numberToVietnamese(n) {
-            if (n < 0 || n > 100) return String(n);
-            const units = ["", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
-            const tens = ["", "mười", "hai mươi", "ba mươi", "bốn mươi", "năm mươi", "sáu mươi", "bảy mươi", "tám mươi", "chín mươi"];
-            if (n === 0) return "không";
-            if (n <= 9) return units[n];
-            if (n === 10) return "mười";
-            if (n === 100) return "một trăm";
-            
-            const t = Math.floor(n / 10);
-            const u = n % 10;
-            let result = tens[t];
-
-            if (t === 1 && u > 0) {
-                if (u === 1) result = "mười một";
-                else if (u === 4) result = "mười bốn"; 
-                else if (u === 5) result = "mười lăm"; 
-                else result = `mười ${units[u]}`;
-            } else if (t > 1 && u > 0) {
-                if (u === 1) result = `${tens[t]} mốt`; 
-                else if (u === 4) result = `${tens[t]} tư`; 
-                else if (u === 5) result = `${tens[t]} lăm`; 
-                else result = `${tens[t]} ${units[u]}`;
-            } else if (u === 0 && t > 1) {
-                result = tens[t];
-            }
-            return result.trim();
-        }
-
-        function formatMathQuestionForSpeech(a, b, operator) {
-            const aText = numberToVietnamese(a);
-            const bText = numberToVietnamese(b);
-            let opText = '';
-            
-            switch (operator) {
-                case '+': opText = 'cộng'; break;
-                case '-': opText = 'trừ'; break;
-                case 'x': opText = 'nhân'; break;
-                case ':': opText = 'chia'; break;
-                default: opText = operator;
-            }
-            return `${aText} ${opText} ${bText} bằng bao nhiêu`; 
-        }
-
-        function setupSelectionButtons(options) {
-            selectionControlsEl.innerHTML = '';
-            
-            const shuffledOptions = [...options].sort(() => 0.5 - Math.random()); 
-            
-            if (currentSubject === 'TOAN' || currentGrade === 1) {
-                 selectionControlsEl.className = 'grid grid-cols-2 gap-4 mb-6'; 
-            } else {
-                 selectionControlsEl.className = 'grid grid-cols-1 gap-4 mb-6';
-            }
-
-            shuffledOptions.forEach(option => {
-                const button = document.createElement('button');
-                button.textContent = option;
-                button.className = 'select-btn p-3 text-lg font-bold text-white rounded-xl shadow-lg hover:shadow-xl w-full';
-                button.onclick = () => checkAnswer(option); 
-                selectionControlsEl.appendChild(button);
-            });
-        }
-        
-        function checkAnswer(selectedOption) {
-            if (currentSubject === 'ALPHABET' || currentSubject === 'ENGLISH') return;
-
-            const currentQData = lessonSetQuestions[currentQuestionIndex];
-            const correctEmojis = ["🎉", "🌟", "🥳", "✨", "💯", "💖", "💡"];
-            const randomEmoji = correctEmojis[Math.floor(Math.random() * correctEmojis.length)];
-
-            let userAnswer = String(selectedOption).toLowerCase().trim().replace(/[\.,!?'"']/g, ''); 
-            
-            if (userAnswer === currentAnswer.toLowerCase().trim().replace(/[\.,!?'"']/g, '')) {
-                score++;
-                feedbackEl.textContent = `${randomEmoji} Đúng rồi! Giỏi quá! ${randomEmoji}`;
-                feedbackEl.className = 'h-8 mb-4 text-center font-bold text-2xl text-green-600 animate-pulse';
-            } else {
-                missed++;
-                feedbackEl.textContent = `🥺 Sai rồi! Đáp án đúng là: ${currentAnswer}`;
-                feedbackEl.className = 'h-8 mb-4 text-center font-bold text-lg text-red-600';
-                
-                incorrectQuestions.push({
-                    q: currentQData.q,
-                    a: currentQData.a,
-                    user_answer: selectedOption,
-                    type: currentQData.type,
-                    lesson: currentQData.lessonNumber,
-                    lessonName: currentQData.lessonName 
-                });
-            }
-
-            updateScoreDisplay();
-            currentQuestionIndex++;
-            
-            setTimeout(() => {
-                feedbackEl.textContent = "";
-                feedbackEl.className = 'h-8 mb-4 text-center font-bold text-lg';
-                generateQuestion();
-            }, 1200); 
-        }
-        
-        // --- SUPABASE & ADMIN LOGIC ---
-        
-
-        // Gemini Key Management Functions
-        async function loadGeminiKeys() {
-            if (!supabase) return;
-
-            try {
-                const { data, error } = await supabase
-                    .from('config')
-                    .select('gemini_keys')
-                    .eq('id', 1)
-                    .maybeSingle();
-
-                if (error && error.code !== 'PGRST116') throw error;
-
-                geminiKeys = data?.gemini_keys || [];
-                renderGeminiKeys();
-
-            } catch (e) {
-                console.error("Lỗi tải API keys:", e);
-                adminStatusEl.textContent = `LỖI SUPABASE: Không tải được API keys (${e.message}).`;
-            }
-        }
-
-        async function saveGeminiKeys(keys) {
-            if (!supabase) return;
-
-            try {
-                const { error } = await supabase
-                    .from('config')
-                    .upsert({ id: 1, gemini_keys: keys }, { onConflict: 'id' });
-
-                if (error) throw error;
-                
-                geminiKeys = keys;
-                renderGeminiKeys();
-                adminStatusEl.textContent = `✅ Đã lưu ${keys.length} API key Gemini.`;
-
-            } catch (e) {
-                console.error("Lỗi lưu API keys:", e);
-                adminStatusEl.textContent = `LỖI SUPABASE: Không lưu được API keys (${e.message}).`;
-            }
-        }
-
-        function renderGeminiKeys() {
-            geminiKeysListEl.innerHTML = '';
-            if (geminiKeys.length === 0) {
-                geminiKeysListEl.innerHTML = '<p class="text-sm text-gray-500">Chưa có API key nào. AI sẽ không hoạt động.</p>';
-                aiGenerateBtn.disabled = true;
-                return;
-            }
-
-            aiGenerateBtn.disabled = false;
-            geminiKeys.forEach((key, index) => {
-                const keyDisplay = key.substring(0, 4) + '...' + key.substring(key.length - 4);
-                const item = document.createElement('div');
-                item.className = 'flex justify-between items-center p-2 bg-white rounded-lg border border-gray-200';
-                item.innerHTML = `
-                    <span class="font-mono text-xs text-gray-700">${index + 1}. ${keyDisplay}</span>
-                    <button onclick="deleteGeminiKey(${index})" class="danger-btn px-2 py-1 text-xs text-white rounded-md">Xóa</button>
-                `;
-                geminiKeysListEl.appendChild(item);
-            });
-        }
-
-        function addGeminiKey() {
-            const newKey = geminiKeyInputEl.value.trim();
-            if (newKey.length < 20) {
-                adminStatusEl.textContent = "⚠️ API Key không hợp lệ.";
-                return;
-            }
-            if (geminiKeys.includes(newKey)) {
-                adminStatusEl.textContent = "⚠️ Key này đã tồn tại.";
-                return;
-            }
-            const updatedKeys = [...geminiKeys, newKey];
-            geminiKeyInputEl.value = '';
-            saveGeminiKeys(updatedKeys);
-        }
-
-        function deleteGeminiKey(index) {
-            if (index >= 0 && index < geminiKeys.length) {
-                const updatedKeys = geminiKeys.filter((_, i) => i !== index);
-                saveGeminiKeys(updatedKeys);
-            }
-        }
-        
-        async function fetchLessonsFromSupabase() {
-             if (!supabase) return;
-
-             const { data, error } = await supabase
-                 .from('lessons')
-                 .select('id, grade, subject, lesson_number, lesson_name, num_questions, questions_data');
-             
-             if (error) {
-                 console.error('Lỗi tải bài học từ Supabase:', error);
-                 adminStatusEl.textContent = `LỖI SUPABASE: Không tải được bài học (${error.message})`; 
-                 return;
-             }
-             
-             lessonsAvailable = { 0: { ALPHABET: [] }, 1: { TOAN: [], SPELL: [], READ: [], ENGLISH: [] }, 2: { TOAN: [], SPELL: [], READ: [], ENGLISH: [] } };
-
-             data.forEach(lesson => {
-                 const grade = lesson.grade;
-                 const subject = lesson.subject;
-
-                 if (lessonsAvailable[grade] && lessonsAvailable[grade][subject]) {
-                     lessonsAvailable[grade][subject].push({
-                         id: lesson.id,
-                         grade: lesson.grade,
-                         subject: lesson.subject,
-                         lessonNumber: lesson.lesson_number,
-                         lessonName: lesson.lesson_name,
-                         numQuestions: lesson.num_questions,
-                         questions_data: lesson.questions_data,
-                     });
-                 }
-             });
-             
-             for (let g of [1, 2]) {
-                 for (let s of ['TOAN', 'SPELL', 'READ', 'ENGLISH']) {
-                     if (lessonsAvailable[g] && lessonsAvailable[g][s]) {
-                         lessonsAvailable[g][s].sort((a, b) => a.lessonNumber - b.lessonNumber);
-                     }
-                 }
-             }
-        }
-        
-        async function saveHistoryRecord(record) {
-             if (!supabase) return;
-
-             const { data, error } = await supabase
-                 .from('history')
-                 .insert([record]); 
-             
-             if (error) {
-                 console.error('Lỗi lưu lịch sử lên Supabase:', error);
-             }
-        }
-        
-        async function fetchHistoryFromSupabase() {
-            if (!supabase) return;
-            
-            const { data, error } = await supabase
-                .from('history')
-                .select('*')
-                .order('timestamp', { ascending: false });
-
-            if (error) {
-                console.error('Lỗi tải lịch sử từ Supabase:', error);
-                return;
-            }
-
-            learningHistory = data.map(record => ({
-                studentName: record.student_name,
-                grade: record.grade,
-                subject: record.subject,
-                timestamp: record.timestamp,
-                score: record.score,
-                missed: record.missed,
-                total: record.total,
-                incorrectQuestions: record.incorrect_questions,
-                lessonRange: record.lesson_range
-            }));
-        }
-
-        async function loadHistoryNames() {
-            loadHistorySetup();
-        }
-
-        async function loadHistorySetup() {
-            await fetchHistoryFromSupabase();
-
-            const names = [...new Set(learningHistory.map(r => r.studentName))].sort();
-
-            historyFilterNameEl.innerHTML = '<option value="ALL">Tất cả học sinh</option>';
-            names.forEach(name => {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name;
-                historyFilterNameEl.appendChild(option);
-            });
-            
-            if (!historyContentEl.classList.contains('hidden')) {
-                displayHistory();
-            }
-        }
-
-        function toggleHistoryContent() {
-            const isHidden = historyContentEl.classList.contains('hidden');
-            if (isHidden) {
-                historyContentEl.classList.remove('hidden');
-                historyToggleButton.innerHTML = '▼ Ẩn Lịch Sử';
-                historyToggleButton.classList.remove('bg-green-600');
-                historyToggleButton.classList.add('bg-green-700');
-                loadHistorySetup();
-            } else {
-                historyContentEl.classList.add('hidden');
-                historyToggleButton.innerHTML = '▶️ Hiển thị Lịch Sử';
-                historyToggleButton.classList.remove('bg-green-700');
-                historyToggleButton.classList.add('bg-green-600');
-            }
-        }
-        
-        function displayHistory() {
-            const filterName = historyFilterNameEl.value;
-            const filterSubject = historyFilterSubjectEl.value;
-            historyListEl.innerHTML = '';
-
-            const filteredHistory = learningHistory.filter(record => {
-                const nameMatch = filterName === 'ALL' || record.studentName === filterName;
-                const subjectMatch = filterSubject === 'ALL' || record.subject === filterSubject;
-                return nameMatch && subjectMatch;
-            });
-
-            if (filteredHistory.length === 0) {
-                historyListEl.innerHTML = '<p class="text-sm text-gray-600 text-center p-4 border rounded-lg bg-white">Chưa có lịch sử làm bài nào được ghi lại.</p>';
-                return;
-            }
-
-            filteredHistory.forEach((record, index) => {
-                const date = new Date(record.timestamp).toLocaleDateString('vi-VN', { 
-                    day: '2-digit', 
-                    month: '2-digit', 
-                    year: 'numeric',
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                });
-                
-                let subjectName = record.subject;
-                if (record.subject === 'TOAN') subjectName = 'Toán';
-                else if (record.subject === 'SPELL') subjectName = 'Chính Tả';
-                else if (record.subject === 'READ') subjectName = 'Luyện Đọc';
-                else if (record.subject === 'ENGLISH') subjectName = 'Tiếng Anh'; 
-                else if (record.subject === 'ALPHABET') subjectName = 'Mẫu Giáo';
-
-                const card = document.createElement('div');
-                card.className = 'bg-white p-4 rounded-xl shadow-md border-t-4 border-indigo-500 space-y-2';
-                
-                const incorrectCount = record.incorrectQuestions ? record.incorrectQuestions.length : 0;
-                const detailId = `details-${index}`;
-
-                card.innerHTML = `
-                    <p class="text-sm font-bold text-indigo-700">👤 ${record.studentName} | Lớp ${record.grade === 0 ? 'Mẫu Giáo' : record.grade} - ${subjectName}</p>
-                    <p class="text-xs text-gray-500">🕒 ${date} | Phạm vi Bài: ${record.lessonRange}</p>
-                    <div class="flex justify-between items-center text-lg font-extrabold pt-2">
-                        <span class="text-green-600">✅ ${record.score}</span>
-                        <span class="text-red-600">❌ ${record.missed}</span>
-                        <span class="text-gray-700">Tổng: ${record.total}</span>
+    <!-- Header -->
+    <header class="bg-slate-900 text-white py-4 md:py-6 shadow-lg no-print border-b border-emerald-500/30 sticky top-0 z-40">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 md:gap-4 text-center md:text-left">
+                <div class="p-2 md:p-3 bg-emerald-500 rounded-xl shadow-lg shadow-emerald-500/20">
+                    <i data-lucide="printer" class="w-6 h-6 md:w-8 md:h-8 text-slate-900"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-2xl font-black uppercase tracking-tight leading-tight text-white">Công Ty Thiết Kế In Ấn Hội An</h1>
+                    <div class="flex items-center justify-center md:justify-start gap-2 mt-0.5">
+                        <p class="text-[10px] text-emerald-400 uppercase font-bold tracking-widest flex items-center gap-1">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i> 69 Đào Duy Từ, Hội An
+                        </p>
                     </div>
-                    ${incorrectCount > 0 ? `<button class="details-btn w-full mt-2 p-2 bg-yellow-400 text-yellow-900 text-sm font-bold rounded-lg hover:bg-yellow-500" data-target="#${detailId}">
-                        Chi tiết ${incorrectCount} câu sai
-                    </button>` : `<p class="text-sm text-green-500 font-semibold mt-2 text-center">Hoàn hảo! ${record.subject === 'ALPHABET' ? 'Đã hoàn thành.' : 'Không có câu sai.'}</p>`}
-                    
-                    <div id="${detailId}" class="hidden space-y-3 pt-3 border-t mt-3 text-sm">
-                        <p class="font-bold text-red-700">CÁC CÂU LÀM SAI:</p>
-                        ${record.incorrectQuestions ? record.incorrectQuestions.map((q, qIndex) => `
-                            <div class="bg-red-50 p-3 rounded-lg border border-red-200">
-                                <p class="font-semibold text-gray-800">Câu ${qIndex + 1} (Bài ${q.lesson}): ${q.q}</p>
-                                <p class="text-red-600">Bé chọn: <strong>${q.user_answer}</strong></p>
-                                <p class="text-green-600">Đáp án: <strong>${q.a}</strong></p>
+                </div>
+            </div>
+            <button onclick="admin.open()" class="w-full md:w-auto flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 px-5 py-2.5 rounded-xl transition-all text-sm font-bold border border-slate-700">
+                <i data-lucide="layout-grid" class="w-4 h-4 text-emerald-400"></i> Quản lý & Doanh thu
+            </button>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-3 md:px-4 py-6 md:py-8">
+        <div id="dbErrorAlert" class="mb-6 bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl hidden no-print">
+            <div class="flex items-center gap-3 mb-2">
+                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                <span class="font-bold">Lỗi Kết Nối Database</span>
+            </div>
+            <p class="text-sm">Không thể kết nối đến Supabase. Vui lòng kiểm tra lại bảng dữ liệu.</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-6 md:gap-8">
+            
+            <!-- Cột bên trái -->
+            <div class="flex-1 space-y-6 no-print">
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-slate-800 font-bold mb-5 flex items-center gap-2 text-sm uppercase tracking-wider">
+                        <i data-lucide="user" class="w-5 h-5 text-blue-600"></i> Thông tin đơn hàng
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Họ tên khách / Đơn vị</label>
+                            <input type="text" id="custName" value="Khách lẻ" oninput="app.updateName()" class="w-full border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-slate-700 transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Phân loại khách</label>
+                            <div class="flex gap-2 p-1 bg-slate-100 rounded-xl">
+                                <button onclick="app.setCustType('retail')" id="btnTypeRetail" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-blue-600 shadow-sm uppercase">Bán lẻ</button>
+                                <button onclick="app.setCustType('pro')" id="btnTypePro" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-500 hover:bg-white/50 uppercase">Giá thợ</button>
                             </div>
-                        `).join('') : ''}
-                    </div>
-                `;
-                card.appendChild(document.createElement('div')).style.clear = 'both'; // Clearfix for layout
-                historyListEl.appendChild(card);
-            });
-            
-            document.querySelectorAll('.details-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const targetId = e.target.getAttribute('data-target');
-                    const targetEl = document.querySelector(targetId);
-                    if (targetEl.classList.contains('hidden')) {
-                        targetEl.classList.remove('hidden');
-                        e.target.textContent = 'Ẩn chi tiết câu sai';
-                    } else {
-                        targetEl.classList.add('hidden');
-                        const incorrectCountInDetails = targetEl.querySelectorAll('.bg-red-50').length;
-                        e.target.textContent = `Chi tiết ${incorrectCountInDetails} câu sai`;
-                    }
-                });
-            });
-        }
-
-        async function loadLessonOptions(shouldFetch = true) {
-             if (shouldFetch) await fetchLessonsFromSupabase(); 
-             
-             const grade = parseInt(adminGradeEl.value);
-             const subject = adminSubjectEl.value;
-             
-             const options = lessonsAvailable[grade] && lessonsAvailable[grade][subject] ? lessonsAvailable[grade][subject] : [];
-             
-             adminLessonEl.innerHTML = '';
-             if (options && options.length > 0) {
-                 options.forEach(l => {
-                     const option = document.createElement('option');
-                     option.value = l.lessonNumber;
-                     option.textContent = `Bài ${l.lessonNumber} - ${l.lessonName} (${l.numQuestions} câu)`; 
-                     adminLessonEl.appendChild(option);
-                 });
-                 adminLessonEl.value = options[0].lessonNumber;
-                 lessonNameControlEl.classList.remove('hidden'); 
-                 detailQuestionBtn.disabled = false;
-             } else {
-                 const option = document.createElement('option');
-                 option.value = 0;
-                 option.textContent = "Chưa có bài học nào";
-                 adminLessonEl.appendChild(option);
-                 lessonNameControlEl.classList.add('hidden'); 
-                 detailQuestionBtn.disabled = true;
-             }
-             
-             previewLesson();
-        }
-
-        async function previewLesson() {
-             const grade = parseInt(adminGradeEl.value);
-             const subject = adminSubjectEl.value;
-             const lessonNumber = parseInt(adminLessonEl.value);
-             
-             if (lessonNumber > 0) {
-                 const currentLesson = lessonsAvailable[grade][subject].find(l => l.lessonNumber === lessonNumber);
-                 if (currentLesson) {
-                     aiTargetInfoEl.textContent = `Mục tiêu AI: Lớp ${grade} - Môn ${subject} - Bài ${lessonNumber} ("${currentLesson.lessonName}")`;
-                 }
-             } else {
-                 aiTargetInfoEl.textContent = 'Vui lòng chọn Bài Học ở mục 3 trước khi tạo câu hỏi.';
-             }
-
-
-             if (lessonNumber === 0) {
-                 lessonPreviewEl.textContent = "Tổng số câu trong bài này: 0";
-                 return;
-             }
-             
-             const lesson = lessonsAvailable[grade][subject].find(l => l.lessonNumber === lessonNumber);
-             
-             if (lesson) {
-                 lessonPreviewEl.textContent = `Tổng số câu trong Bài ${lessonNumber}: ${lesson.numQuestions}`;
-                 adminLessonNameEl.value = lesson.lessonName; 
-                 lessonNameControlEl.classList.remove('hidden'); 
-             }
-             
-             aiResultPreviewEl.textContent = '';
-        }
-        
-        async function createNewLessonStructure() {
-            if (!supabase) return;
-            const grade = parseInt(newLessonGradeEl.value);
-            const subject = newLessonSubjectEl.value;
-            const newLessonNumber = parseInt(newLessonNumberEl.value.trim());
-            const name = newLessonNameInputEl.value.trim();
-            
-            adminStatusEl.textContent = '';
-
-            if (isNaN(newLessonNumber) || newLessonNumber <= 0) {
-                adminStatusEl.textContent = "⚠️ Số bài học phải là một số nguyên dương.";
-                return;
-            }
-            if (!name) {
-                adminStatusEl.textContent = "⚠️ Tên bài học không được để trống.";
-                return;
-            }
-
-            await fetchLessonsFromSupabase();
-            const existingLessons = lessonsAvailable[grade][subject] || [];
-            const alreadyExists = existingLessons.some(l => l.lessonNumber === newLessonNumber);
-            if (alreadyExists) {
-                adminStatusEl.textContent = `⚠️ Bài ${newLessonNumber} đã tồn tại trong môn này.`;
-                return;
-            }
-
-            try {
-                const lessonData = {
-                    grade: grade,
-                    subject: subject,
-                    lesson_number: newLessonNumber,
-                    lesson_name: name,
-                    questions_data: [],
-                    num_questions: 0,
-                };
-
-                const { data, error } = await supabase
-                    .from('lessons')
-                    .insert([lessonData])
-                    .select();
-
-                if (error) throw error;
-                
-                adminStatusEl.textContent = `✅ Đã tạo Bài ${newLessonNumber} ("${name}") thành công!`;
-                
-                // Refresh and select the new lesson
-                adminGradeEl.value = String(grade);
-                adminSubjectEl.value = subject;
-                await loadLessonOptions(true); 
-                adminLessonEl.value = String(newLessonNumber);
-                previewLesson(); 
-
-                newLessonNumberEl.value = '';
-                newLessonNameInputEl.value = '';
-                
-            } catch (e) {
-                adminStatusEl.textContent = `Lỗi tạo bài Supabase: ${e.message}`;
-            }
-        }
-
-        async function updateLessonName() {
-            if (!supabase) return;
-            const grade = parseInt(adminGradeEl.value);
-            const subject = adminSubjectEl.value;
-            const lessonNumber = parseInt(adminLessonEl.value);
-            const newName = adminLessonNameEl.value.trim();
-            
-            if (lessonNumber === 0 || !newName) {
-                adminStatusEl.textContent = "⚠️ Vui lòng chọn bài học và nhập tên.";
-                return;
-            }
-            
-            const lesson = lessonsAvailable[grade][subject].find(l => l.lessonNumber === lessonNumber);
-            
-            if (!lesson) {
-                adminStatusEl.textContent = "Không tìm thấy bài học.";
-                return;
-            }
-
-            try {
-                const { data, error } = await supabase
-                    .from('lessons')
-                    .update({ lesson_name: newName })
-                    .eq('id', lesson.id)
-                    .select();
-
-                if (error) throw error;
-
-                adminStatusEl.textContent = `✅ Đã lưu tên mới: "${newName}"`;
-                
-                await loadLessonOptions(true); 
-                adminLessonEl.value = String(lessonNumber); 
-                previewLesson();
-            } catch (e) {
-                adminStatusEl.textContent = `Lỗi lưu tên Supabase: ${e.message}`;
-            }
-        }
-        
-        function confirmDeleteLesson() {
-            const lessonNumber = parseInt(adminLessonEl.value);
-            if (lessonNumber === 0) {
-                adminStatusEl.textContent = "Vui lòng chọn bài học hợp lệ để xóa.";
-                return;
-            }
-            if (window.confirm(`Bạn có chắc chắn muốn xóa TOÀN BỘ Bài ${lessonNumber} (${adminLessonNameEl.value}) không? Hành động này không thể hoàn tác.`)) {
-                deleteLesson();
-            }
-        }
-        
-        async function deleteLesson() {
-            if (!supabase) return;
-            const grade = parseInt(adminGradeEl.value);
-            const subject = adminSubjectEl.value;
-            const lessonNumber = parseInt(adminLessonEl.value);
-            
-            const lesson = lessonsAvailable[grade][subject].find(l => l.lessonNumber === lessonNumber);
-            if (!lesson) {
-                adminStatusEl.textContent = "Không tìm thấy bài học để xóa.";
-                return;
-            }
-            
-            try {
-                const { error } = await supabase
-                    .from('lessons')
-                    .delete()
-                    .eq('id', lesson.id);
-
-                if (error) throw error;
-                
-                adminStatusEl.textContent = `✅ Đã xóa Bài ${lessonNumber} ("${lesson.lessonName}") thành công!`;
-                
-                await loadLessonOptions(true);
-            } catch (e) {
-                adminStatusEl.textContent = `Lỗi xóa bài Supabase: ${e.message}`;
-            }
-        }
-
-        // --- CHỨC NĂNG QUẢN LÝ CÂU HỎI CHI TIẾT ---
-        function showQuestionDetailsModal() {
-            const grade = parseInt(adminGradeEl.value);
-            const subject = adminSubjectEl.value;
-            const lessonNumber = parseInt(adminLessonEl.value);
-
-            if (lessonNumber === 0) {
-                adminStatusEl.textContent = "⚠️ Vui lòng chọn Bài Học hợp lệ để xem chi tiết.";
-                return;
-            }
-
-            const lesson = lessonsAvailable[grade][subject].find(l => l.lessonNumber === lessonNumber);
-
-            if (!lesson || !lesson.questions_data || lesson.questions_data.length === 0) {
-                modalLessonTitleEl.textContent = `Bài ${lesson?.lessonNumber || lessonNumber} - ${lesson?.lessonName || 'Không có tên'}`;
-                modalQuestionsListEl.innerHTML = '<p class="text-sm text-gray-500 text-center">Bài học này chưa có câu hỏi nào.</p>';
-                questionDetailModalEl.classList.remove('hidden');
-                return;
-            }
-
-            modalLessonTitleEl.textContent = `Chi Tiết Câu Hỏi Bài ${lesson.lessonNumber} - ${lesson.lessonName} (${lesson.numQuestions} câu)`;
-            
-            let html = '';
-            lesson.questions_data.forEach((q, index) => {
-                const isEnglishVocab = q.type === 'ENGLISH'; 
-
-                html += `
-                    <div class="p-3 border border-blue-200 rounded-lg bg-blue-50 space-y-1 text-sm">
-                        <div class="flex justify-between items-start">
-                            <p class="font-bold text-gray-800">
-                                Câu ${index + 1} (${isEnglishVocab ? 'VOCAB' : (q.type || 'N/A')}):
-                            </p>
-                            <button 
-                                onclick="confirmDeleteQuestion(${lesson.id}, ${index}, 'Câu ${index + 1}')" 
-                                class="danger-btn px-2 py-1 text-xs text-white rounded-md font-bold ml-4"
-                            >
-                                Xóa
-                            </button>
                         </div>
-                        <p class="text-gray-700"><strong>Hỏi:</strong> ${q.q}</p>
-                        ${isEnglishVocab ? '' : 
-                        `<p class="text-green-600"><strong>Đáp án:</strong> ${q.a}</p>
-                         <p class="text-gray-500 text-xs">Lựa chọn: ${q.options ? q.options.join(' | ') : 'Không có'}</p>`
-                        }
                     </div>
-                `;
-            });
-            modalQuestionsListEl.innerHTML = html;
-            questionDetailModalEl.classList.remove('hidden');
-        }
+                </div>
 
-        function closeQuestionDetailsModal() {
-            questionDetailModalEl.classList.add('hidden');
-        }
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-slate-800 font-bold mb-5 flex items-center gap-2 text-sm uppercase tracking-wider">
+                        <i data-lucide="package" class="w-5 h-5 text-blue-600"></i> Danh mục vật tư
+                    </h2>
+                    <div id="materialButtons" class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-3">
+                        <div class="col-span-full py-10 text-center text-slate-400 italic">Đang tải danh mục...</div>
+                    </div>
+                </div>
 
-        function confirmDeleteQuestion(lessonId, questionIndex, questionLabel) {
-             if (window.confirm(`Bạn có chắc chắn muốn xóa ${questionLabel} này không?`)) {
-                 deleteQuestion(lessonId, questionIndex);
-             }
-        }
+                <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-slate-800 font-bold mb-5 flex items-center gap-2 text-sm uppercase tracking-wider">
+                        <i data-lucide="maximize" class="w-5 h-5 text-blue-600"></i> Kích thước & Số lượng
+                    </h2>
+                    <div id="dimInputs" class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Rộng (m)</label>
+                            <input type="number" id="inputWidth" step="0.01" oninput="app.calculate()" placeholder="0.00" class="w-full border border-slate-200 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Cao (m)</label>
+                            <input type="number" id="inputHeight" step="0.01" oninput="app.calculate()" placeholder="0.00" class="w-full border border-slate-200 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg">
+                        </div>
+                    </div>
+                    <div id="qtyInput" class="hidden space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Số lượng đơn vị</label>
+                        <input type="number" id="inputQty" value="1" min="1" oninput="app.calculate()" class="w-full border border-slate-200 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-lg">
+                    </div>
+                    
+                    <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 pt-4 border-t border-slate-100">
+                        <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer group active:bg-blue-50">
+                            <input type="checkbox" id="checkCanMang" onchange="app.calculate()" class="w-5 h-5 rounded-lg text-blue-600 border-slate-300 focus:ring-blue-500">
+                            <span class="text-xs font-bold text-slate-600 uppercase tracking-tight">Cán màng</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer group active:bg-blue-50">
+                            <input type="checkbox" id="checkHaoPhi" onchange="app.calculate()" class="w-5 h-5 rounded-lg text-blue-600 border-slate-300 focus:ring-blue-500">
+                            <span class="text-xs font-bold text-slate-600 uppercase tracking-tight">Hao Phí Vật Liệu</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer group active:bg-blue-50">
+                            <input type="checkbox" id="checkVAT" checked onchange="app.updateCartTotals()" class="w-5 h-5 rounded-lg text-blue-600 border-slate-300 focus:ring-blue-500">
+                            <span class="text-xs font-bold text-slate-600 uppercase tracking-tight">VAT 8%</span>
+                        </label>
+                    </div>
 
-        async function deleteQuestion(lessonId, questionIndex) {
-            if (!supabase) return;
+                    <button onclick="app.addToCart()" class="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-blue-200 flex items-center justify-center gap-3 transition-all active:scale-[0.97] text-base">
+                        <i data-lucide="plus-circle" class="w-6 h-6"></i> THÊM VÀO ĐƠN HÀNG
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cột bên phải: Phiếu báo giá -->
+            <div class="w-full lg:w-[400px] xl:w-[450px]">
+                <div class="bg-slate-900 rounded-[2.5rem] shadow-2xl p-6 md:p-8 text-white sticky top-24 print:p-0 print:bg-white print:text-black print:shadow-none print:static">
+                    <div class="print-header mb-8 pb-6 border-b-2 border-slate-900 text-left">
+                        <h1 class="text-2xl font-black uppercase text-slate-900 leading-none">Công Ty Thiết Kế In Ấn Hội An</h1>
+                        <p class="text-xs text-slate-500 font-bold mt-1 uppercase tracking-widest">69 Đào Duy Từ, Hội An</p>
+                    </div>
+
+                    <div class="flex items-center justify-between mb-6 no-print">
+                        <h2 class="text-xl font-black uppercase tracking-tighter text-emerald-400">Phiếu Báo Giá</h2>
+                        <span class="px-3 py-1 bg-white/10 rounded-full text-[9px] font-bold uppercase tracking-widest text-slate-400">Sync Online</span>
+                    </div>
+
+                    <div class="mb-6 pb-6 border-b border-white/10 print:border-slate-200">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1 print:text-slate-500">Kính gửi:</p>
+                                <p id="resCustName" class="text-xl md:text-2xl font-black tracking-tight leading-none print:text-slate-900">Khách lẻ</p>
+                            </div>
+                            <div class="text-right no-print">
+                                <!-- Đổi "món" thành "đơn hàng" -->
+                                <p id="resItemCount" class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold whitespace-nowrap">0 đơn hàng</p>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-3 font-mono uppercase" id="resDate"></p>
+                    </div>
+
+                    <div id="cartDisplay" class="space-y-4 mb-8 min-h-[50px] max-h-[400px] overflow-y-auto custom-scroll pr-2 print:max-h-none print:overflow-visible">
+                        <div class="text-center py-10 text-slate-600 italic text-sm no-print">Chưa có hạng mục báo giá nào...</div>
+                    </div>
+
+                    <div class="pt-6 border-t border-white/10 print:border-slate-200 space-y-4">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400 font-bold uppercase text-[10px] tracking-widest print:text-slate-500">Tạm tính (In + Phụ phí):</span>
+                            <span id="resSubtotalAll" class="font-bold text-lg tracking-tight">0đ</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400 font-bold uppercase text-[10px] tracking-widest print:text-slate-500">Thuế VAT (8%):</span>
+                            <span id="resVATAll" class="font-bold text-lg tracking-tight">0đ</span>
+                        </div>
+                        <div class="py-5 mt-4 bg-emerald-500/10 print:bg-slate-100 rounded-2xl px-6 border border-emerald-500/20 print:border-slate-200">
+                            <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-1 print:text-blue-800">Tổng cộng thanh toán</p>
+                            <p id="resTotalAll" class="text-3xl md:text-4xl font-black print:text-slate-900 tracking-tighter leading-none">0đ</p>
+                        </div>
+                        <div id="profitContainer" class="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 no-print">
+                            <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-1">Lợi nhuận gộp ước tính</p>
+                            <p id="resProfitAll" class="text-2xl font-bold text-blue-400 tracking-tight">0đ</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex flex-col gap-3 no-print">
+                        <button onclick="app.finishAndSave()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-900 py-4 rounded-2xl flex items-center justify-center gap-2 text-sm font-black transition-all active:scale-[0.98] shadow-lg shadow-emerald-500/20">
+                            <i data-lucide="printer" class="w-5 h-5"></i> XUẤT FILE & LƯU CLOUD
+                        </button>
+                        <button onclick="app.clearCart()" class="w-full py-2 text-xs text-slate-500 hover:text-red-400 font-bold uppercase tracking-widest transition-colors">Hủy đơn hàng này</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ADMIN MODAL -->
+    <div id="adminModal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-50 hidden items-center justify-center p-2 md:p-4 no-print">
+        <div class="bg-white w-full max-w-6xl max-h-[95vh] md:max-h-[90vh] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden">
+            <div class="p-5 md:p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:block p-3 bg-blue-600 rounded-2xl text-white shadow-lg shadow-blue-200">
+                        <i data-lucide="shield-check" class="w-7 h-7"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-black text-slate-900 leading-none uppercase">Admin Dashboard</h2>
+                    </div>
+                </div>
+                <button onclick="admin.close()" class="p-2 md:p-3 hover:bg-slate-200 rounded-2xl transition-all">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
             
-            const grade = parseInt(adminGradeEl.value);
-            const subject = adminSubjectEl.value;
-            const lesson = lessonsAvailable[grade][subject].find(l => l.id === lessonId);
-            
-            if (!lesson) {
-                adminStatusEl.textContent = "Lỗi: Không tìm thấy bài học để cập nhật.";
-                return;
-            }
+            <div class="flex bg-slate-50/50 px-3 md:px-8 border-b border-slate-100 overflow-x-auto custom-scroll">
+                <button id="tabMatBtn" onclick="admin.switchTab('materials')" class="whitespace-nowrap px-5 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black transition-all tab-active uppercase tracking-widest">Bảng giá Vật tư</button>
+                <button id="tabHistBtn" onclick="admin.switchTab('history')" class="whitespace-nowrap px-5 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black text-slate-400 transition-all uppercase tracking-widest">Doanh thu & Nhật ký</button>
+            </div>
 
-            let updatedQuestions = [...lesson.questions_data];
-            updatedQuestions.splice(questionIndex, 1);
-            
-            try {
-                const { error } = await supabase
-                    .from('lessons')
-                    .update({ 
-                        questions_data: updatedQuestions, 
-                        num_questions: updatedQuestions.length 
-                    })
-                    .eq('id', lessonId);
+            <div class="flex-1 overflow-y-auto p-4 md:p-8">
+                <div id="tabMaterials" class="space-y-6 md:space-y-8">
+                    <div class="bg-slate-50 p-5 md:p-8 rounded-3xl border border-slate-200 shadow-inner">
+                        <form id="adminForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                            <div class="sm:col-span-2">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Tên sản phẩm</label>
+                                <input type="text" id="admTen" class="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none font-semibold">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Nhóm in</label>
+                                <input type="text" id="admMuc" class="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none font-semibold">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Đơn vị</label>
+                                <select id="admDonVi" class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white font-bold">
+                                    <option value="m2">m2</option><option value="Tờ">Tờ</option><option value="A3">A3</option>
+                                </select>
+                            </div>
+                            <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Giá thợ</label><input type="number" id="admGiaTho" class="w-full border border-slate-200 rounded-xl px-4 py-3"></div>
+                            <div><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Giá lẻ</label><input type="number" id="admGiaKhach" class="w-full border border-slate-200 rounded-xl px-4 py-3 font-bold text-blue-600"></div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Nhóm khổ</label>
+                                <select id="admLoai" class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white font-bold">
+                                    <option value="decan">Decan (0.9-1.5m)</option><option value="bat">Bạt (0.6-3.1m)</option><option value="other">In thực tế</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button type="button" onclick="admin.saveMaterial()" class="w-full bg-blue-600 text-white py-3 md:py-4 rounded-xl text-xs md:text-sm font-black shadow-lg uppercase tracking-widest transition-all">Đồng bộ Cloud</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="adminTableContainer" class="rounded-3xl border border-slate-100 overflow-x-auto custom-scroll bg-white"></div>
+                </div>
 
-                if (error) throw error;
+                <div id="tabHistory" class="hidden space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4">Tháng báo cáo</label>
+                            <input type="month" id="revenueMonth" onchange="admin.fetchHistory()" class="w-full border border-slate-200 rounded-xl px-4 py-3 font-bold text-blue-600 outline-none">
+                        </div>
+                        <div class="bg-blue-600 p-6 rounded-3xl text-white shadow-xl">
+                            <label class="text-[10px] font-black text-blue-200 uppercase tracking-widest block mb-1">Doanh thu tháng</label>
+                            <p id="monthTotalRevenue" class="text-2xl md:text-3xl font-black tracking-tight">0đ</p>
+                        </div>
+                        <div class="bg-emerald-600 p-6 rounded-3xl text-white shadow-xl">
+                            <label class="text-[10px] font-black text-emerald-200 uppercase tracking-widest block mb-1">Lợi nhuận tháng</label>
+                            <p id="monthTotalProfit" class="text-2xl md:text-3xl font-black tracking-tight">0đ</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest pl-2 border-l-4 border-blue-600">Tổng hợp theo ngày</h3>
+                        <div id="dailySummaryContainer" class="rounded-3xl border border-slate-100 overflow-x-auto custom-scroll bg-white"></div>
+                    </div>
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest pl-2 border-l-4 border-slate-400">Chi tiết nhật ký</h3>
+                        <div id="historyTableContainer" class="rounded-3xl border border-slate-100 overflow-x-auto custom-scroll bg-white"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                adminStatusEl.textContent = `✅ Đã xóa câu hỏi khỏi bài ${lesson.lessonNumber}.`;
-                
-                await loadLessonOptions(true);
-                adminLessonEl.value = String(lesson.lessonNumber);
-                previewLesson();
-
-                // Refresh modal if it's still open
-                closeQuestionDetailsModal();
-                setTimeout(() => showQuestionDetailsModal(), 200);
-
-
-            } catch (e) {
-                adminStatusEl.textContent = `Lỗi xóa câu hỏi Supabase: ${e.message}`;
-            }
-        }
-
-        // --- GEMINI API: Question Generation ---
+    <script>
+        const SUPABASE_URL = "https://tmdnpmgadquddqdlqgux.supabase.co"; 
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtZG5wbWdhZHF1ZGRxZGxxZ3V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MTUxNTYsImV4cCI6MjA4ODQ5MTE1Nn0.ApUc0OASWIaZEeoYw44gHwzGC3eiEzZeE0OgFQfXMoo";
         
-        async function generateAndSaveQuestions() {
-            if (!supabase) return;
-            const prompt = aiPromptEl.value.trim();
-            const grade = parseInt(adminGradeEl.value);
-            const subject = adminSubjectEl.value;
-            const lessonNumber = parseInt(adminLessonEl.value);
-            
-            if (!prompt || lessonNumber === 0 || geminiKeys.length === 0) {
-                aiStatusMessageEl.textContent = "⚠️ Vui lòng nhập Yêu cầu, chọn Bài học, và thêm API Key Gemini.";
-                aiStatusMessageEl.className = 'text-sm font-semibold text-center mt-2 text-red-600';
-                return;
-            }
+        const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-            aiGenerateBtn.disabled = true;
-            aiGenerateTextEl.textContent = "Đang tạo...";
-            aiLoadingSpinnerEl.classList.remove('hidden');
-            aiStatusMessageEl.textContent = ""; 
-            aiResultPreviewEl.textContent = "";
-            adminStatusEl.textContent = "";
+        const DEFAULT_SEED_DATA = [
+            { "ten": "Decan trắng / PP", "don_vi": "m2", "gia_tho": 55000, "gia_khach": 75000, "loai_muc": "Mực dầu", "loai": "decan" },
+            { "ten": "Bạt Hiflex đế trắng", "don_vi": "m2", "gia_tho": 30000, "gia_khach": 40000, "loai_muc": "Mực dầu", "loai": "bat" },
+            { "ten": "Decan trắng / PP (UV)", "don_vi": "m2", "gia_tho": 110000, "gia_khach": 140000, "loai_muc": "In UV", "loai": "decan" }
+        ];
 
-            const isVocabGeneration = subject === 'ENGLISH';
+        const systemConfig = { "phu_phi": { "can_mang": 30000, "vat_percent": 8 }, "kho_mac_dinh": [0.6, 0.9, 1.1, 2.1, 2.6, 3.1], "kho_decan_pp": [0.9, 1.2, 1.5] };
+        let configData = [];
 
-            const subjectName = {
-                'TOAN': 'Toán Học (Phép tính và Lời văn)',
-                'SPELL': 'Tiếng Việt - Chính Tả',
-                'READ': 'Tiếng Việt - Luyện Đọc (Nghe và chọn)',
-                'ENGLISH': 'Tiếng Anh (Từ vựng)', 
-            }[subject];
+        const app = {
+            currentIdx: 0, cart: [], custType: 'retail', currentCalc: null,
 
-            let systemInstruction = '';
-            let jsonSchema = {};
+            async init() {
+                const now = new Date();
+                document.getElementById('resDate').textContent = "Ngày lập phiếu: " + now.toLocaleString('vi-VN');
+                document.getElementById('revenueMonth').value = now.toISOString().slice(0, 7);
+                lucide.createIcons();
+                await this.fetchMaterials();
+            },
 
-            if (isVocabGeneration) {
-                 systemInstruction = `Bạn là chuyên gia tạo từ vựng Tiếng Anh. Tạo danh sách 30 từ vựng cho học sinh Lớp ${grade} theo cấu trúc JSON sau.
-                 QUY TẮC:
-                 1. 'q' là một từ Tiếng Anh duy nhất.
-                 2. 'a', 'options', 'text' là chuỗi hoặc mảng rỗng.
-                 3. 'type' luôn là "ENGLISH".`;
-
-                 jsonSchema = {
-                     type: "ARRAY",
-                     items: {
-                         type: "OBJECT",
-                         properties: {
-                             "q": { "type": "STRING" },
-                             "a": { "type": "STRING" },
-                             "options": { "type": "ARRAY", "items": { "type": "STRING" } },
-                             "text": { "type": "STRING" },
-                             "type": { "type": "STRING", "enum": ["ENGLISH"] }
-                         },
-                         required: ["q", "a", "options", "text", "type"]
-                     }
-                 };
-            } else {
-                 systemInstruction = `Bạn là giáo viên tiểu học. Tạo 30 câu hỏi cho Lớp ${grade} - Môn ${subjectName} theo JSON sau.
-                 QUY TẮC:
-                 1. 'q': Câu hỏi.
-                 2. 'a': Đáp án đúng.
-                 3. 'options': Array chứa 4 lựa chọn (gồm cả đáp án đúng).
-                 4. 'text': Văn bản đọc to (chỉ cần cho Luyện đọc và Toán lời văn).
-                 5. 'type': Một trong: MATH_OP, MATH_WORD, SPELL, READ.`; 
-
-                 jsonSchema = {
-                     type: "ARRAY",
-                     items: {
-                         type: "OBJECT",
-                         properties: {
-                             "q": { "type": "STRING" },
-                             "a": { "type": "STRING" },
-                             "options": { "type": "ARRAY", "items": { "type": "STRING" } },
-                             "text": { "type": "STRING" },
-                             "type": { "type": "STRING", "enum": ["MATH_OP", "MATH_WORD", "SPELL", "READ"] }
-                         },
-                         required: ["q", "a", "options", "text", "type"]
-                     }
-                 };
-            }
-            
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: systemInstruction }] },
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: jsonSchema,
-                }
-            };
-
-            let successful = false;
-            let finalError = "Không thể kết nối hoặc tất cả API keys đều bị lỗi.";
-            
-            const MODEL_NAME = 'gemini-2.5-flash-preview-05-20'; 
-
-            for (let i = 0; i < geminiKeys.length; i++) {
-                currentKeyIndex = (i + currentKeyIndex) % geminiKeys.length;
-                const apiKey = geminiKeys[currentKeyIndex];
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
-                
-                aiStatusMessageEl.textContent = `Đang thử API Key số ${currentKeyIndex + 1}/${geminiKeys.length}...`; 
-                aiStatusMessageEl.className = 'text-sm font-semibold text-center mt-2 text-blue-600';
-
+            async fetchMaterials() {
+                document.getElementById('loading').classList.add('loading-active');
                 try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                    const { data, error } = await sbClient.from('materials').select('*');
+                    if (error) throw error;
+                    if (!data || data.length === 0) { await this.autoSeedData(); return; }
+                    configData = data;
+                    this.renderMaterialButtons();
+                } catch (e) { document.getElementById('dbErrorAlert').classList.remove('hidden'); } 
+                finally { document.getElementById('loading').classList.remove('loading-active'); }
+            },
+
+            async autoSeedData() {
+                try { await sbClient.from('materials').insert(DEFAULT_SEED_DATA); await this.fetchMaterials(); } 
+                catch (e) { console.error("Lỗi Seed:", e); }
+            },
+
+            renderMaterialButtons() {
+                const container = document.getElementById('materialButtons');
+                const grouped = {};
+                configData.forEach((item, idx) => {
+                    const muc = item.loai_muc || "Khác";
+                    if (!grouped[muc]) grouped[muc] = [];
+                    grouped[muc].push({ item, idx });
+                });
+                let html = '';
+                Object.keys(grouped).sort().forEach(muc => {
+                    html += `<div class="col-span-full mt-4"><h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 border-l-2 border-slate-300 pl-2">${muc}</h3></div>`;
+                    grouped[muc].forEach(({item, idx}) => {
+                        html += `<button id="btn-${idx}" onclick="app.selectMaterial(${idx})" class="text-left p-4 rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:border-blue-300 focus:outline-none"><div class="font-bold text-slate-800 text-sm leading-tight">${item.ten}</div><div class="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-tight">${item.don_vi}</div></button>`;
                     });
+                });
+                container.innerHTML = html;
+                this.selectMaterial(0);
+            },
 
-                    if (response.ok) {
-                        const result = await response.json();
-                        
-                        const jsonString = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                        if (jsonString) {
-                            const newQuestions = JSON.parse(jsonString);
+            selectMaterial(idx) {
+                if (!configData[idx]) return;
+                this.currentIdx = idx;
+                configData.forEach((_, i) => {
+                    const btn = document.getElementById(`btn-${i}`);
+                    if (btn) btn.className = (i === idx) ? "text-left p-4 rounded-2xl border-2 border-blue-600 bg-blue-50 transition-all text-sm shadow-md" : "text-left p-4 rounded-xl border border-slate-200 bg-white transition-all text-sm shadow-sm";
+                });
+                const isM2 = configData[idx].don_vi === 'm2';
+                document.getElementById('dimInputs').classList.toggle('hidden', !isM2);
+                document.getElementById('qtyInput').classList.toggle('hidden', isM2);
+                this.calculate();
+            },
 
-                            if (Array.isArray(newQuestions) && newQuestions.length > 0) {
-                                await saveNewQuestions(grade, subject, lessonNumber, newQuestions);
-                                successful = true;
-                                break; 
-                            }
-                        }
-                    } else {
-                         const errorBody = await response.json();
-                         finalError = `Key ${currentKeyIndex + 1} lỗi: ${errorBody.error?.message || `HTTP ${response.status}`}`;
-                         console.error(finalError);
-                    }
-                } catch (error) {
-                    finalError = `Key ${currentKeyIndex + 1} lỗi kết nối: ${error.message}`;
-                    console.error(finalError);
+            setCustType(t) { this.custType = t; this.updateName(); this.calculate(); 
+                document.getElementById('btnTypeRetail').className = t === 'retail' ? "flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-blue-600 shadow-sm uppercase" : "flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-500 hover:bg-white/50 uppercase";
+                document.getElementById('btnTypePro').className = t === 'pro' ? "flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-blue-600 shadow-sm uppercase" : "flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-500 hover:bg-white/50 uppercase";
+            },
+
+            updateName() { 
+                const input = document.getElementById('custName');
+                if (input.value === 'Khách lẻ' || input.value === 'Khách thợ') input.value = this.custType === 'retail' ? 'Khách lẻ' : 'Khách thợ';
+                document.getElementById('resCustName').textContent = input.value; 
+            },
+
+            formatCurrency(v) { return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v).replace('₫', 'đ'); },
+
+            calculate() {
+                const item = configData[this.currentIdx];
+                if (!item) return;
+                const isCanMang = document.getElementById('checkCanMang').checked;
+                const isHaoPhi = document.getElementById('checkHaoPhi').checked;
+                let chargeArea = 0, actualArea = 0, specs = "";
+                if (item.don_vi === 'm2') {
+                    const w = parseFloat(document.getElementById('inputWidth').value) || 0;
+                    const h = parseFloat(document.getElementById('inputHeight').value) || 0;
+                    actualArea = w * h; specs = `${w}x${h}m`;
+                    const rolls = item.loai === 'decan' ? systemConfig.kho_decan_pp : systemConfig.kho_mac_dinh;
+                    const detectedRoll = rolls.find(r => r >= Math.min(w, h));
+                    chargeArea = (detectedRoll && isHaoPhi) ? detectedRoll * Math.max(w, h) : actualArea;
+                } else {
+                    const q = parseFloat(document.getElementById('inputQty').value) || 1;
+                    actualArea = chargeArea = q; specs = `${q} ${item.don_vi}`;
                 }
-            } 
+                const unitPrice = (this.custType === 'retail') ? item.gia_khach : item.gia_tho;
+                const chargeGoc = unitPrice * chargeArea;
+                const phuPhi = (isCanMang && item.don_vi === 'm2') ? systemConfig.phu_phi.can_mang * actualArea : 0;
+                this.currentCalc = { name: item.ten, specs, unitPrice, chargeGoc, phuPhi, itemSubtotal: chargeGoc + phuPhi, profit: (chargeGoc + phuPhi) - (item.gia_tho * chargeArea) };
+            },
 
-            if (!successful) {
-                aiStatusMessageEl.textContent = `LỖI AI: ${finalError}`; 
-                aiStatusMessageEl.className = 'text-sm font-semibold text-center mt-2 text-red-600';
+            addToCart() { if (this.currentCalc) { this.cart.push({ ...this.currentCalc }); this.renderCart(); } },
+            removeFromCart(i) { this.cart.splice(i, 1); this.renderCart(); },
+            clearCart() { this.cart = []; this.renderCart(); },
+            updateCartTotals() { this.renderCart(); },
+
+            renderCart() {
+                const container = document.getElementById('cartDisplay');
+                const isVATEnabled = document.getElementById('checkVAT').checked;
+                if (this.cart.length === 0) {
+                    container.innerHTML = `<div class="text-center py-10 text-slate-600 italic text-sm no-print">Chưa có hạng mục...</div>`;
+                    document.getElementById('resSubtotalAll').textContent = "0đ"; document.getElementById('resVATAll').textContent = "0đ"; document.getElementById('resTotalAll').textContent = "0đ"; document.getElementById('resProfitAll').textContent = "0đ"; document.getElementById('resItemCount').textContent = "0 đơn hàng";
+                    return;
+                }
+                let html = '', grandSubtotal = 0, grandProfit = 0;
+                this.cart.forEach((it, i) => {
+                    grandSubtotal += it.itemSubtotal; grandProfit += it.profit;
+                    html += `<div class="relative group p-4 rounded-2xl bg-white/5 border border-white/10 print:bg-white print:border-slate-200 shadow-sm">
+                        <button onclick="app.removeFromCart(${i})" class="absolute -right-2 -top-2 w-7 h-7 bg-red-500 text-white rounded-full no-print flex items-center justify-center text-xs font-bold shadow-lg transition-all active:scale-90">×</button>
+                        <div class="flex justify-between font-bold"><div class="text-emerald-400 print:text-blue-900 leading-tight pr-4">${it.name}</div><div>${this.formatCurrency(it.itemSubtotal)}</div></div>
+                        <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-bold uppercase tracking-tight"><span>QC: ${it.specs}</span><span>${this.formatCurrency(it.unitPrice)}</span></div>
+                    </div>`;
+                });
+                const grandVAT = isVATEnabled ? (grandSubtotal * 0.08) : 0;
+                container.innerHTML = html;
+                
+                // Cập nhật nhãn "đơn hàng"
+                document.getElementById('resItemCount').textContent = this.cart.length + " đơn hàng";
+                
+                document.getElementById('resSubtotalAll').textContent = this.formatCurrency(grandSubtotal);
+                document.getElementById('resVATAll').textContent = this.formatCurrency(grandVAT);
+                document.getElementById('resTotalAll').textContent = this.formatCurrency(grandSubtotal + grandVAT);
+                document.getElementById('resProfitAll').textContent = this.formatCurrency(grandProfit);
+                document.getElementById('profitContainer').style.display = (this.custType === 'retail') ? 'block' : 'none';
+            },
+
+            async finishAndSave() {
+                if (this.cart.length === 0) return;
+                const isVATEnabled = document.getElementById('checkVAT').checked;
+                const grandSubtotal = this.cart.reduce((a, b) => a + b.itemSubtotal, 0);
+                const grandVAT = isVATEnabled ? (grandSubtotal * 0.08) : 0;
+                try {
+                    await sbClient.from('orders').insert({
+                        customer_name: document.getElementById('custName').value,
+                        items_summary: this.cart.map(i => `${i.name} (${i.specs})`).join(", "),
+                        total_amount: grandSubtotal + grandVAT,
+                        profit_amount: this.cart.reduce((a, b) => a + b.profit, 0),
+                        created_at: new Date().toISOString()
+                    });
+                    window.print();
+                } catch (e) { alert("Lỗi lưu Cloud."); }
             }
+        };
 
-            aiGenerateBtn.disabled = false;
-            aiGenerateTextEl.textContent = "✨ Tạo & Lưu Câu Hỏi Mới";
-            aiLoadingSpinnerEl.classList.add('hidden');
-        }
-        
-        async function saveNewQuestions(grade, subject, lessonNumber, newQuestions) {
-            
-            const lesson = lessonsAvailable[grade][subject].find(l => l.lessonNumber === lessonNumber);
-            
-            if (!lesson) {
-                aiStatusMessageEl.textContent = `Lỗi: Không tìm thấy Bài ${lessonNumber}.`;
-                return;
+        const admin = {
+            open() { document.getElementById('adminModal').classList.add('modal-active'); this.renderTable(); },
+            close() { document.getElementById('adminModal').classList.remove('modal-active'); },
+            switchTab(tab) {
+                document.getElementById('tabMaterials').classList.toggle('hidden', tab !== 'materials');
+                document.getElementById('tabHistory').classList.toggle('hidden', tab !== 'history');
+                document.getElementById('tabMatBtn').className = tab === 'materials' ? 'px-5 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black transition-all tab-active uppercase' : 'px-5 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black text-slate-400 uppercase';
+                document.getElementById('tabHistBtn').className = tab === 'history' ? 'px-5 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black transition-all tab-active uppercase' : 'px-5 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black text-slate-400 uppercase';
+                if (tab === 'history') this.fetchHistory();
+            },
+            renderTable() {
+                let html = `<table class="w-full text-left text-xs md:text-sm"><thead class="bg-slate-50 text-[9px] uppercase font-black"><tr><th class="px-4 py-4 md:px-6 md:py-5">Sản phẩm</th><th class="px-4 py-4 md:px-6 md:py-5 text-right">Giá lẻ</th><th class="px-4 py-4 md:px-6 md:py-5 text-center">Xóa</th></tr></thead><tbody class="divide-y divide-slate-100">`;
+                configData.forEach(item => {
+                    html += `<tr class="hover:bg-blue-50/50"><td class="px-4 py-4 md:px-6 md:py-5 font-bold text-slate-800">${item.ten}</td><td class="px-4 py-4 md:px-6 md:py-5 text-right text-blue-600 font-bold">${app.formatCurrency(item.gia_khach)}</td><td class="px-4 py-4 md:px-6 md:py-5 text-center"><button onclick="admin.deleteMaterial('${item.id}')" class="text-red-500 hover:scale-125 transition-all">×</button></td></tr>`;
+                });
+                document.getElementById('adminTableContainer').innerHTML = html + `</tbody></table>`;
+            },
+            async saveMaterial() {
+                const it = { ten: document.getElementById('admTen').value, don_vi: document.getElementById('admDonVi').value, gia_tho: parseInt(document.getElementById('admGiaTho').value) || 0, gia_khach: parseInt(document.getElementById('admGiaKhach').value) || 0, loai_muc: document.getElementById('admMuc').value, loai: document.getElementById('admLoai').value };
+                if (!it.ten) return;
+                await sbClient.from('materials').insert(it);
+                await app.fetchMaterials(); this.renderTable(); document.getElementById('adminForm').reset();
+            },
+            async deleteMaterial(id) { if (confirm("Xóa vật tư này?")) { await sbClient.from('materials').delete().eq('id', id); await app.fetchMaterials(); this.renderTable(); } },
+            async fetchHistory() {
+                const selectedMonth = document.getElementById('revenueMonth').value;
+                const { data } = await sbClient.from('orders').select('*').order('created_at', { ascending: false });
+                if (!data) return;
+                const filteredData = data.filter(order => order.created_at.startsWith(selectedMonth));
+                let totalRev = 0, totalProfit = 0; const dailyStats = {};
+                filteredData.forEach(order => {
+                    totalRev += order.total_amount; totalProfit += order.profit_amount;
+                    const dateKey = order.created_at.split('T')[0];
+                    if (!dailyStats[dateKey]) dailyStats[dateKey] = { rev: 0, profit: 0, count: 0 };
+                    dailyStats[dateKey].rev += order.total_amount; dailyStats[dateKey].profit += order.profit_amount; dailyStats[dateKey].count++;
+                });
+                document.getElementById('monthTotalRevenue').textContent = app.formatCurrency(totalRev);
+                document.getElementById('monthTotalProfit').textContent = app.formatCurrency(totalProfit);
+
+                let dailyHtml = `<table class="w-full text-left text-xs md:text-sm"><thead class="bg-slate-50 text-[9px] uppercase font-black"><tr><th class="px-4 py-4">Ngày</th><th class="px-4 py-4 text-center">Đơn</th><th class="px-4 py-4 text-right">Doanh thu</th></tr></thead><tbody class="divide-y divide-slate-100">`;
+                Object.keys(dailyStats).sort((a,b) => b.localeCompare(a)).forEach(date => {
+                    dailyHtml += `<tr><td class="px-4 py-4 font-bold text-slate-700">${new Date(date).toLocaleDateString('vi-VN')}</td><td class="px-4 py-4 text-center font-bold">${dailyStats[date].count}</td><td class="px-4 py-4 text-right font-black text-blue-600">${app.formatCurrency(dailyStats[date].rev)}</td></tr>`;
+                });
+                document.getElementById('dailySummaryContainer').innerHTML = dailyHtml + `</tbody></table>`;
+
+                let logHtml = `<table class="w-full text-left text-[10px] md:text-xs"><thead class="bg-slate-50 text-[8px] uppercase font-black"><tr><th class="px-4 py-3">Thời gian</th><th class="px-4 py-3">Khách hàng</th><th class="px-4 py-3 text-right">Tổng</th></tr></thead><tbody class="divide-y divide-slate-50">`;
+                filteredData.forEach(log => {
+                    logHtml += `<tr><td class="px-4 py-3 text-slate-500">${new Date(log.created_at).toLocaleString('vi-VN')}</td><td class="px-4 py-3 font-bold">${log.customer_name}</td><td class="px-4 py-3 text-right font-black text-slate-900">${app.formatCurrency(log.total_amount)}</td></tr>`;
+                });
+                document.getElementById('historyTableContainer').innerHTML = logHtml + '</tbody></table>';
+                lucide.createIcons();
             }
+        };
 
-            try {
-                let existingQuestions = lesson.questions_data || [];
-                const updatedQuestions = [...existingQuestions, ...newQuestions];
-                
-                const { error } = await supabase
-                    .from('lessons')
-                    .update({ 
-                        questions_data: updatedQuestions, 
-                        num_questions: updatedQuestions.length 
-                    })
-                    .eq('id', lesson.id);
-                
-                if (error) throw error;
-                
-                aiStatusMessageEl.textContent = `✅ Đã lưu ${newQuestions.length} câu hỏi mới vào Bài ${lessonNumber}.`;
-                aiStatusMessageEl.className = 'text-sm font-semibold text-center mt-2 text-green-600';
-                
-                aiResultPreviewEl.textContent = JSON.stringify(newQuestions.slice(0, 2), null, 2) + `\n...`;
-                
-                await loadLessonOptions(true); 
-                adminLessonEl.value = String(lessonNumber); 
-                previewLesson();
-                
-            } catch (e) {
-                aiStatusMessageEl.textContent = `Lỗi lưu Supabase: ${e.message}`;
-                console.error("Supabase Save Error:", e);
-            }
-        }
-        
-        // --- STARTUP ---
-        window.onload = () => {
-             lessonsAvailable[0] = { ALPHABET: [] }; 
-             fetchLessonsFromSupabase(); 
-             loadVoices(); // Load voices khi khởi động
-             showScreen('student-name-input');
-        }
-
-        // --- GÁN HÀM VÀO WINDOW OBJECT ĐỂ TRUY CẬP TỪ HTML ---
-        Object.assign(window, {
-            showScreen, selectStudentAndGrade, adminLogin, adminLogout,
-            selectGrade, selectSubject, startLessonSet, endLessonSet, playAudio, getVocabularyExplanation, 
-            checkLessonRange, loadLessonOptions, previewLesson, createNewLessonStructure,
-            updateLessonName, confirmDeleteLesson, generateAndSaveQuestions,
-            toggleHistoryContent, displayHistory, addGeminiKey, deleteGeminiKey,
-            showQuestionDetailsModal, closeQuestionDetailsModal, confirmDeleteQuestion
-        });
-
+        window.onload = () => app.init();
     </script>
 </body>
 </html>
