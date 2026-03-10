@@ -39,9 +39,17 @@
         </div>
     </div>
 
-    <!-- Header Gọn Gàng -->
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl z-[100] flex items-center gap-3 transition-all duration-300 opacity-0 scale-90 pointer-events-none border border-emerald-500/20">
+        <div class="p-1 bg-emerald-500 rounded-lg">
+            <i data-lucide="info" class="w-4 h-4 text-slate-900"></i>
+        </div>
+        <p id="toastText" class="text-[10px] font-black uppercase tracking-wider"></p>
+    </div>
+
+    <!-- Header -->
     <header class="bg-slate-900 text-white py-2 md:py-3 shadow-md no-print border-b border-emerald-500/20 sticky top-0 z-40">
-        <div class="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div class="container mx-auto px-4 flex flex-row items-center justify-between gap-2">
             <div class="flex items-center gap-3">
                 <div class="p-1.5 bg-emerald-500 rounded-lg">
                     <i data-lucide="printer" class="w-4 h-4 text-slate-900"></i>
@@ -51,9 +59,14 @@
                     <p class="text-[8px] text-emerald-400 font-bold tracking-widest mt-0.5">69 ĐÀO DUY TỪ, HỘI AN</p>
                 </div>
             </div>
-            <button onclick="admin.open()" class="hidden sm:flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-all text-[10px] font-bold border border-slate-700">
-                <i data-lucide="layout-grid" class="w-3 h-3 text-emerald-400"></i> Quản lý
-            </button>
+            <div class="flex items-center gap-2">
+                <button onclick="admin.openHistory()" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg transition-all text-[10px] font-bold border border-emerald-700 shadow-sm">
+                    <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Đơn hàng</span>
+                </button>
+                <button onclick="admin.open()" class="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-all text-[10px] font-bold border border-slate-700">
+                    <i data-lucide="settings" class="w-3.5 h-3.5 text-emerald-400"></i> <span class="hidden sm:inline">Cài đặt</span>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -62,7 +75,6 @@
             
             <!-- Cột bên trái: Nhập liệu -->
             <div class="flex-1 space-y-3 no-print">
-                <!-- Khối Khách hàng & Phân loại -->
                 <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="flex items-center gap-2">
@@ -81,7 +93,6 @@
                     </div>
                 </div>
 
-                <!-- Khối Vật tư -->
                 <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
                     <h2 class="text-slate-800 font-bold mb-2 flex items-center gap-2 text-[10px] uppercase tracking-wider">
                         <i data-lucide="package" class="w-3.5 h-3.5 text-blue-600"></i> Danh mục vật tư
@@ -91,7 +102,6 @@
                     </div>
                 </div>
 
-                <!-- Khối Thông số & Nút Thêm -->
                 <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-200">
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div id="dimInputs" class="grid grid-cols-2 gap-2 col-span-2">
@@ -116,7 +126,7 @@
                             <span class="text-[9px] font-bold text-slate-500 uppercase">Cán màng</span>
                         </label>
                         <label class="flex items-center gap-1.5 cursor-pointer">
-                            <input type="checkbox" id="checkHaoPhi" onchange="app.calculate()" class="w-3.5 h-3.5 rounded text-blue-600 border-slate-300">
+                            <input type="checkbox" id="checkHaoPhi" checked onchange="app.calculate()" class="w-3.5 h-3.5 rounded text-blue-600 border-slate-300">
                             <span class="text-[9px] font-bold text-slate-500 uppercase">Hao phí VL</span>
                         </label>
                         <label class="flex items-center gap-1.5 cursor-pointer">
@@ -125,14 +135,8 @@
                         </label>
                     </div>
 
-                    <button onclick="app.addToCart()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-2.5 rounded-xl shadow-md shadow-blue-100 flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-xs uppercase tracking-widest">
+                    <button onclick="app.addToCart()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-2.5 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-xs uppercase tracking-widest">
                         <i data-lucide="plus" class="w-4 h-4"></i> Thêm vào phiếu (Enter)
-                    </button>
-                </div>
-                
-                <div class="sm:hidden grid grid-cols-1">
-                    <button onclick="admin.open()" class="flex items-center justify-center gap-2 bg-slate-200 text-slate-700 py-2 rounded-lg text-[10px] font-bold">
-                        <i data-lucide="layout-grid" class="w-3 h-3"></i> MỞ QUẢN LÝ & DOANH THU
                     </button>
                 </div>
             </div>
@@ -140,7 +144,6 @@
             <!-- Cột bên phải: Phiếu báo giá -->
             <div class="w-full lg:w-[350px] xl:w-[400px]">
                 <div class="bg-slate-900 rounded-2xl shadow-xl p-4 md:p-5 text-white sticky top-[70px] print:p-0 print:bg-white print:text-black print:shadow-none print:static">
-                    
                     <div class="print-header mb-4 pb-3 border-b-2 border-slate-900">
                         <h1 class="text-lg font-black uppercase text-slate-900">Thiết Kế In Ấn Hội An</h1>
                         <p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">69 Đào Duy Từ, Hội An</p>
@@ -157,7 +160,7 @@
                         <p class="text-[8px] text-slate-500 mt-1 font-mono uppercase" id="resDate"></p>
                     </div>
 
-                    <div id="cartDisplay" class="space-y-2 mb-4 min-h-[30px] max-h-[220px] overflow-y-auto custom-scroll pr-1.5 print:max-h-none print:overflow-visible">
+                    <div id="cartDisplay" class="space-y-2 mb-4 min-h-[30px] max-h-[300px] overflow-y-auto custom-scroll pr-1.5 print:max-h-none print:overflow-visible">
                         <div class="text-center py-4 text-slate-600 italic text-[10px] no-print">Trống...</div>
                     </div>
 
@@ -174,10 +177,6 @@
                             <p class="text-[8px] text-emerald-400 font-bold uppercase tracking-widest mb-0.5 print:text-blue-800 text-center">Tổng thanh toán</p>
                             <p id="resTotalAll" class="text-2xl font-black print:text-slate-900 tracking-tighter text-center">0đ</p>
                         </div>
-                        <div id="profitContainer" class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-2 no-print text-center hidden">
-                            <p class="text-[8px] text-blue-400 font-bold uppercase tracking-widest mb-0.5">Lợi nhuận gộp</p>
-                            <p id="resProfitAll" class="text-lg font-bold text-blue-400 tracking-tight">0đ</p>
-                        </div>
                     </div>
 
                     <div class="mt-4 flex flex-col gap-2 no-print">
@@ -193,13 +192,13 @@
 
     <!-- ADMIN MODAL -->
     <div id="adminModal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-50 hidden items-center justify-center p-2 no-print">
-        <div class="bg-white w-full max-w-6xl max-h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+        <div class="bg-white w-full max-w-7xl max-h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
             <div class="p-4 md:p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <div class="flex items-center gap-3">
                     <div class="p-1.5 bg-blue-600 rounded-lg text-white">
                         <i data-lucide="shield-check" class="w-4 h-4"></i>
                     </div>
-                    <h2 class="text-base font-black text-slate-900 leading-none uppercase">Admin Dashboard</h2>
+                    <h2 class="text-base font-black text-slate-900 leading-none uppercase">Quản lý hệ thống</h2>
                 </div>
                 <button onclick="admin.close()" class="p-1.5 hover:bg-slate-200 rounded-lg transition-all">
                     <i data-lucide="x" class="w-5 h-5"></i>
@@ -207,63 +206,61 @@
             </div>
             
             <div class="flex bg-slate-50/50 px-4 border-b border-slate-100 overflow-x-auto custom-scroll">
-                <button id="tabMatBtn" onclick="admin.switchTab('materials')" class="whitespace-nowrap px-6 py-3.5 text-[10px] font-black transition-all tab-active uppercase tracking-wider">Bảng giá</button>
-                <button id="tabHistBtn" onclick="admin.switchTab('history')" class="whitespace-nowrap px-6 py-3.5 text-[10px] font-black text-slate-400 transition-all uppercase tracking-wider">Doanh thu & Nhật ký</button>
+                <button id="tabMatBtn" onclick="admin.switchTab('materials')" class="whitespace-nowrap px-6 py-3.5 text-[10px] font-black transition-all tab-active uppercase tracking-wider">Bảng giá vật tư</button>
+                <button id="tabHistBtn" onclick="admin.switchTab('history')" class="whitespace-nowrap px-6 py-3.5 text-[10px] font-black text-slate-400 transition-all uppercase tracking-wider">Doanh thu & Lịch sử</button>
             </div>
 
             <div class="flex-1 overflow-y-auto p-4">
-                <!-- TAB VẬT TƯ -->
                 <div id="tabMaterials" class="space-y-4">
-                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 shadow-inner">
-                        <form id="adminForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
+                        <form id="adminForm" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
                             <div class="sm:col-span-2">
                                 <label class="text-[8px] font-bold text-slate-400 uppercase mb-1 block">Tên sản phẩm</label>
-                                <input type="text" id="admTen" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold">
+                                <input type="text" id="admTen" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
                             </div>
                             <div>
                                 <label class="text-[8px] font-bold text-slate-400 uppercase mb-1 block">Nhóm in</label>
-                                <input type="text" id="admMuc" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold">
+                                <input type="text" id="admMuc" placeholder="VD: In Mực Dầu" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
                             </div>
                             <div>
                                 <label class="text-[8px] font-bold text-slate-400 uppercase mb-1 block">Đơn vị</label>
-                                <select id="admDonVi" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 bg-white font-bold text-xs">
+                                <select id="admDonVi" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 bg-white font-bold text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                                     <option value="m2">m2</option><option value="Tờ">Tờ</option><option value="A3">A3</option>
                                 </select>
                             </div>
-                            <div><label class="text-[8px] font-bold text-slate-400 uppercase mb-1 block">Giá thợ</label><input type="number" id="admGiaTho" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs"></div>
-                            <div><label class="text-[8px] font-bold text-slate-400 uppercase mb-1 block">Giá lẻ</label><input type="number" id="admGiaKhach" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-blue-600"></div>
+                            <div><label class="text-[8px] font-bold text-slate-400 uppercase mb-1 block">Giá thợ ($/m^2$)</label><input type="number" id="admGiaTho" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 outline-none"></div>
+                            <div><label class="text-[8px] font-bold text-slate-400 uppercase mb-1 block">Giá lẻ ($/m^2$)</label><input type="number" id="admGiaKhach" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 outline-none"></div>
+                            <div><label class="text-[8px] font-bold text-red-400 uppercase mb-1 block">Giá khấu hao thừa ($/m^2$)</label><input type="number" id="admGiaKhauHao" class="w-full border border-red-100 rounded-lg px-2 py-1.5 text-xs font-bold focus:ring-2 focus:ring-red-500 outline-none"></div>
                             <div>
-                                <label class="text-[8px] font-bold text-slate-400 uppercase mb-1 block">Khổ vật tư</label>
-                                <select id="admLoai" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 bg-white text-xs">
-                                    <option value="decan">Decan (0.9-1.5m)</option><option value="bat">Bạt (0.6-3.1m)</option><option value="other">Khác</option>
+                                <label class="text-[8px] font-bold text-slate-400 uppercase mb-1 block">Phân loại khổ</label>
+                                <select id="admLoai" class="w-full border border-slate-200 rounded-lg px-2 py-1.5 bg-white text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="decan_pp">Decan / PP (0.9, 1.2, 1.5)</option>
+                                    <option value="canvas">Canvas (1.2)</option>
+                                    <option value="backlit">Backlit Film (0.9, 1.2)</option>
+                                    <option value="bat_hiflex">Bạt Hiflex (0.6, 0.8, 1, 2, 2.5, 3)</option>
+                                    <option value="bat_3m">Bạt 3M (0.8, 1.2)</option>
+                                    <option value="other">Mặc định</option>
                                 </select>
                             </div>
                             <div class="flex items-end">
-                                <button type="button" onclick="admin.saveMaterial()" class="w-full bg-blue-600 text-white py-1.5 rounded-lg text-[9px] font-black shadow-lg uppercase tracking-widest transition-all active:scale-95 text-center">Lưu Cloud</button>
+                                <button type="button" onclick="admin.saveMaterial()" class="w-full bg-blue-600 text-white py-1.5 rounded-lg text-[9px] font-black shadow-lg uppercase tracking-widest transition-all active:scale-95 text-center">Lưu mới</button>
                             </div>
                         </form>
                     </div>
                     <div id="adminTableContainer" class="rounded-xl border border-slate-100 overflow-x-auto bg-white shadow-sm"></div>
                 </div>
 
-                <!-- TAB DOANH THU & NHẬT KÝ -->
                 <div id="tabHistory" class="hidden space-y-4">
-                    <div class="grid grid-cols-3 gap-3">
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-inner">
-                            <label class="text-[8px] font-black text-slate-400 uppercase block mb-1.5">Tháng</label>
-                            <input type="month" id="revenueMonth" onchange="admin.fetchHistory()" class="w-full border-0 bg-transparent p-0 text-xs font-bold text-blue-600 outline-none">
-                        </div>
-                        <div class="bg-blue-600 p-3 rounded-xl text-white shadow-md">
-                            <label class="text-[8px] font-black text-blue-200 uppercase block">Doanh thu</label>
-                            <p id="monthTotalRevenue" class="text-[10px] font-black">0đ</p>
-                        </div>
-                        <div class="bg-emerald-600 p-3 rounded-xl text-white shadow-md">
-                            <label class="text-[8px] font-black text-emerald-200 uppercase block">Lợi nhuận</label>
-                            <p id="monthTotalProfit" class="text-[10px] font-black">0đ</p>
-                        </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-between">
+                         <div class="flex items-center gap-3">
+                            <label class="text-[8px] font-black text-slate-400 uppercase">Tháng:</label>
+                            <input type="month" id="revenueMonth" class="bg-transparent text-xs font-bold outline-none">
+                         </div>
                     </div>
-                    <div id="dailySummaryContainer" class="rounded-xl border border-slate-100 overflow-x-auto bg-white shadow-sm"></div>
-                    <div id="historyTableContainer" class="rounded-xl border border-slate-100 overflow-x-auto bg-white shadow-sm"></div>
+                    <div class="p-10 text-center text-slate-400">
+                        <i data-lucide="construction" class="w-10 h-10 mx-auto mb-4 opacity-20"></i>
+                        <p class="text-sm font-bold uppercase tracking-widest">Dữ liệu đang được tải hoặc đang phát triển...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -272,42 +269,43 @@
     <script>
         const SUPABASE_URL = "https://tmdnpmgadquddqdlqgux.supabase.co"; 
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtZG5wbWdhZHF1ZGRxZGxxZ3V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MTUxNTYsImV4cCI6MjA4ODQ5MTE1Nn0.ApUc0OASWIaZEeoYw44gHwzGC3eiEzZeE0OgFQfXMoo";
-        
         const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const DEFAULT_SEED_DATA = [
-            { "ten": "Decan trắng / PP", "don_vi": "m2", "gia_tho": 55000, "gia_khach": 75000, "loai_muc": "Mực dầu", "loai": "decan" },
-            { "ten": "Bạt Hiflex đế trắng", "don_vi": "m2", "gia_tho": 30000, "gia_khach": 40000, "loai_muc": "Mực dầu", "loai": "bat" },
-            { "ten": "Decan trắng / PP (UV)", "don_vi": "m2", "gia_tho": 110000, "gia_khach": 140000, "loai_muc": "In UV", "loai": "decan" }
-        ];
-
-        const systemConfig = { "phu_phi": { "can_mang": 30000, "vat_percent": 8 }, "kho_mac_dinh": [0.6, 0.9, 1.1, 2.1, 2.6, 3.1], "kho_decan_pp": [0.9, 1.2, 1.5] };
+        const systemConfig = { 
+            "phu_phi": { "can_mang": 30000 }, 
+            "rolls": {
+                "decan_pp": [0.9, 1.2, 1.5],
+                "canvas": [1.2],
+                "backlit": [0.9, 1.2],
+                "bat_hiflex": [0.6, 0.8, 1, 2, 2.5, 3],
+                "bat_3m": [0.8, 1.2],
+                "other": [0.6, 0.9, 1.2, 1.5, 2.1, 3.1]
+            }
+        };
         let configData = [];
 
         const app = {
-            currentIdx: 0, cart: [], custType: 'retail', currentCalc: null,
-            isAdminOpen: false,
+            currentIdx: 0, cart: [], custType: 'retail', currentCalc: null, isAdminOpen: false,
 
             async init() {
                 const now = new Date();
-                document.getElementById('resDate').textContent = "Lập phiếu: " + now.toLocaleString('vi-VN');
-                document.getElementById('revenueMonth').value = now.toISOString().slice(0, 7);
+                const resDateEl = document.getElementById('resDate');
+                if (resDateEl) resDateEl.textContent = "Lập phiếu: " + now.toLocaleString('vi-VN');
+                
+                const revMonthEl = document.getElementById('revenueMonth');
+                if (revMonthEl) revMonthEl.value = now.toISOString().slice(0, 7);
+                
                 lucide.createIcons();
                 await this.fetchMaterials();
 
-                // Lắng nghe phím Enter trên toàn cục
                 window.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
-                        // Nếu đang mở Admin hoặc modal nào đó, đừng kích hoạt thêm vào phiếu
                         if (this.isAdminOpen) return;
-                        
-                        // Kiểm tra xem tiêu điểm có đang ở trong các ô input nhập liệu không
                         const activeEl = document.activeElement;
                         if (activeEl && activeEl.classList.contains('enter-trigger')) {
                             this.addToCart();
-                            // Sau khi thêm, focus lại vào ô rộng để nhập tiếp đơn mới nếu cần
-                            document.getElementById('inputWidth').focus();
-                            document.getElementById('inputWidth').select();
+                            const wInput = document.getElementById('inputWidth');
+                            if (wInput) { wInput.focus(); wInput.select(); }
                         }
                     }
                 });
@@ -316,22 +314,16 @@
             async fetchMaterials() {
                 document.getElementById('loading').classList.add('loading-active');
                 try {
-                    const { data, error } = await sbClient.from('materials').select('*');
-                    if (error) throw error;
-                    if (!data || data.length === 0) { await this.autoSeedData(); return; }
-                    configData = data;
+                    const { data } = await sbClient.from('materials').select('*').order('loai_muc', { ascending: true });
+                    configData = data || [];
                     this.renderMaterialButtons();
-                } catch (e) { document.getElementById('dbErrorAlert').classList.remove('hidden'); } 
+                } catch (e) { console.error(e); } 
                 finally { document.getElementById('loading').classList.remove('loading-active'); }
-            },
-
-            async autoSeedData() {
-                try { await sbClient.from('materials').insert(DEFAULT_SEED_DATA); await this.fetchMaterials(); } 
-                catch (e) { console.error("Lỗi Seed:", e); }
             },
 
             renderMaterialButtons() {
                 const container = document.getElementById('materialButtons');
+                if (!container) return;
                 const grouped = {};
                 configData.forEach((item, idx) => {
                     const muc = item.loai_muc || "Khác";
@@ -339,85 +331,137 @@
                     grouped[muc].push({ item, idx });
                 });
                 let html = '';
-                Object.keys(grouped).sort().forEach(muc => {
+                Object.keys(grouped).forEach(muc => {
                     html += `<div class="col-span-full mt-1.5"><h3 class="text-[8px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1"><span class="w-3 h-[1px] bg-slate-200"></span>${muc}</h3></div>`;
                     grouped[muc].forEach(({item, idx}) => {
                         html += `<button id="btn-${idx}" onclick="app.selectMaterial(${idx})" class="flex flex-col items-center justify-center p-1.5 rounded-lg border border-slate-200 bg-white shadow-sm transition-all hover:border-blue-300 focus:outline-none min-h-[50px]">
-                            <div class="font-bold text-slate-700 text-[9px] text-center leading-tight overflow-hidden line-clamp-2">${item.ten}</div>
+                            <div class="font-bold text-slate-700 text-[9px] text-center leading-tight line-clamp-2">${item.ten}</div>
                             <div class="text-[7px] text-slate-400 font-bold uppercase mt-0.5 px-1 bg-slate-50 rounded">${item.don_vi}</div>
                         </button>`;
                     });
                 });
-                container.innerHTML = html;
-                this.selectMaterial(0);
+                container.innerHTML = html || `<p class="col-span-full text-center py-4 text-[10px] text-slate-400">Chưa có vật tư</p>`;
+                if (configData.length > 0) this.selectMaterial(0);
             },
 
             selectMaterial(idx) {
-                if (!configData[idx]) return;
                 this.currentIdx = idx;
                 configData.forEach((_, i) => {
                     const btn = document.getElementById(`btn-${i}`);
-                    if (btn) {
-                        btn.className = (i === idx) 
-                            ? "flex flex-col items-center justify-center p-1.5 rounded-lg border-2 border-blue-600 bg-blue-50 transition-all shadow-sm ring-1 ring-blue-100 min-h-[50px]" 
-                            : "flex flex-col items-center justify-center p-1.5 rounded-lg border border-slate-200 bg-white shadow-sm transition-all min-h-[50px]";
-                    }
+                    if (btn) btn.className = (i === idx) ? "flex flex-col items-center justify-center p-1.5 rounded-lg border-2 border-blue-600 bg-blue-50 shadow-sm ring-1 ring-blue-100 min-h-[50px]" : "flex flex-col items-center justify-center p-1.5 rounded-lg border border-slate-200 bg-white shadow-sm min-h-[50px]";
                 });
+                if (!configData[idx]) return;
                 const isM2 = configData[idx].don_vi === 'm2';
-                document.getElementById('dimInputs').classList.toggle('hidden', !isM2);
-                document.getElementById('qtyInput').classList.toggle('hidden', isM2);
+                const dimInputs = document.getElementById('dimInputs');
+                const qtyInput = document.getElementById('qtyInput');
+                if (dimInputs) dimInputs.classList.toggle('hidden', !isM2);
+                if (qtyInput) qtyInput.classList.toggle('hidden', isM2);
                 this.calculate();
             },
 
             setCustType(t) { 
                 this.custType = t; this.updateName(); this.calculate(); 
-                document.getElementById('btnTypeRetail').className = t === 'retail' ? "flex-1 py-1 text-[10px] font-bold rounded-md transition-all bg-white text-blue-600 shadow-sm uppercase" : "flex-1 py-1 text-[10px] font-bold rounded-md transition-all text-slate-500 hover:bg-white/50 uppercase";
-                document.getElementById('btnTypePro').className = t === 'pro' ? "flex-1 py-1 text-[10px] font-bold rounded-md transition-all bg-white text-blue-600 shadow-sm uppercase" : "flex-1 py-1 text-[10px] font-bold rounded-md transition-all text-slate-500 hover:bg-white/50 uppercase";
+                document.getElementById('btnTypeRetail').className = t === 'retail' ? "flex-1 py-1 text-[10px] font-bold rounded-md bg-white text-blue-600 shadow-sm uppercase" : "flex-1 py-1 text-[10px] font-bold rounded-md text-slate-500 hover:bg-white/50 uppercase";
+                document.getElementById('btnTypePro').className = t === 'pro' ? "flex-1 py-1 text-[10px] font-bold rounded-md bg-white text-blue-600 shadow-sm uppercase" : "flex-1 py-1 text-[10px] font-bold rounded-md text-slate-500 hover:bg-white/50 uppercase";
             },
 
             updateName() { 
                 const input = document.getElementById('custName');
                 if (input.value === 'Khách lẻ' || input.value === 'Khách thợ') input.value = this.custType === 'retail' ? 'Khách lẻ' : 'Khách thợ';
-                document.getElementById('resCustName').textContent = input.value; 
+                const resCustName = document.getElementById('resCustName');
+                if (resCustName) resCustName.textContent = input.value; 
             },
 
             formatCurrency(v) { return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v).replace('₫', 'đ'); },
+
+            roundTo1000(num) {
+                return Math.round(num / 1000) * 1000;
+            },
 
             calculate() {
                 const item = configData[this.currentIdx];
                 if (!item) return;
                 const isCanMang = document.getElementById('checkCanMang').checked;
                 const isHaoPhi = document.getElementById('checkHaoPhi').checked;
-                let chargeArea = 0, actualArea = 0, specs = "";
+                
+                let actualArea = 0, wasteArea = 0, specs = "", detectedRoll = 0;
+                
                 if (item.don_vi === 'm2') {
-                    const w = parseFloat(document.getElementById('inputWidth').value) || 0;
-                    const h = parseFloat(document.getElementById('inputHeight').value) || 0;
-                    actualArea = w * h; specs = `${w}x${h}m`;
-                    const rolls = item.loai === 'decan' ? systemConfig.kho_decan_pp : systemConfig.kho_mac_dinh;
-                    const detectedRoll = rolls.find(r => r >= Math.min(w, h));
-                    chargeArea = (detectedRoll && isHaoPhi) ? detectedRoll * Math.max(w, h) : actualArea;
+                    const wInput = document.getElementById('inputWidth');
+                    const hInput = document.getElementById('inputHeight');
+                    const w = wInput ? (parseFloat(wInput.value) || 0) : 0;
+                    const h = hInput ? (parseFloat(hInput.value) || 0) : 0;
+                    actualArea = w * h;
+                    
+                    if (actualArea > 0) {
+                        const rollCat = item.loai || 'other';
+                        const rolls = systemConfig.rolls[rollCat] || systemConfig.rolls.other;
+                        
+                        const short = Math.min(w, h);
+                        const long = Math.max(w, h);
+                        
+                        const rollForShort = rolls.find(r => r >= short);
+                        const waste1 = rollForShort ? (rollForShort - short) * long : Infinity;
+                        
+                        const rollForLong = rolls.find(r => r >= long);
+                        const waste2 = rollForLong ? (rollForLong - long) * short : Infinity;
+                        
+                        if (isHaoPhi) {
+                            if (waste1 <= waste2 && rollForShort) {
+                                wasteArea = waste1;
+                                detectedRoll = rollForShort;
+                            } else if (rollForLong) {
+                                wasteArea = waste2;
+                                detectedRoll = rollForLong;
+                            } else {
+                                wasteArea = 0;
+                                detectedRoll = 0;
+                            }
+                            
+                            specs = detectedRoll > 0 
+                                ? `${w}x${h}m (Khổ: ${detectedRoll}m)` 
+                                : `${w}x${h}m (Nối tấm)`;
+                        } else {
+                            specs = `${w}x${h}m`;
+                        }
+                    }
                 } else {
-                    const q = parseFloat(document.getElementById('inputQty').value) || 1;
-                    actualArea = chargeArea = q; specs = `${q} ${item.don_vi}`;
+                    const qInput = document.getElementById('inputQty');
+                    const q = qInput ? (parseFloat(qInput.value) || 1) : 1;
+                    actualArea = q; 
+                    specs = `${q} ${item.don_vi}`;
                 }
-                const unitPrice = (this.custType === 'retail') ? item.gia_khach : item.gia_tho;
-                const chargeGoc = unitPrice * chargeArea;
-                const phuPhi = (isCanMang && item.don_vi === 'm2') ? systemConfig.phu_phi.can_mang * actualArea : 0;
-                this.currentCalc = { name: item.ten, specs, unitPrice, chargeGoc, phuPhi, itemSubtotal: chargeGoc + phuPhi, profit: (chargeGoc + phuPhi) - (item.gia_tho * chargeArea) };
+
+                const unitPrice = (this.custType === 'retail') ? (item.gia_khach || 0) : (item.gia_tho || 0);
+                const depPrice = item.gia_khau_hao || 0;
+                
+                const chargeIn = unitPrice * actualArea;
+                const chargeWaste = (isHaoPhi && detectedRoll > 0) ? (wasteArea * depPrice) : 0;
+                const phuPhi = (isCanMang && item.don_vi === 'm2') ? (systemConfig.phu_phi.can_mang * actualArea) : 0;
+                
+                const subtotal = this.roundTo1000(chargeIn + chargeWaste + phuPhi);
+
+                this.currentCalc = { 
+                    name: item.ten, 
+                    specs, 
+                    unitPrice, 
+                    itemSubtotal: subtotal,
+                    // Thay đổi từ "Thừa" sang "Khấu hao"
+                    details: (isHaoPhi && wasteArea > 0 && detectedRoll > 0) ? `In: ${this.formatCurrency(chargeIn)} + Khấu hao: ${this.formatCurrency(chargeWaste)}` : '',
+                    profit: subtotal - (item.gia_tho * (actualArea + (detectedRoll > 0 ? wasteArea : 0)))
+                };
             },
 
             addToCart() { 
                 if (this.currentCalc) { 
-                    // Kiểm tra xem người dùng có nhập kích thước/số lượng chưa
                     const item = configData[this.currentIdx];
                     if (item.don_vi === 'm2') {
-                        if (!document.getElementById('inputWidth').value || !document.getElementById('inputHeight').value) return;
+                        const w = document.getElementById('inputWidth').value;
+                        const h = document.getElementById('inputHeight').value;
+                        if (!w || !h) return;
                     }
-                    
                     this.cart.push({ ...this.currentCalc }); 
                     this.renderCart(); 
-                    
-                    // Reset input để người dùng nhập tiếp
                     if (item.don_vi === 'm2') {
                         document.getElementById('inputWidth').value = '';
                         document.getElementById('inputHeight').value = '';
@@ -427,125 +471,170 @@
                     this.currentCalc = null;
                 } 
             },
+
+            renderCart() {
+                const container = document.getElementById('cartDisplay');
+                const isVAT = document.getElementById('checkVAT').checked;
+                
+                if (this.cart.length === 0) {
+                    container.innerHTML = `<div class="text-center py-4 text-slate-600 italic text-[10px]">Trống...</div>`;
+                    document.getElementById('resSubtotalAll').textContent = "0đ";
+                    document.getElementById('resVATAll').textContent = "0đ";
+                    document.getElementById('resTotalAll').textContent = "0đ";
+                    return;
+                }
+                
+                let html = '';
+                let sub = 0;
+                this.cart.forEach((it, i) => {
+                    sub += it.itemSubtotal;
+                    html += `<div class="relative group p-2.5 rounded-xl bg-white/5 border border-white/10 print:bg-white print:border-slate-200 shadow-sm">
+                        <button onclick="app.removeFromCart(${i})" class="absolute -right-1.5 -top-1.5 w-5 h-5 bg-red-500 text-white rounded-lg no-print flex items-center justify-center text-[9px] font-bold">×</button>
+                        <div class="flex justify-between font-bold text-[10px]">
+                            <div class="text-emerald-400 print:text-blue-900 leading-tight pr-4">${it.name}</div>
+                            <div>${this.formatCurrency(it.itemSubtotal)}</div>
+                        </div>
+                        <div class="flex justify-between text-[8px] text-slate-500 mt-1 uppercase font-bold tracking-tight">
+                            <span>QC: ${it.specs}</span>
+                            <span class="text-emerald-500 opacity-80">${it.details || ''}</span>
+                        </div>
+                    </div>`;
+                });
+                
+                const vatRaw = isVAT ? (sub * 0.08) : 0;
+                const totalFinal = this.roundTo1000(sub + vatRaw);
+                
+                container.innerHTML = html;
+                document.getElementById('resItemCount').textContent = this.cart.length + " đơn";
+                document.getElementById('resSubtotalAll').textContent = this.formatCurrency(sub);
+                document.getElementById('resVATAll').textContent = this.formatCurrency(vatRaw);
+                document.getElementById('resTotalAll').textContent = this.formatCurrency(totalFinal);
+            },
+
             removeFromCart(i) { this.cart.splice(i, 1); this.renderCart(); },
             clearCart() { this.cart = []; this.renderCart(); },
             updateCartTotals() { this.renderCart(); },
 
-            renderCart() {
-                const container = document.getElementById('cartDisplay');
-                const isVATEnabled = document.getElementById('checkVAT').checked;
-                const profitEl = document.getElementById('profitContainer');
-                
-                if (this.cart.length === 0) {
-                    container.innerHTML = `<div class="text-center py-4 text-slate-600 italic text-[10px] no-print">Trống...</div>`;
-                    document.getElementById('resSubtotalAll').textContent = "0đ"; document.getElementById('resVATAll').textContent = "0đ"; document.getElementById('resTotalAll').textContent = "0đ"; document.getElementById('resProfitAll').textContent = "0đ"; document.getElementById('resItemCount').textContent = "0 đơn hàng";
-                    profitEl.classList.add('hidden');
-                    return;
-                }
-                
-                let html = '', grandSubtotal = 0, grandProfit = 0;
-                this.cart.forEach((it, i) => {
-                    grandSubtotal += it.itemSubtotal; grandProfit += it.profit;
-                    html += `<div class="relative group p-2.5 rounded-xl bg-white/5 border border-white/10 print:bg-white print:border-slate-200 shadow-sm">
-                        <button onclick="app.removeFromCart(${i})" class="absolute -right-1.5 -top-1.5 w-5 h-5 bg-red-500 text-white rounded-lg no-print flex items-center justify-center text-[9px] font-bold shadow-lg active:scale-90 transition-all">×</button>
-                        <div class="flex justify-between font-bold"><div class="text-emerald-400 print:text-blue-900 leading-tight pr-4 text-[10px]">${it.name}</div><div class="text-[10px]">${this.formatCurrency(it.itemSubtotal)}</div></div>
-                        <div class="flex justify-between text-[8px] text-slate-500 mt-0.5 font-bold uppercase tracking-tight"><span>QC: ${it.specs}</span><span>${this.formatCurrency(it.unitPrice)}</span></div>
-                    </div>`;
-                });
-                
-                const grandVAT = isVATEnabled ? (grandSubtotal * 0.08) : 0;
-                container.innerHTML = html;
-                document.getElementById('resItemCount').textContent = this.cart.length + " đơn hàng";
-                document.getElementById('resSubtotalAll').textContent = this.formatCurrency(grandSubtotal);
-                document.getElementById('resVATAll').textContent = this.formatCurrency(grandVAT);
-                document.getElementById('resTotalAll').textContent = this.formatCurrency(grandSubtotal + grandVAT);
-                document.getElementById('resProfitAll').textContent = this.formatCurrency(grandProfit);
-                
-                if (this.custType === 'retail' && grandProfit > 0) profitEl.classList.remove('hidden');
-                else profitEl.classList.add('hidden');
-            },
-
             async finishAndSave() {
                 if (this.cart.length === 0) return;
-                const isVATEnabled = document.getElementById('checkVAT').checked;
-                const grandSubtotal = this.cart.reduce((a, b) => a + b.itemSubtotal, 0);
-                const grandTotal = grandSubtotal + (isVATEnabled ? (grandSubtotal * 0.08) : 0);
                 try {
+                    const isVAT = document.getElementById('checkVAT').checked;
+                    const sub = this.cart.reduce((a, b) => a + b.itemSubtotal, 0);
+                    const totalFinal = this.roundTo1000(sub + (isVAT ? sub * 0.08 : 0));
                     await sbClient.from('orders').insert({
                         customer_name: document.getElementById('custName').value,
                         items_summary: this.cart.map(i => `${i.name} (${i.specs})`).join(", "),
-                        total_amount: grandTotal,
+                        total_amount: totalFinal,
                         profit_amount: this.cart.reduce((a, b) => a + b.profit, 0),
                         created_at: new Date().toISOString()
                     });
                     window.print();
-                } catch (e) { alert("Lỗi lưu Cloud."); }
+                } catch (e) { console.error(e); }
             }
         };
 
         const admin = {
-            open() { 
-                app.isAdminOpen = true;
-                document.getElementById('adminModal').classList.add('modal-active'); 
-                this.renderTable(); 
+            showToast(msg) {
+                const toast = document.getElementById('toast');
+                document.getElementById('toastText').textContent = msg;
+                toast.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
+                toast.classList.add('opacity-100', 'scale-100');
+                lucide.createIcons();
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
+                    toast.classList.remove('opacity-100', 'scale-100');
+                }, 3000);
             },
-            close() { 
-                app.isAdminOpen = false;
-                document.getElementById('adminModal').classList.remove('modal-active'); 
+            open() { app.isAdminOpen = true; document.getElementById('adminModal').classList.add('modal-active'); this.switchTab('materials'); },
+            openHistory() { 
+                this.showToast("Chức năng này đang phát triển");
             },
+            close() { app.isAdminOpen = false; document.getElementById('adminModal').classList.remove('modal-active'); },
             switchTab(tab) {
                 document.getElementById('tabMaterials').classList.toggle('hidden', tab !== 'materials');
                 document.getElementById('tabHistory').classList.toggle('hidden', tab !== 'history');
-                document.getElementById('tabMatBtn').className = tab === 'materials' ? 'px-6 py-3.5 text-[10px] font-black transition-all tab-active uppercase' : 'px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase';
-                document.getElementById('tabHistBtn').className = tab === 'history' ? 'px-6 py-3.5 text-[10px] font-black transition-all tab-active uppercase' : 'px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase';
-                if (tab === 'history') this.fetchHistory();
+                document.getElementById('tabMatBtn').className = tab === 'materials' ? 'px-6 py-3.5 text-[10px] font-black tab-active uppercase' : 'px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase';
+                document.getElementById('tabHistBtn').className = tab === 'history' ? 'px-6 py-3.5 text-[10px] font-black tab-active uppercase' : 'px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase';
+                if (tab === 'materials') this.renderTable();
             },
             renderTable() {
-                let html = `<table class="w-full text-left text-xs"><thead class="bg-slate-50 text-[8px] uppercase font-black"><tr><th class="px-4 py-4">Sản phẩm</th><th class="px-4 py-4 text-right">Giá thợ</th><th class="px-4 py-4 text-right">Giá lẻ</th><th class="px-4 py-4 text-center">Xóa</th></tr></thead><tbody class="divide-y divide-slate-100">`;
+                let html = `<table class="w-full text-left text-xs min-w-[800px]"><thead class="bg-slate-50 text-[8px] uppercase font-black text-slate-400 sticky top-0 z-10"><tr><th class="px-4 py-4">Sản phẩm & Nhóm</th><th class="px-2 py-4 text-center">Giá thợ</th><th class="px-2 py-4 text-center">Giá lẻ</th><th class="px-2 py-4 text-center text-red-500">Khấu hao</th><th class="px-2 py-4">Khổ VL</th><th class="px-4 py-4 text-center">Lưu / Xóa</th></tr></thead><tbody class="divide-y divide-slate-100">`;
                 configData.forEach(item => {
-                    html += `<tr><td class="px-4 py-4 font-bold text-slate-800">${item.ten}</td><td class="px-4 py-4 text-right">${app.formatCurrency(item.gia_tho)}</td><td class="px-4 py-4 text-right text-blue-600 font-bold">${app.formatCurrency(item.gia_khach)}</td><td class="px-4 py-4 text-center"><button onclick="admin.deleteMaterial('${item.id}')" class="text-red-500 hover:scale-110 transition-all text-sm">×</button></td></tr>`;
+                    html += `<tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-4 py-3">
+                            <input type="text" id="edit-ten-${item.id}" value="${item.ten}" class="w-full bg-transparent border-b border-transparent focus:border-blue-300 focus:bg-white px-1 py-0.5 font-bold text-slate-800 outline-none text-[11px]">
+                            <input type="text" id="edit-muc-${item.id}" value="${item.loai_muc || ''}" class="w-full bg-transparent border-b border-transparent focus:border-blue-300 focus:bg-white px-1 py-0.5 text-[8px] text-slate-400 outline-none mt-1 uppercase font-bold">
+                        </td>
+                        <td class="px-2 py-3 text-center"><input type="number" id="edit-tho-${item.id}" value="${item.gia_tho}" class="w-20 border border-slate-200 rounded px-1.5 py-1 text-right text-[10px] outline-none focus:ring-1 focus:ring-blue-400"></td>
+                        <td class="px-2 py-3 text-center"><input type="number" id="edit-khach-${item.id}" value="${item.gia_khach}" class="w-20 border border-slate-200 rounded px-1.5 py-1 text-right text-blue-600 font-bold text-[10px] outline-none focus:ring-1 focus:ring-blue-400"></td>
+                        <td class="px-2 py-3 text-center"><input type="number" id="edit-khauhao-${item.id}" value="${item.gia_khau_hao || 0}" class="w-20 border border-red-200 rounded px-1.5 py-1 text-right text-red-500 font-bold text-[10px] outline-none focus:ring-1 focus:ring-red-400"></td>
+                        <td class="px-2 py-3"><select id="edit-loai-${item.id}" class="bg-transparent text-[9px] border border-slate-200 rounded px-1 py-1 outline-none">
+                            <option value="decan_pp" ${item.loai==='decan_pp'?'selected':''}>Decan/PP</option>
+                            <option value="canvas" ${item.loai==='canvas'?'selected':''}>Canvas</option>
+                            <option value="backlit" ${item.loai==='backlit'?'selected':''}>Backlit</option>
+                            <option value="bat_hiflex" ${item.loai==='bat_hiflex'?'selected':''}>Hiflex</option>
+                            <option value="bat_3m" ${item.loai==='bat_3m'?'selected':''}>3M</option>
+                            <option value="other" ${item.loai==='other'?'selected':''}>Khác</option>
+                        </select></td>
+                        <td class="px-4 py-3 text-center whitespace-nowrap"><button onclick="admin.updateMaterial('${item.id}')" title="Cập nhật" class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition-all mr-1 group"><i data-lucide="save" class="w-4 h-4 group-active:scale-90"></i></button><button onclick="admin.deleteMaterial('${item.id}')" title="Xóa" class="text-red-400 hover:bg-red-50 p-2 rounded-lg transition-all group"><i data-lucide="trash-2" class="w-4 h-4 group-active:scale-90"></i></button></td></tr>`;
                 });
                 document.getElementById('adminTableContainer').innerHTML = html + `</tbody></table>`;
-            },
-            async saveMaterial() {
-                const it = { ten: document.getElementById('admTen').value, don_vi: document.getElementById('admDonVi').value, gia_tho: parseInt(document.getElementById('admGiaTho').value) || 0, gia_khach: parseInt(document.getElementById('admGiaKhach').value) || 0, loai_muc: document.getElementById('admMuc').value, loai: document.getElementById('admLoai').value };
-                if (!it.ten) return;
-                await sbClient.from('materials').insert(it);
-                await app.fetchMaterials(); this.renderTable(); document.getElementById('adminForm').reset();
-            },
-            async deleteMaterial(id) { if (confirm("Xóa vật tư?") ) { await sbClient.from('materials').delete().eq('id', id); await app.fetchMaterials(); this.renderTable(); } },
-            async fetchHistory() {
-                const selectedMonth = document.getElementById('revenueMonth').value;
-                const { data } = await sbClient.from('orders').select('*').order('created_at', { ascending: false });
-                if (!data) return;
-                const filteredData = data.filter(order => order.created_at.startsWith(selectedMonth));
-                let totalRev = 0, totalProfit = 0; const dailyStats = {};
-                filteredData.forEach(order => {
-                    totalRev += order.total_amount; totalProfit += order.profit_amount;
-                    const dateKey = order.created_at.split('T')[0];
-                    if (!dailyStats[dateKey]) dailyStats[dateKey] = { rev: 0, profit: 0, count: 0 };
-                    dailyStats[dateKey].rev += order.total_amount; dailyStats[dateKey].profit += order.profit_amount; dailyStats[dateKey].count++;
-                });
-                document.getElementById('monthTotalRevenue').textContent = app.formatCurrency(totalRev);
-                document.getElementById('monthTotalProfit').textContent = app.formatCurrency(totalProfit);
-
-                let dailyHtml = `<table class="w-full text-left text-xs"><thead class="bg-slate-50 text-[8px] uppercase font-black"><tr><th class="px-4 py-4">Ngày</th><th class="px-4 py-4 text-center">Đơn</th><th class="px-4 py-4 text-right">Doanh thu</th></tr></thead><tbody class="divide-y divide-slate-100">`;
-                Object.keys(dailyStats).sort((a,b) => b.localeCompare(a)).forEach(date => {
-                    dailyHtml += `<tr><td class="px-4 py-4 font-bold text-slate-700 text-[10px]">${new Date(date).toLocaleDateString('vi-VN')}</td><td class="px-4 py-4 text-center font-bold text-[10px]">${dailyStats[date].count}</td><td class="px-4 py-4 text-right font-black text-blue-600 text-[10px]">${app.formatCurrency(dailyStats[date].rev)}</td></tr>`;
-                });
-                document.getElementById('dailySummaryContainer').innerHTML = dailyHtml + `</tbody></table>`;
-
-                let logHtml = `<table class="w-full text-left text-[9px]"><thead class="bg-slate-50 text-[7px] uppercase font-black"><tr><th class="px-4 py-3">Thời gian</th><th class="px-4 py-3 text-left">Khách hàng</th><th class="px-4 py-3 text-left">Nội dung</th><th class="px-4 py-3 text-right">Tổng tiền</th></tr></thead><tbody class="divide-y divide-slate-50">`;
-                filteredData.forEach(log => {
-                    logHtml += `<tr>
-                        <td class="px-4 py-3 text-slate-500 font-mono text-[8px]">${new Date(log.created_at).toLocaleString('vi-VN', {hour:'2-digit', minute:'2-digit'})}<br>${new Date(log.created_at).toLocaleDateString('vi-VN')}</td>
-                        <td class="px-4 py-3 font-bold text-slate-800 text-[9px]">${log.customer_name}</td>
-                        <td class="px-4 py-3 text-[8px] text-slate-600 leading-tight">${log.items_summary || 'N/A'}</td>
-                        <td class="px-4 py-3 text-right font-black text-slate-900 whitespace-nowrap text-[9px]">${app.formatCurrency(log.total_amount)}</td>
-                    </tr>`;
-                });
-                document.getElementById('historyTableContainer').innerHTML = logHtml + '</tbody></table>';
                 lucide.createIcons();
+            },
+            
+            async saveMaterial() {
+                const it = { 
+                    ten: document.getElementById('admTen').value, 
+                    don_vi: document.getElementById('admDonVi').value, 
+                    gia_tho: parseInt(document.getElementById('admGiaTho').value) || 0, 
+                    gia_khach: parseInt(document.getElementById('admGiaKhach').value) || 0, 
+                    gia_khau_hao: parseInt(document.getElementById('admGiaKhauHao').value) || 0,
+                    loai_muc: document.getElementById('admMuc').value, 
+                    loai: document.getElementById('admLoai').value 
+                };
+                if (!it.ten) return;
+                document.getElementById('loading').classList.add('loading-active');
+                try {
+                    const { error } = await sbClient.from('materials').insert(it);
+                    if (error) throw error;
+                    await app.fetchMaterials(); 
+                    this.renderTable(); 
+                    document.getElementById('adminForm').reset();
+                } catch (e) { alert("Lỗi lưu dữ liệu: " + e.message); }
+                finally { document.getElementById('loading').classList.remove('loading-active'); }
+            },
+            
+            async updateMaterial(id) {
+                const ten = document.getElementById(`edit-ten-${id}`).value;
+                const muc = document.getElementById(`edit-muc-${id}`).value;
+                const tho = parseInt(document.getElementById(`edit-tho-${id}`).value) || 0;
+                const khach = parseInt(document.getElementById(`edit-khach-${id}`).value) || 0;
+                const khauhao = parseInt(document.getElementById(`edit-khauhao-${id}`).value) || 0;
+                const loai = document.getElementById(`edit-loai-${id}`).value;
+                document.getElementById('loadingText').textContent = "Đang cập nhật...";
+                document.getElementById('loading').classList.add('loading-active');
+                try {
+                    const { error } = await sbClient.from('materials').update({ ten, loai_muc: muc, gia_tho: tho, gia_khach: khach, gia_khau_hao: khauhao, loai }).eq('id', id);
+                    if (error) throw error;
+                    await app.fetchMaterials();
+                    this.renderTable();
+                    this.showToast("Đã cập nhật thay đổi");
+                } catch (e) { alert("Lỗi cập nhật: " + e.message); }
+                finally { 
+                    document.getElementById('loading').classList.remove('loading-active'); 
+                    document.getElementById('loadingText').textContent = "Đang tải...";
+                }
+            },
+            
+            async deleteMaterial(id) { 
+                if (confirm("Xóa vật tư này?") ) { 
+                    document.getElementById('loading').classList.add('loading-active');
+                    const { error } = await sbClient.from('materials').delete().eq('id', id); 
+                    if (error) alert("Lỗi xóa: " + error.message);
+                    await app.fetchMaterials(); 
+                    this.renderTable(); 
+                    document.getElementById('loading').classList.remove('loading-active');
+                } 
             }
         };
 
