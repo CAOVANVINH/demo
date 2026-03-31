@@ -54,11 +54,11 @@
             <div class="flex flex-col md:flex-row items-center justify-between mb-6 gap-4 border-b border-gray-800 pb-4">
                 <h3 class="font-bold text-lg uppercase text-rose-400"><i class="fa-solid fa-gear mr-2"></i>Admin Dashboard</h3>
                 <div class="flex flex-wrap items-center gap-3">
-                    <button onclick="switchAdminTab('products')" class="text-xs bg-gray-700 px-4 py-1.5 font-bold rounded uppercase hover:bg-gray-600">Products</button>
-                    <button onclick="switchAdminTab('categories')" class="text-xs bg-gray-700 px-4 py-1.5 font-bold rounded uppercase hover:bg-gray-600">Categories</button>
-                    <button onclick="switchAdminTab('orders')" class="text-xs bg-gray-700 px-4 py-1.5 font-bold rounded uppercase hover:bg-gray-600">Orders</button>
-                    <button onclick="switchAdminTab('settings')" class="text-xs bg-gray-700 px-4 py-1.5 font-bold rounded uppercase hover:bg-gray-600">Settings</button>
-                    <button onclick="logoutAdmin()" class="text-xs bg-white text-gray-900 px-4 py-1.5 font-bold rounded uppercase hover:bg-rose-500 hover:text-white">Exit Admin</button>
+                    <button onclick="switchAdminTab('products')" class="text-xs bg-gray-700 px-4 py-1.5 font-bold rounded uppercase hover:bg-gray-600 transition">Products</button>
+                    <button onclick="switchAdminTab('categories')" class="text-xs bg-gray-700 px-4 py-1.5 font-bold rounded uppercase hover:bg-gray-600 transition">Categories</button>
+                    <button onclick="switchAdminTab('orders')" class="text-xs bg-gray-700 px-4 py-1.5 font-bold rounded uppercase hover:bg-gray-600 transition relative">Orders</button>
+                    <button onclick="switchAdminTab('settings')" class="text-xs bg-gray-700 px-4 py-1.5 font-bold rounded uppercase hover:bg-gray-600 transition">Settings</button>
+                    <button onclick="logoutAdmin()" class="text-xs bg-white text-gray-900 px-4 py-1.5 font-bold rounded uppercase hover:bg-rose-500 hover:text-white transition">Exit Admin</button>
                 </div>
             </div>
             
@@ -79,8 +79,8 @@
                             <label class="flex items-center text-xs cursor-pointer"><input type="checkbox" id="new-is-hot" class="mr-2"> Hot</label>
                         </div>
                         <div class="flex gap-2">
-                            <button type="button" id="cancel-edit-btn" class="hidden bg-gray-600 px-6 py-2 rounded text-xs font-bold uppercase" onclick="resetProductForm()">Cancel</button>
-                            <button type="submit" class="bg-rose-500 px-10 py-2 rounded text-xs font-bold uppercase shadow-lg hover:bg-rose-600">Save Product</button>
+                            <button type="button" id="cancel-edit-btn" class="hidden bg-gray-600 px-6 py-2 rounded text-xs font-bold uppercase transition" onclick="resetProductForm()">Cancel</button>
+                            <button type="submit" class="bg-rose-500 px-10 py-2 rounded text-xs font-bold uppercase shadow-lg hover:bg-rose-600 transition">Save Product</button>
                         </div>
                     </div>
                 </form>
@@ -100,7 +100,7 @@
 
             <!-- Tab: Orders -->
             <div id="admin-tab-orders" class="admin-tab hidden">
-                <div class="mb-4 flex justify-end"><button onclick="requestDeleteAllOrders()" class="bg-red-600 text-white px-4 py-2 rounded text-[10px] font-bold uppercase">Delete All Orders</button></div>
+                <div class="mb-4 flex justify-end"><button onclick="requestDeleteAllOrders()" class="bg-red-600 text-white px-4 py-2 rounded text-[10px] font-bold uppercase transition hover:bg-red-700">Delete All Orders</button></div>
                 <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-x-auto">
                     <table class="w-full text-left text-[10px] uppercase">
                         <thead class="bg-gray-700 text-gray-300">
@@ -113,20 +113,39 @@
 
             <!-- Tab: Settings -->
             <div id="admin-tab-settings" class="admin-tab hidden">
-                <form id="settings-form" class="bg-gray-800 p-6 rounded-lg border border-gray-700 max-w-2xl mx-auto space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="flex flex-col"><label class="text-[10px] text-gray-400 mb-1">Phone</label><input type="text" id="set-phone" class="p-2 bg-gray-700 rounded text-sm text-white outline-none border border-gray-600"></div>
-                        <div class="flex flex-col"><label class="text-[10px] text-gray-400 mb-1">Address</label><input type="text" id="set-address" class="p-2 bg-gray-700 rounded text-sm text-white outline-none border border-gray-600"></div>
-                        <div class="flex flex-col"><label class="text-[10px] text-gray-400 mb-1">Facebook URL</label><input type="text" id="set-fb" class="p-2 bg-gray-700 rounded text-sm text-white outline-none border border-gray-600"></div>
-                        <div class="flex flex-col"><label class="text-[10px] text-gray-400 mb-1">Instagram URL</label><input type="text" id="set-ig" class="p-2 bg-gray-700 rounded text-sm text-white outline-none border border-gray-600"></div>
+                <div class="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Business Info -->
+                    <form id="settings-form" class="bg-gray-800 p-6 rounded-lg border border-gray-700 space-y-4">
+                        <h4 class="text-xs font-bold uppercase text-rose-500">Business Information</h4>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div class="flex flex-col"><label class="text-[10px] text-gray-400 mb-1 font-bold uppercase">Phone</label><input type="text" id="set-phone" class="p-2 bg-gray-700 rounded text-sm text-white outline-none border border-gray-600"></div>
+                            <div class="flex flex-col"><label class="text-[10px] text-gray-400 mb-1 font-bold uppercase">Address</label><input type="text" id="set-address" class="p-2 bg-gray-700 rounded text-sm text-white outline-none border border-gray-600"></div>
+                            <div class="flex flex-col"><label class="text-[10px] text-gray-400 mb-1 font-bold uppercase">Facebook URL</label><input type="text" id="set-fb" class="p-2 bg-gray-700 rounded text-sm text-white outline-none border border-gray-600"></div>
+                            <div class="flex flex-col"><label class="text-[10px] text-gray-400 mb-1 font-bold uppercase">Instagram URL</label><input type="text" id="set-ig" class="p-2 bg-gray-700 rounded text-sm text-white outline-none border border-gray-600"></div>
+                        </div>
+                        <button type="submit" class="w-full bg-rose-500 py-2 rounded font-bold uppercase hover:bg-rose-600 mt-4 transition">Save Information</button>
+                    </form>
+
+                    <!-- Attendance Log (Keep Alive) -->
+                    <div class="bg-gray-800 p-6 rounded-lg border border-amber-600/30">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-xs font-bold uppercase text-amber-500">Attendance Log (Keep-Alive)</h4>
+                            <span id="db-status-badge" class="bg-green-600 text-white text-[8px] px-2 py-0.5 rounded font-bold">SYNCED</span>
+                        </div>
+                        <p class="text-[9px] text-gray-400 mb-4 leading-relaxed italic">The system automatically records a visit to Supabase every time the website is loaded to prevent 7-day hibernation.</p>
+                        <div class="max-h-64 overflow-y-auto bg-black/30 rounded p-2 border border-gray-700" id="attendance-list">
+                            <!-- Attendance records here -->
+                        </div>
+                        <button onclick="pingDatabase(false)" id="ping-btn" class="mt-4 bg-amber-600 hover:bg-amber-700 text-white text-[9px] font-bold px-4 py-2 rounded uppercase transition w-full">
+                            <i class="fa-solid fa-heart-pulse mr-1"></i> Force Check-in Now
+                        </button>
                     </div>
-                    <button type="submit" class="w-full bg-rose-500 py-2 rounded font-bold uppercase hover:bg-rose-600 mt-4">Save Information</button>
-                </form>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Main Content -->
+    <!-- Main -->
     <main>
         <section class="relative h-[400px] md:h-[500px] overflow-hidden">
             <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=2073" class="w-full h-full object-cover" alt="Banner">
@@ -148,7 +167,6 @@
                     <div class="hidden md:block"><span onclick="filterCategory('all')" class="text-rose-500 font-bold border-b-2 border-rose-500 pb-1 cursor-pointer text-xs uppercase">View All</span></div>
                 </div>
                 <div id="product-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 min-h-[300px]">
-                    <!-- Initial Loader inside the grid -->
                     <div id="loading-spinner" class="col-span-full flex justify-center py-20"><div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10"></div></div>
                 </div>
             </div>
@@ -208,7 +226,7 @@
             <div class="text-rose-500 text-4xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
             <h3 class="text-xl font-bold uppercase tracking-widest">Are you sure?</h3>
             <p id="delete-modal-desc" class="text-sm text-gray-500"></p>
-            <div class="flex gap-2"><button onclick="hideDeleteModal()" class="flex-1 py-2 text-xs font-bold uppercase">Cancel</button><button id="confirm-delete-btn" class="flex-1 py-2 bg-red-600 text-white rounded text-xs font-bold uppercase">Delete</button></div>
+            <div class="flex gap-2"><button onclick="hideDeleteModal()" class="flex-1 py-2 text-xs font-bold uppercase transition">Cancel</button><button id="confirm-delete-btn" class="flex-1 py-2 bg-red-600 text-white rounded text-xs font-bold uppercase transition">Delete</button></div>
         </div>
     </div>
 
@@ -229,16 +247,17 @@
         const init = async () => {
             if (localStorage.getItem('beoly_admin') === 'true') document.body.classList.add('admin-mode');
             await fetchAllData();
-            // Refresh data periodically
+            // Tự động "Điểm danh" khi website chạy hoàn thành
+            await recordAttendance(); 
             setInterval(fetchAllData, 60000);
             updateCartCount();
         };
 
         const fetchAllData = async () => {
             try {
-                const { data: prods } = await sb.from('products').select('*').order('created_at', { ascending: false });
-                const { data: cats } = await sb.from('categories').select('*').order('created_at', { ascending: true });
-                const { data: settings } = await sb.from('settings').select('*').limit(1).single();
+                const { data: prods, error: pErr } = await sb.from('products').select('*').order('created_at', { ascending: false });
+                const { data: cats, error: cErr } = await sb.from('categories').select('*').order('created_at', { ascending: true });
+                const { data: settings, error: sErr } = await sb.from('settings').select('*').limit(1).single();
                 
                 products = prods || [];
                 categories = cats || [];
@@ -252,46 +271,74 @@
                 if (document.body.classList.contains('admin-mode')) {
                     const { data: ords } = await sb.from('orders').select('*').order('created_at', { ascending: false });
                     renderOrders(ords || []);
+                    fetchAttendance(); // Lấy lịch sử điểm danh cho Admin
                 }
 
-                // FIX: Check if element exists before accessing style
                 const spinner = document.getElementById('loading-spinner');
                 if (spinner) spinner.style.display = 'none';
             } catch (err) {
-                console.error("Error fetching data:", err);
+                console.error("Fetch Error:", err);
             }
         };
 
+        // --- HÀM TỰ ĐỘNG ĐIỂM DANH ---
+        const recordAttendance = async () => {
+            try {
+                // Thêm một lượt vào bảng attendance
+                const { error } = await sb.from('attendance').insert([
+                    { device_info: navigator.userAgent }
+                ]);
+                
+                if (error) throw error;
+                console.log("Check-in successful. Supabase project remains active.");
+            } catch (e) {
+                console.warn("Attendance table might not exist. Run SQL script first.");
+            }
+        };
+
+        const fetchAttendance = async () => {
+            const { data } = await sb.from('attendance').select('*').order('created_at', { ascending: false }).limit(20);
+            const list = document.getElementById('attendance-list');
+            if (list && data) {
+                list.innerHTML = data.map(a => `
+                    <div class="text-[8px] border-b border-gray-700 py-1 flex justify-between gap-2">
+                        <span class="text-amber-400 whitespace-nowrap">${new Date(a.created_at).toLocaleString()}</span>
+                        <span class="text-gray-500 truncate">Device OK</span>
+                    </div>
+                `).join('');
+            }
+        };
+
+        window.pingDatabase = async (isAuto = false) => {
+            const btn = document.getElementById('ping-btn');
+            if (btn) btn.disabled = true;
+            await recordAttendance();
+            if (!isAuto) {
+                showToast("Manual check-in saved!");
+                fetchAttendance();
+            }
+            if (btn) btn.disabled = false;
+        };
+
         const updateSettingsUI = (data) => {
-            const addrEl = document.getElementById('footer-address');
-            const phoneEl = document.getElementById('footer-phone');
-            const fbEl = document.getElementById('footer-fb');
-            const igEl = document.getElementById('footer-ig');
-            
+            const addrEl = document.getElementById('footer-address'), phoneEl = document.getElementById('footer-phone');
             if (addrEl) addrEl.textContent = data.address || "Hoi An, VN";
             if (phoneEl) phoneEl.textContent = data.phone || "0938 588 062";
-            if (fbEl) fbEl.href = data.facebook || "#";
-            if (igEl) igEl.href = data.instagram || "#";
-
+            document.getElementById('footer-fb').href = data.facebook || "#";
+            document.getElementById('footer-ig').href = data.instagram || "#";
             if (document.body.classList.contains('admin-mode')) {
-                const sAddr = document.getElementById('set-address');
-                const sPhone = document.getElementById('set-phone');
-                const sFb = document.getElementById('set-fb');
-                const sIg = document.getElementById('set-ig');
-                if (sAddr) sAddr.value = data.address || "";
-                if (sPhone) sPhone.value = data.phone || "";
-                if (sFb) sFb.value = data.facebook || "";
-                if (sIg) sIg.value = data.instagram || "";
+                document.getElementById('set-address').value = data.address || "";
+                document.getElementById('set-phone').value = data.phone || "";
+                document.getElementById('set-fb').value = data.facebook || "";
+                document.getElementById('set-ig').value = data.instagram || "";
             }
         };
 
         const renderProducts = () => {
             const grid = document.getElementById('product-grid');
             if (!grid) return;
-            
             const filtered = filterCat === 'all' ? products : products.filter(p => p.category === filterCat);
             grid.innerHTML = filtered.length ? '' : `<p class="col-span-full text-center py-20 text-gray-400 italic text-sm uppercase">No items found.</p>`;
-            
             filtered.forEach(p => {
                 const card = document.createElement('div');
                 card.className = "product-card bg-white group shadow-sm hover:shadow-lg transition relative rounded-lg overflow-hidden border border-gray-100";
@@ -320,7 +367,6 @@
         const renderNav = () => {
             const nav = document.getElementById('main-nav'), footer = document.getElementById('footer-cat-list');
             if (!nav || !footer) return;
-            
             let h = `<a href="#" onclick="filterCategory('all')" class="hover:text-rose-500 transition">Home</a>`, fh = '';
             categories.forEach(c => {
                 h += `<a href="#shop" onclick="filterCategory('${c.slug}')" class="hover:text-rose-500 transition">${c.name_en}</a>`;
@@ -337,18 +383,13 @@
             updateCartCount(); showToast("Added to cart");
         };
 
-        window.updateCartCount = () => { 
-            const countEl = document.getElementById('cart-count');
-            if (countEl) countEl.textContent = cart.length; 
-        };
-        
+        window.updateCartCount = () => { const el = document.getElementById('cart-count'); if (el) el.textContent = cart.length; };
         window.showCart = () => { document.getElementById('cart-modal').classList.remove('hidden'); renderCartItems(); };
         window.hideCart = () => document.getElementById('cart-modal').classList.add('hidden');
 
         window.renderCartItems = () => {
             const cont = document.getElementById('cart-items'), tot = document.getElementById('cart-total');
             if (!cont) return;
-            
             cont.innerHTML = cart.length ? '' : `<p class="text-gray-400 italic text-center py-10 text-xs uppercase tracking-widest">Your cart is empty.</p>`;
             let sum = 0;
             cart.forEach((item, index) => {
@@ -382,12 +423,11 @@
             btn.disabled = false; btn.textContent = 'Confirm Order';
         };
 
-        window.switchAdminTab = (t) => { document.querySelectorAll('.admin-tab').forEach(x => x.classList.add('hidden')); document.getElementById(`admin-tab-${t}`).classList.remove('hidden'); };
+        window.switchAdminTab = (t) => { document.querySelectorAll('.admin-tab').forEach(x => x.classList.add('hidden')); document.getElementById(`admin-tab-${t}`).classList.remove('hidden'); if(t==='settings') fetchAttendance(); };
 
         window.renderOrders = (orders) => {
             const list = document.getElementById('orders-list'); 
             if (!list) return;
-            
             list.innerHTML = '';
             orders.forEach(o => {
                 const itemsHtml = o.items.map(i => `
@@ -429,12 +469,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        window.resetProductForm = () => { 
-            const form = document.getElementById('add-product-form');
-            if (form) form.reset(); 
-            document.getElementById('edit-product-id').value = ''; 
-            document.getElementById('cancel-edit-btn').classList.add('hidden'); 
-        };
+        window.resetProductForm = () => { document.getElementById('add-product-form').reset(); document.getElementById('edit-product-id').value = ''; document.getElementById('cancel-edit-btn').classList.add('hidden'); };
 
         document.getElementById('add-category-form').onsubmit = async (e) => {
             e.preventDefault();
@@ -448,17 +483,10 @@
             await sb.from('settings').upsert({ id: 1, ...p }); showToast("Settings Updated"); fetchAllData();
         };
 
-        window.showToast = (m) => { 
-            const t = document.getElementById('toast'), ms = document.getElementById('toast-msg'); 
-            if (t && ms) {
-                ms.textContent = m; t.classList.remove('translate-y-20', 'opacity-0'); 
-                setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000); 
-            }
-        };
-        
+        window.showToast = (m) => { const t = document.getElementById('toast'), ms = document.getElementById('toast-msg'); if(t && ms) { ms.textContent = m; t.classList.remove('translate-y-20', 'opacity-0'); setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000); } };
         window.showAdminModal = () => document.body.classList.contains('admin-mode') ? (document.body.classList.remove('admin-mode'), localStorage.setItem('beoly_admin', 'false')) : document.getElementById('admin-modal').classList.remove('hidden');
         window.hideAdminModal = () => document.getElementById('admin-modal').classList.add('hidden');
-        window.handleAdminLogin = () => { if (document.getElementById('admin-pass').value === "admin") { document.body.classList.add('admin-mode'); localStorage.setItem('beoly_admin', 'true'); hideAdminModal(); showToast("Admin Mode Active"); fetchAllData(); } else showToast("Wrong password"); };
+        window.handleAdminLogin = () => { if (document.getElementById('admin-pass').value === "admin") { document.body.classList.add('admin-mode'); localStorage.setItem('beoly_admin', 'true'); hideAdminModal(); showToast("Admin Active"); fetchAllData(); } else showToast("Wrong password"); };
         
         window.requestDelete = (id, type) => { deleteTargetId = id; deleteType = type; document.getElementById('delete-modal-desc').textContent = `Are you sure you want to delete this ${type}?`; document.getElementById('delete-modal').classList.remove('hidden'); };
         window.requestDeleteAllOrders = () => { deleteType = 'all_orders'; document.getElementById('delete-modal-desc').textContent = "Delete ALL orders?"; document.getElementById('delete-modal').classList.remove('hidden'); };
@@ -473,27 +501,8 @@
         };
 
         window.filterCategory = (s) => { filterCat = s; document.getElementById('collection-title').textContent = (s === 'all') ? "Our Collection" : s.toUpperCase(); renderProducts(); };
-        
-        window.updateFormCats = () => { 
-            const sel = document.getElementById('new-category'); 
-            if(sel) { 
-                let h = ''; categories.forEach(c => h += `<option value="${c.slug}">${c.name_en}</option>`); 
-                sel.innerHTML = h; 
-            } 
-        };
-        
-        window.renderAdminCats = () => { 
-            const list = document.getElementById('category-list'); 
-            if(list) { 
-                list.innerHTML = ''; 
-                categories.forEach(c => { 
-                    const d = document.createElement('div'); 
-                    d.className = "flex justify-between items-center p-2 bg-gray-700 mb-2 rounded text-xs"; 
-                    d.innerHTML = `<span>${c.name_en} (${c.slug})</span><button onclick="requestDelete('${c.id}', 'category')" class="text-red-400 transition-colors hover:text-red-600"><i class="fa-solid fa-trash-can"></i></button>`; 
-                    list.appendChild(d); 
-                }); 
-            } 
-        };
+        window.updateFormCats = () => { const sel = document.getElementById('new-category'); if(sel) { let h = ''; categories.forEach(c => h += `<option value="${c.slug}">${c.name_en}</option>`); sel.innerHTML = h; } };
+        window.renderAdminCats = () => { const list = document.getElementById('category-list'); if(list) { list.innerHTML = ''; categories.forEach(c => { const d = document.createElement('div'); d.className = "flex justify-between items-center p-2 bg-gray-700 mb-2 rounded text-xs"; d.innerHTML = `<span>${c.name_en} (${c.slug})</span><button onclick="requestDelete('${c.id}', 'category')" class="text-red-400 hover:text-red-600 transition"><i class="fa-solid fa-trash-can"></i></button>`; list.appendChild(d); }); } };
 
         window.onload = init;
     </script>
